@@ -4,3 +4,4 @@ The public platform envelope is `skillforge-platform-learner-v1`, schema version
 
 Encrypted backup export/import now wraps this envelope while raw legacy `.apexbackup` JSON still imports into `legacyState`.
 
+Automated coverage verifies slot preservation across progress, Classroom, Lecture, Labs, encrypted export/import, and legacy raw backup import.
