@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261004-316-public-platform-extraction-v1-course-packages-v1",
+  "timestamp": "2026-10-04T16:45:00-05:00",
+  "work_item": "316",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {"command": "npm test -- --run", "exit_code": 0, "summary": "Public suite passed: 7 files and 99 tests."},
+    {"command": "npm run validate:content", "exit_code": 0, "summary": "Three public certification bundles validated."},
+    {"command": "npm run validate:a11y", "exit_code": 0, "summary": "Accessibility validation passed with 20 checks."},
+    {"command": "npm run build", "exit_code": 0, "summary": "TypeScript and Vite production build passed."},
+    {"command": "in-app browser acceptance on http://127.0.0.1:5180/", "exit_code": 0, "summary": "Academy, Classroom, Lecture/fallback, assignments, assessments, bounded Labs, valid import, invalid rejection, isolated progress, and legacy handoff passed with eight screenshots."},
+    {"command": "targeted public privacy/security scan and git diff --check", "exit_code": 0, "summary": "No private-course markers or executable package surface in public additions; no whitespace errors."},
+    {"command": "python -m repopact_cli dashboard --root . && python -m repopact_cli validate --root .", "exit_code": 0, "summary": "RepoPact dashboard regeneration and governance validation passed."}
+  ],
+  "artifacts": [
+    "audits/AUDIT-2026-10-04-public-platform-extraction-v1.md",
+    "docs/PLATFORM-ARCHITECTURE.md",
+    "docs/COURSE-PACKAGE-FORMAT.md",
+    "docs/COURSE-PACKAGE-SECURITY.md",
+    "docs/COURSE-STUDIO-ARCHITECTURE.md",
+    "docs/COURSE-DISTRIBUTION.md",
+    "docs/PRIVATE-PUBLIC-COURSE-BOUNDARY.md",
+    "evidence/platform/2026-10-04-platform-extraction-v1/",
+    "src/platform/",
+    "work/active/316-public-platform-extraction-v1-course-packages-v1/"
+  ],
+  "environment": {"repository": "JeremyShows/skillforge-academy", "branch": "codex/platform-v2-course-packages", "platform": "Windows", "public_base": "d35510e0ec7df51af7ec85f32699dd3ebabd6fcd", "private_course_content_copied": false}
+}

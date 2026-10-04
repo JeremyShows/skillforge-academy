@@ -1,0 +1,16 @@
+{
+  "environment": "public local Vite preview",
+  "capturedAt": "2026-10-04",
+  "flows": {
+    "launch": {"status": "passed", "screenshot": "01-academy-launch.jpg", "observed": "Academy surface launches with three built-in public courses and generic runtime navigation."},
+    "installed_public_courses": {"status": "passed", "observed": "CompTIA A+, Network+, and Security+ are visible in the installed-course registry."},
+    "generic_classroom": {"status": "passed", "screenshot": "02-classroom-progress.jpg", "observed": "A+ lesson completion changes the namespaced progress badge from 0/68 to 1/68 and reports saved completion."},
+    "lecture_and_fallback": {"status": "passed", "screenshot": "03-lecture-fallback.jpg", "observed": "Authored lecture segment renders and deterministic instructor fallback is bounded to CompTIA A+ with no progress authority."},
+    "assignments_and_assessments": {"status": "passed", "observed": "Generic assignments render and a practice attempt is recorded in the course namespace."},
+    "deterministic_labs": {"status": "passed", "screenshot": "04-labs-deterministic.jpg", "observed": "A bounded local Lab starts with authored state and explicitly reports no shell, process, filesystem, network, or provider authority."},
+    "valid_package_import": {"status": "passed", "screenshot": "05-valid-package-import.jpg", "observed": "The valid public-safe fixture installs as Example Public Course and becomes the selected course."},
+    "invalid_package_rejection": {"status": "passed", "screenshot": "06-invalid-package-rejection.jpg", "observed": "The executable fixture is rejected with package.command is not allowed in a declarative package."},
+    "multi_course_isolation": {"status": "passed", "screenshot": "07-multi-course-isolation.jpg", "observed": "A+ remains at 1/68 while Network+ independently reports 1/41 after separate lesson completion."},
+    "legacy_workspace_handoff": {"status": "passed", "screenshot": "08-legacy-workspace.jpg", "observed": "The explicit compatibility action renders the existing certification workspace."}
+  }
+}

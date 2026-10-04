@@ -13,9 +13,9 @@
 | Scope contracts | 1 |
 | Audit registry entries | 1 |
 | Audit findings | 5 |
-| Decision records | 9 |
+| Decision records | 10 |
 | Policy records | 1 |
-| Evidence runs | 52 |
+| Evidence runs | 53 |
 
 ## Work
 
@@ -25,11 +25,13 @@
 | active | 2 |
 | blocked | 2 |
 | deferred | 1 |
-| completed | 43 |
+| completed | 44 |
 
 ## Audit freshness
 
-All audit scopes are within their review cadence.
+| Scope | Review was due |
+| --- | --- |
+| . | 2026-09-14 |
 
 ## Active items
 
