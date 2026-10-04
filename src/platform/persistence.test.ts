@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { emptyPlatformLearnerEnvelope, exportPlatformBackup, importPlatformBackup, isPlatformLearnerEnvelope, loadPlatformLearnerEnvelope, savePlatformLearnerEnvelope } from "./persistence";
+import { emptyPlatformLearnerEnvelope, exportPlatformBackup, importPlatformBackup, isPlatformLearnerEnvelope, loadPlatformLearnerEnvelope, saveInstalledPackageIdentity, savePlatformLearnerEnvelope } from "./persistence";
 import { resetLearnerStateStoreForTests } from "../state/learnerState";
 
 function installBrowserStorage(): Map<string, string> {
@@ -43,5 +43,14 @@ describe("unified platform learner persistence", () => {
     expect(imported.format).toBe("skillforge-platform-learner");
     expect(imported.legacyState).toEqual({ name: "Legacy learner", answered: {} });
     expect(imported.courses).toEqual({});
+  });
+
+  it("migrates the legacy progress key into the platform envelope and records package identity", async () => {
+    const legacy = { "fixture.package@1.0.0": { courseId: "fixture-course", completedLessonIds: ["lesson-1"] } };
+    (globalThis.localStorage as Storage).setItem("skillforge-course-progress-v1", JSON.stringify(legacy));
+    await saveInstalledPackageIdentity({ packageId: "fixture.package", courseId: "fixture-course", courseVersion: "1.0.0", contentVersion: "content-1", packageVersion: "1.0.0" });
+    const loaded = await loadPlatformLearnerEnvelope();
+    expect(loaded.envelope.installedPackages[0]).toMatchObject({ packageId: "fixture.package", courseId: "fixture-course", contentVersion: "content-1", packageVersion: "1.0.0" });
+    expect(loaded.envelope.courses["fixture.package@1.0.0"].progress).toEqual(legacy["fixture.package@1.0.0"]);
   });
 });

@@ -39,13 +39,15 @@ export type CoursePackageActivityType =
   | "multiple_choice" | "short_answer" | "free_response" | "retrieval_practice" | "explain_back" | "interview_drill"
   | "no_notes" | "reflective_prompt" | "flashcard_review" | "pbq" | "mastery_check" | "module_assessment" | "capstone_activity" | "remediation";
 
-export interface CoursePackageMasteryCriterion { id: string; description: string; required: boolean; evidence: "self-assessed" | "verified" | "assisted"; }
+export interface CoursePackageMasteryCriterion { id: string; description: string; required: boolean; evidence: "self-assessed" | "verified" | "assisted"; keywords?: string[]; patterns?: string[]; }
 
 export interface CoursePackageActivity {
   id: string; type: CoursePackageActivityType | string; title: string; estimatedMinutes: number; body?: string; prompt?: string;
-  objectiveIds?: string[]; conceptIds?: string[]; source?: PackageLocation; required?: boolean; formal?: boolean;
+  objectiveIds?: string[]; conceptIds?: string[]; tags?: string[]; source?: PackageLocation; required?: boolean; formal?: boolean;
   masteryRubric?: CoursePackageMasteryCriterion[]; responseGuide?: string[]; scenario?: string;
-  stages?: Array<{ number: number; title: string; prompt: string; required: boolean }>;
+  responseType?: "text" | "choice" | "prediction"; responsePrompt?: string; expectedReasoning?: string[]; options?: string[];
+  passScore?: number; assessmentId?: string; returnToActivityId?: string; successSignal?: string;
+  blocks?: Array<Record<string, PackageJsonValue>>; stages?: Array<{ number: number; title: string; prompt: string; required: boolean }>;
   extensionMetadata?: Record<string, PackageJsonValue>;
 }
 
@@ -59,7 +61,7 @@ export interface CoursePackageLesson {
 export interface CoursePackageUnit {
   id: string; title: string; description: string; lessons: CoursePackageLesson[];
   prerequisites?: string[]; masteryRequirements?: string[];
-  moduleAssessment?: { activityIds: string[]; passingScore?: number };
+  moduleAssessment?: CoursePackageAssessment;
   extensionMetadata?: Record<string, PackageJsonValue>;
 }
 
@@ -95,7 +97,9 @@ export interface CoursePackageAssignment { id: string; title: string; instructio
 export interface CoursePackageAssessment {
   id: string; title: string; instructions: string; source: PackageLocation; rubric: string[]; unitId?: string;
   kind?: "quiz" | "mastery-gate" | "unit-assessment" | "capstone" | "cumulative-assessment";
-  sourceActivityIds?: string[]; required?: boolean;
+  sourceActivityIds?: string[]; required?: boolean; passScore?: number; description?: string; prompt?: string; scenario?: string;
+  conceptIds?: string[]; responseGuide?: string; finalIntegration?: boolean; novelScenario?: string; blocks?: Array<Record<string, PackageJsonValue>>;
+  sourceLessonIds?: string[]; masteryRubric?: CoursePackageMasteryCriterion[];
   stages?: Array<{ number: number; title: string; prompt: string; required: boolean }>;
 }
 export interface CoursePackageRemediation { id: string; title: string; instructions: string; source: PackageLocation; unitId?: string; lessonId?: string; sourceActivityIds?: string[]; }
@@ -107,6 +111,9 @@ export interface CoursePackageAcademicCatalog {
   units: Array<{ id: string; moduleId: string; title: string; description: string; learningObjectives: string[]; prerequisiteUnitIds: string[] }>;
   readings: CoursePackageReading[]; assignments: CoursePackageAssignment[]; assessments: CoursePackageAssessment[];
   completionRequirements?: { requiredUnitIds: string[]; requiredAssessmentIds: string[]; requiredReadingIds: string[] };
+  policySemantics?: Record<string, PackageJsonValue>;
+  completionPolicySemantics?: Record<string, PackageJsonValue>;
+  assessmentPlanSemantics?: Record<string, PackageJsonValue>;
 }
 
 export type LabValue = string | number | boolean;
@@ -121,7 +128,7 @@ export interface CoursePackageLabStep {
   observationPrompt?: string; reflectionPrompt?: string; formalActivityId?: string;
 }
 export interface CoursePackageLab {
-  id: string; title: string; purpose: string; unitId: string; sourceLocation?: PackageLocation; sourceLocations?: PackageLocation[];
+  id: string; number?: number; title: string; purpose: string; unitId: string; sourceLocation?: PackageLocation; sourceLocations?: PackageLocation[];
   learningObjective?: string; estimatedMinutes?: number; required?: boolean;
   environment?: { kind: "simulated-system"; description: string; capabilities: string[]; prohibitedCapabilities: string[] };
   initialState: Record<string, LabValue>; actions: CoursePackageLabAction[]; checks: CoursePackageLabCheck[]; steps: CoursePackageLabStep[];

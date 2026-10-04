@@ -21,6 +21,7 @@ export interface RegistryStorage {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
 }
+export interface PackageIdentityChange { action: "install" | "update" | "remove"; packageId: string; courseId?: string; courseVersion?: string; contentVersion?: string; packageVersion?: string; }
 
 function storageOrUndefined(): RegistryStorage | undefined {
   try { return typeof localStorage === "undefined" ? undefined : localStorage; } catch { return undefined; }
@@ -59,7 +60,7 @@ export class CourseRegistry {
   private readonly installedPackages = new Map<string, InstalledPackageRecord>();
   private readonly storage?: RegistryStorage;
 
-  constructor(builtInPackages: CoursePackageDocument[], storage: RegistryStorage | undefined = storageOrUndefined()) {
+  constructor(builtInPackages: CoursePackageDocument[], storage: RegistryStorage | undefined = storageOrUndefined(), private readonly onIdentityChange?: (change: PackageIdentityChange) => void) {
     this.builtInPackages = builtInPackages.map(clone);
     this.storage = storage;
     const raw = storage?.getItem(REGISTRY_STORAGE_KEY);
@@ -106,6 +107,7 @@ export class CourseRegistry {
     if (existing && compareVersions(document.manifest.packageVersion, existing.manifest.packageVersion) <= 0) return { installed: false, updated: false, errors: ["package update must have a higher packageVersion"], unsupportedCapabilities: [] };
     this.installedPackages.set(packageId, { document, installedAt: new Date().toISOString(), source: "local-import" });
     this.persist();
+    this.onIdentityChange?.({ action: existing ? "update" : "install", packageId, courseId: document.manifest.courseId, courseVersion: document.manifest.courseVersion, contentVersion: document.manifest.contentVersion, packageVersion: document.manifest.packageVersion });
     return { installed: true, updated: Boolean(existing), errors: [], unsupportedCapabilities: [], package: clone(document) };
   }
 
@@ -114,6 +116,7 @@ export class CourseRegistry {
     if (!this.installedPackages.has(packageId)) return { removed: false, archivedProgress: false, error: "package is not installed" };
     this.installedPackages.delete(packageId);
     this.persist();
+    this.onIdentityChange?.({ action: "remove", packageId });
     return { removed: true, archivedProgress: hasLearnerProgress };
   }
 

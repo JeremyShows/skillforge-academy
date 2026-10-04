@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "318",
+  "title": "Platform Extraction V1.2 Semantic Parity Closure",
+  "status": "completed",
+  "owner_scope": "governance",
+  "affected_scopes": ["governance", "foundation", "implementation", "docs", "content"],
+  "depends_on": ["317"],
+  "provenance": "concrete",
+  "preflight": {"created_before_work_started": true, "created_at": "2026-10-04T18:15:00-05:00", "note": "Closure branch from accepted public platform extraction V1.1 at 01ed991101d436094047609418acb2b8f183f353."},
+  "acceptance_criteria": [
+    {"id":"AC-1","text":"Formal activity UI opens authored activities without manufacturing mastery success; actual response evaluation remains CourseProgress authority.","state":"satisfied","evidence":["20261004-318-platform-extraction-v1-2-semantic-parity-closure"]},
+    {"id":"AC-2","text":"Package to modern runtime mapping preserves authored mastery, assessments, lecture content/interactions, academic semantics, and Lab identity/effects without default replacement when fields exist.","state":"satisfied","evidence":["20261004-318-platform-extraction-v1-2-semantic-parity-closure"]},
+    {"id":"AC-3","text":"Canonical schema and TypeScript validator strictly agree on nested contract surfaces, including instructor modes, assets, migrations, academic, lectures, Labs, and extensionMetadata.","state":"satisfied","evidence":["20261004-318-platform-extraction-v1-2-semantic-parity-closure"]},
+    {"id":"AC-4","text":"Platform learner envelope is the canonical writable progress authority and package identity survives install/update/remove, migration, and encrypted backup roundtrip.","state":"satisfied","evidence":["20261004-318-platform-extraction-v1-2-semantic-parity-closure"]},
+    {"id":"AC-5","text":"Public built-in packages remain conservative and private package content remains outside public source and history.","state":"satisfied","evidence":["20261004-318-platform-extraction-v1-2-semantic-parity-closure"]}
+  ],
+  "created": "2026-10-04",
+  "updated": "2026-10-04",
+  "source": "SkillForge Platform Extraction V1.2 Final Semantic Parity Closure request."
+}

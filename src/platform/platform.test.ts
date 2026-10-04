@@ -112,7 +112,8 @@ describe("course package contract", () => {
 
 describe("generic runtime and registry", () => {
   it("installs, updates, exports, and removes a local package while preserving progress", () => {
-    const registry = new CourseRegistry(packages, undefined);
+    const changes: string[] = [];
+    const registry = new CourseRegistry(packages, undefined, change => changes.push(`${change.action}:${change.packageId}`));
     const imported = clone(aPlus);
     imported.manifest.packageId = "local.example.course";
     imported.manifest.courseId = "local-example-course";
@@ -130,6 +131,7 @@ describe("generic runtime and registry", () => {
     expect(registry.install(imported).errors.join(" ")).toContain("higher packageVersion");
     expect(registry.export("local.example.course")).toContain("local.example.course");
     expect(registry.remove("local.example.course", true)).toEqual({ removed: true, archivedProgress: true });
+    expect(changes).toEqual(["install:local.example.course", "update:local.example.course", "remove:local.example.course"]);
   });
 
   it("keeps progress isolated by package/course namespace", () => {

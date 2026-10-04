@@ -71,7 +71,7 @@ export interface LabDefinition {
   purpose: string;
   learningObjective: string;
   estimatedMinutes: number;
-  required: false;
+  required: boolean;
   sourceLocations: CourseLocation[];
   environment: LabEnvironmentDefinition;
   initialState: LabState;

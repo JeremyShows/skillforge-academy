@@ -1,0 +1,20 @@
+{
+  "$schema":"../../schemas/evidence-run.schema.json",
+  "id":"20261004-318-platform-extraction-v1-2-semantic-parity-closure",
+  "timestamp":"2026-10-04T18:20:00-05:00",
+  "work_item":"318",
+  "result":"passed",
+  "provenance":"concrete",
+  "commands":[
+    {"command":"npm ci","exit_code":0,"summary":"Pinned public dependencies installed; unrelated npm audit advisories were not remediated."},
+    {"command":"npm test -- --run","exit_code":0,"summary":"Public suite passed: 10 files and 121 tests, including formal activity authority, round-trip semantics, schema strictness, registry identity callbacks, persistence migration, and backup coverage."},
+    {"command":"npm run build","exit_code":0,"summary":"TypeScript and Vite production build passed."},
+    {"command":"npm run validate:content","exit_code":0,"summary":"Three conservative public certification bundles validated."},
+    {"command":"npm run validate:a11y","exit_code":0,"summary":"Accessibility validation passed with 20 checks."},
+    {"command":"cargo fmt --check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Native Rust formatting passed."},
+    {"command":"cargo check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Native Rust compilation passed."},
+    {"command":"git diff --check","exit_code":0,"summary":"No whitespace errors."}
+  ],
+  "artifacts":["evidence/platform/2026-10-04-platform-extraction-v1-2/","schemas/skillforge-course-v1.schema.json","src/platform/semantic-parity-v1-2.test.ts","src/platform/persistence.test.ts","work/completed/318-platform-extraction-v1-2-semantic-parity-closure/"],
+  "environment":{"repository":"JeremyShows/skillforge-academy","branch":"codex/platform-v2-semantic-parity-closure","public_base":"01ed991101d436094047609418acb2b8f183f353","private_course_content_copied":false}
+}

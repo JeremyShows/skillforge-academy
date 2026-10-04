@@ -1,6 +1,6 @@
 import { decryptBackup, encryptBackup } from "../backup";
 import { learnerStateStore } from "../state/learnerState";
-import type { CourseProgressMap } from "./runtime";
+import { loadCourseProgress, type CourseProgressMap } from "./runtime";
 
 export const PLATFORM_LEARNER_FORMAT = "skillforge-platform-learner" as const;
 export const PLATFORM_LEARNER_SCHEMA_VERSION = 1 as const;
@@ -17,7 +17,7 @@ export interface PlatformLearnerEnvelope {
   schemaVersion: typeof PLATFORM_LEARNER_SCHEMA_VERSION;
   savedAt: string;
   legacyState: unknown;
-  installedPackages: Array<{ packageId: string; courseId: string; courseVersion: string; contentVersion: string }>;
+  installedPackages: Array<{ packageId: string; courseId: string; courseVersion: string; contentVersion: string; packageVersion?: string }>;
   courses: Record<string, PlatformLearnerCourseState>;
 }
 export interface PlatformLearnerLoad { envelope: PlatformLearnerEnvelope; recovered: boolean; }
@@ -34,7 +34,9 @@ function isEnvelope(value: unknown): value is PlatformLearnerEnvelope {
 export async function loadPlatformLearnerEnvelope(): Promise<PlatformLearnerLoad> {
   const loaded = await learnerStateStore().load<PlatformLearnerEnvelope>(PLATFORM_LEARNER_KEY);
   if (isEnvelope(loaded.payload)) return { envelope: loaded.payload, recovered: loaded.recovered };
-  return { envelope: emptyPlatformLearnerEnvelope(), recovered: loaded.recovered };
+  const legacyProgress = loadCourseProgress();
+  const courses = Object.fromEntries(Object.entries(legacyProgress).map(([key, progress]) => [key, { progress }])) as Record<string, PlatformLearnerCourseState>;
+  return { envelope: { ...emptyPlatformLearnerEnvelope(), courses }, recovered: loaded.recovered };
 }
 export async function savePlatformLearnerEnvelope(envelope: PlatformLearnerEnvelope): Promise<void> {
   const next = { ...envelope, savedAt: new Date().toISOString() };
@@ -45,6 +47,15 @@ export async function saveCourseProgressInPlatformEnvelope(progressMap: CoursePr
   const courses = { ...loaded.envelope.courses };
   for (const [key, progress] of Object.entries(progressMap)) courses[key] = { ...courses[key], progress };
   await savePlatformLearnerEnvelope({ ...loaded.envelope, courses });
+}
+export async function saveInstalledPackageIdentity(identity: PlatformLearnerEnvelope["installedPackages"][number]): Promise<void> {
+  const loaded = await loadPlatformLearnerEnvelope();
+  const installedPackages = [...loaded.envelope.installedPackages.filter(item => item.packageId !== identity.packageId), identity];
+  await savePlatformLearnerEnvelope({ ...loaded.envelope, installedPackages });
+}
+export async function removeInstalledPackageIdentity(packageId: string): Promise<void> {
+  const loaded = await loadPlatformLearnerEnvelope();
+  await savePlatformLearnerEnvelope({ ...loaded.envelope, installedPackages: loaded.envelope.installedPackages.filter(item => item.packageId !== packageId) });
 }
 export async function exportPlatformBackup(legacyState: unknown, passphrase: string): Promise<string> {
   const loaded = await loadPlatformLearnerEnvelope();
