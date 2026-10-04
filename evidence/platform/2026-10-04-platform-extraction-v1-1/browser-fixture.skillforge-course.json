@@ -1,0 +1,104 @@
+{
+  "manifest": {
+    "format": "skillforge-course",
+    "formatVersion": 1,
+    "packageId": "fixture.modern-course",
+    "packageVersion": "1.0.0",
+    "courseId": "fixture-modern-course",
+    "courseVersion": "1.0.0",
+    "contentVersion": "fixture-1",
+    "title": "Modern Runtime Fixture",
+    "description": "A neutral authored fixture for browser acceptance.",
+    "publisher": "SkillForge",
+    "capabilities": ["lecture-delivery", "instructor", "readings", "assignments", "assessments", "remediation", "deterministic-labs"],
+    "visibilityMetadata": {"audience": "local"},
+    "provenance": {"source": "local-import", "signatureStatus": "unsigned"}
+  },
+  "course": {
+    "id": "fixture-modern-course",
+    "title": "Modern Runtime Fixture",
+    "description": "A neutral authored fixture for browser acceptance.",
+    "type": "course",
+    "units": [{
+      "id": "fixture-unit",
+      "title": "Fixture Unit",
+      "description": "A unit with every modern surface mapped to one exact activity tuple.",
+      "lessons": [{
+        "id": "fixture-lesson",
+        "title": "Fixture Lesson",
+        "summary": "A lesson for browser acceptance.",
+        "objectives": ["Exercise the generic runtime."],
+        "masteryRule": {"gateActivityId": "fixture-activity", "criteria": [], "requiredActivityIds": ["fixture-activity"], "retryPolicy": "same-lesson"},
+        "activities": [{
+          "id": "fixture-activity",
+          "type": "instruction",
+          "title": "Complete the authored fixture activity",
+          "estimatedMinutes": 2,
+          "body": "This neutral fixture proves activity, lecture, academic, and lab wiring without private content.",
+          "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"},
+          "required": true
+        }]
+      }]
+    }]
+  },
+  "lectures": {
+    "version": "1.0.0",
+    "lectures": [{
+      "id": "fixture-lecture",
+      "title": "Fixture Lecture",
+      "version": "1.0.0",
+      "unitId": "fixture-unit",
+      "lessonIds": ["fixture-lesson"],
+      "segments": [
+        {"id": "fixture-opening", "kind": "opening", "title": "Opening", "body": "Begin with the authored fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "required": true},
+        {"id": "fixture-closing", "kind": "closing", "title": "Closing", "body": "Close with the recorded activity evidence.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "required": true}
+      ]
+    }]
+  },
+  "instructor": {
+    "id": "fixture-instructor",
+    "displayRole": "Fixture Instructor",
+    "subjectScope": "Modern Runtime Fixture",
+    "pedagogicalInstructions": ["Stay within the fixture."],
+    "allowedModes": ["TEACH", "CLARIFY"],
+    "fallbackLanguage": "Use the authored fixture."
+  },
+  "academic": {
+    "version": "1.0.0",
+    "syllabus": {"id": "fixture-syllabus", "title": "Fixture Syllabus", "description": "Fixture academic record.", "learningOutcomes": ["Use the runtime."], "policies": ["Self-paced."], "prerequisites": []},
+    "units": [{"id": "fixture-academic-unit", "moduleId": "fixture-unit", "title": "Fixture Unit", "description": "Fixture unit.", "learningObjectives": ["Use the runtime."], "prerequisiteUnitIds": []}],
+    "readings": [{"id": "fixture-reading", "title": "Fixture Reading", "body": "Read the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "unitId": "fixture-unit", "lessonId": "fixture-lesson", "required": true}],
+    "assignments": [{"id": "fixture-assignment", "title": "Fixture Assignment", "instructions": "Use the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "unitId": "fixture-unit", "sourceActivityIds": ["fixture-activity"], "required": true}],
+    "assessments": [{"id": "fixture-assessment", "title": "Fixture Assessment", "instructions": "Describe the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "unitId": "fixture-unit", "kind": "quiz", "sourceActivityIds": ["fixture-activity"], "required": true, "rubric": ["Uses authored evidence."]}]
+  },
+  "readings": [{"id": "fixture-reading-top", "title": "Fixture Reading", "body": "Read the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}}],
+  "assignments": [{"id": "fixture-assignment-top", "title": "Fixture Assignment", "instructions": "Use the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}}],
+  "assessments": [{"id": "fixture-assessment-top", "title": "Fixture Assessment", "instructions": "Describe the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}, "rubric": ["Uses authored evidence."]}],
+  "remediation": [{"id": "fixture-remediation", "title": "Fixture Remediation", "instructions": "Review the fixture.", "source": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"}}],
+  "labs": {
+    "version": "1.0.0",
+    "runtimeVersion": "deterministic-local-v1",
+    "courseId": "fixture-modern-course",
+    "labs": [{
+      "id": "fixture-lab",
+      "title": "Fixture Lab",
+      "purpose": "Exercise prediction, action, observation, check, reflection, pause, and formal activity semantics.",
+      "unitId": "fixture-unit",
+      "sourceLocation": {"unitId": "fixture-unit", "lessonId": "fixture-lesson", "activityId": "fixture-activity"},
+      "initialState": {"status": "ready", "log": ""},
+      "actions": [{"id": "fixture-action", "label": "Run bounded action", "instruction": "Append a deterministic observation.", "effects": [{"key": "status", "operation": "set", "value": "ran"}, {"key": "log", "operation": "append", "value": "observed"}], "createsObservation": "The bounded action produced an authored observation."}],
+      "checks": [{"id": "fixture-check", "title": "Action ran", "description": "The action must set status to ran.", "required": true, "conditions": [{"key": "status", "operator": "equals", "value": "ran"}]}],
+      "steps": [
+        {"id": "fixture-briefing", "number": 1, "title": "Briefing", "kind": "briefing", "instruction": "Read the briefing.", "unitId": "fixture-unit", "required": true},
+        {"id": "fixture-prediction", "number": 2, "title": "Prediction", "kind": "prediction", "instruction": "Predict the result.", "unitId": "fixture-unit", "required": true},
+        {"id": "fixture-action-step", "number": 3, "title": "Action", "kind": "action", "instruction": "Run the action.", "unitId": "fixture-unit", "required": true, "actionIds": ["fixture-action"]},
+        {"id": "fixture-observation", "number": 4, "title": "Observation", "kind": "observation", "instruction": "Observe the result.", "unitId": "fixture-unit", "required": true},
+        {"id": "fixture-check-step", "number": 5, "title": "Check", "kind": "check", "instruction": "Evaluate the check.", "unitId": "fixture-unit", "required": true, "checkIds": ["fixture-check"]},
+        {"id": "fixture-formal", "number": 6, "title": "Formal activity", "kind": "formal-activity", "instruction": "Complete the authored activity.", "unitId": "fixture-unit", "required": true, "formalActivityId": "fixture-activity"},
+        {"id": "fixture-reflection", "number": 7, "title": "Reflection", "kind": "reflection", "instruction": "Reflect on the result.", "unitId": "fixture-unit", "required": true}
+      ],
+      "requiredStepIds": ["fixture-briefing", "fixture-prediction", "fixture-action-step", "fixture-observation", "fixture-check-step", "fixture-formal", "fixture-reflection"],
+      "reflectionPrompts": ["What did the bounded action prove?"]
+    }]
+  }
+}

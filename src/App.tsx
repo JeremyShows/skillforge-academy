@@ -10,7 +10,7 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import { loadContent, bundledContent, type ContentBundle } from "./content";
 import PlatformHub from "./platform/PlatformHub";
 import { ContentProvider, useContent } from "./ContentContext";
-import { decryptBackup, encryptBackup } from "./backup";
+import { exportPlatformBackup, importPlatformBackup } from "./platform/persistence";
 import { APP_BUILD, APP_VERSION, buildDiagnosticBundle, downloadDiagnosticBundle, recordDiagnosticError } from "./diagnostics";
 import type { Attempt, CertId, Certification, LearnerState, Lesson, Pbq, Question, View } from "./types";
 import {
@@ -113,7 +113,7 @@ function canShareBackup(file: File): boolean {
 }
 
 async function exportData(state: LearnerState, passphrase: string): Promise<"shared" | "downloaded"> {
-  const encrypted = await encryptBackup(state, passphrase);
+  const encrypted = await exportPlatformBackup(state, passphrase);
   const filename = `skillforge-progress-${dateKey()}.apexbackup`;
   try {
     if (window.SkillForgeAndroid?.shareBackup(filename, encrypted)) return "shared";
@@ -866,9 +866,9 @@ function Preferences({ state, update, setState, onReplayTour }: { state:LearnerS
         throw new Error("Backup file is too large to import safely.");
       }
       const text = await file.text();
-      const parsed = await decryptBackup(text, passphrase);
-      if (isTauri()) await invoke("import_state", { raw: JSON.stringify(parsed) });
-      setState(migrateState(parsed));
+      const parsed = await importPlatformBackup(text, passphrase);
+      if (isTauri()) await invoke("import_state", { raw: JSON.stringify(parsed.legacyState) });
+      setState(migrateState(parsed.legacyState));
       setPassphrase("");
       setBackupNotice("Backup imported. Your progress has been restored on this device.");
     } catch (error) {

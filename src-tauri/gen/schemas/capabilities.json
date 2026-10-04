@@ -1,1 +1,1 @@
-{"default":{"identifier":"default","description":"Default desktop capability","local":true,"windows":["main"],"permissions":["core:default","opener:default"]}}
+{"default":{"identifier":"default","description":"Default desktop capability — core IPC only; no filesystem, shell, or opener plugins.","local":true,"windows":["main"],"permissions":["core:default"]}}

@@ -1,19 +1,6 @@
-# Course Package Security V1
+# Course Package Security V1.1
 
-Course packages are untrusted data. The validator rejects executable/script,
-command, shell, PowerShell, Bash, process, native-library, dynamic-import,
-arbitrary local-path, environment-variable, endpoint, credential, and
-secret-shaped fields.
+Packages are declarative data. The validator rejects executable-looking keys, paths, native/plugin fields, endpoint and credential fields, secret-shaped values, cyclic data, oversized payloads, unsupported capabilities, and contract-owned unknown fields. Unsupported capabilities are reported before installation and never executed.
 
-The package parser applies a pre-parse byte bound where possible and the
-validator applies bounded strings, collections, references, lectures, labs,
-assets, and migrations. Unknown or unsupported capabilities are reported and
-are never silently executed.
-
-The runtime supplies behavior through compiled platform code. A package can
-declare that it needs a capability, but it cannot install an adapter, select a
-secret provider, fetch a URL, run a process, or load a native library.
-
-Future executable labs require a separately reviewed capability, sandbox, and
-authority model. They are not smuggled into the V1 package format.
+Native learner persistence is a keyed, bounded, atomic JSON store. The browser path uses a versioned envelope with a backup key. Backup export uses the existing AES-256-GCM/PBKDF2 boundary and includes the platform envelope; legacy raw `.apexbackup` learner JSON remains importable.
 

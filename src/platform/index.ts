@@ -3,4 +3,5 @@ export * from "./packageValidation";
 export * from "./registry";
 export * from "./runtime";
 export * from "./publicPackages";
+export * from "./persistence";
 

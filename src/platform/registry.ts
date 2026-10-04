@@ -27,11 +27,27 @@ function storageOrUndefined(): RegistryStorage | undefined {
 }
 
 function compareVersions(left: string, right: string): number {
-  const parse = (value: string) => value.split(".").map(part => Number.parseInt(part, 10) || 0);
+  const parse = (value: string) => {
+    const [core, prerelease = ""] = value.split("-", 2);
+    return { core: core.split(".").map(Number), prerelease: prerelease ? prerelease.split(".") : [] };
+  };
   const a = parse(left), b = parse(right);
-  for (let index = 0; index < Math.max(a.length, b.length); index++) {
-    const delta = (a[index] ?? 0) - (b[index] ?? 0);
+  for (let index = 0; index < 3; index++) {
+    const delta = (a.core[index] ?? 0) - (b.core[index] ?? 0);
     if (delta) return delta;
+  }
+  if (!a.prerelease.length && b.prerelease.length) return 1;
+  if (a.prerelease.length && !b.prerelease.length) return -1;
+  for (let index = 0; index < Math.max(a.prerelease.length, b.prerelease.length); index++) {
+    const leftPart = a.prerelease[index], rightPart = b.prerelease[index];
+    if (leftPart === undefined) return -1;
+    if (rightPart === undefined) return 1;
+    const leftNumber = /^\\d+$/.test(leftPart) ? Number(leftPart) : undefined;
+    const rightNumber = /^\\d+$/.test(rightPart) ? Number(rightPart) : undefined;
+    if (leftNumber !== undefined && rightNumber !== undefined && leftNumber !== rightNumber) return leftNumber - rightNumber;
+    if (leftNumber !== undefined && rightNumber === undefined) return -1;
+    if (leftNumber === undefined && rightNumber !== undefined) return 1;
+    if (leftPart !== rightPart) return leftPart < rightPart ? -1 : 1;
   }
   return 0;
 }

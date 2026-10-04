@@ -1,38 +1,6 @@
-# SkillForge Platform Architecture V1
+# Platform Architecture V1.1
 
-SkillForge now has one public-safe platform boundary. The platform supplies
-runtime behavior; declarative course packages supply authored curriculum.
+The Academy shell is a course library and launcher. The generic course, classroom planner, lecture runtime, instructor fallback, academic model, lab runtime, and CourseProgress authority live in reusable domain modules under `src/course`, `src/classroom`, `src/lecture`, `src/instructor`, `src/academic`, and `src/labs`.
 
-## Migration matrix
-
-| Subsystem | V1 disposition |
-| --- | --- |
-| Course runtime and `CourseRuntimeContext` | Replace with generic package context |
-| Classroom, lecture delivery, academic structure | Use modern bounded runtime contracts |
-| Instructor service and fallback | Use provider-neutral runtime contract |
-| Labs runtime and validator | Use generic deterministic capability contract |
-| Public certification content | Keep and adapt through built-in packages |
-| Public learner state, backups, notes, bookmarks | Keep compatibility implementation; add package namespaces |
-| Tauri/native persistence and mobile foundations | Keep public implementation |
-| Accessibility and release infrastructure | Keep and run existing gates |
-| Package registry/import/validation | Replace one-track assumptions with generic contract |
-| Private authored curriculum and evidence | Course-specific; package privately and never copy public |
-| Full Course Studio and marketplace | Future work; documentation/headroom only |
-
-The old certification workspace remains an explicit compatibility surface while
-the public Academy surface proves the generic package boundary. It is not a
-second product runtime; both surfaces share public content and learner storage.
-
-## Runtime context
-
-`CourseRuntimeContext` carries one validated package, its course definition,
-capabilities, lecture/lab catalogs, instructor profile, and a namespaced
-progress key. Academic progress remains explicit and is not hidden inside the
-context.
-
-## Authority boundaries
-
-The platform owns sequencing, validation, persistence, instructor fallback,
-capability negotiation, and deterministic labs. Packages cannot mutate
-learner mastery, access secrets, or invoke provider/network/native behavior.
+Public certification adapters expose only authored capabilities. A+, Network+, and Security+ built-ins currently provide instructor and readings; they do not fabricate lecture delivery, academic assessments, mastery authority, or labs. A package can opt into those surfaces only when the corresponding authored contract is present.
 

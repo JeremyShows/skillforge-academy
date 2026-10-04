@@ -1,51 +1,5 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://skillforge.example/schemas/course-package-v1.schema.json",
-  "title": "SkillForge Declarative Course Package V1",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["manifest", "course"],
-  "properties": {
-    "manifest": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["format", "formatVersion", "packageId", "packageVersion", "courseId", "courseVersion", "contentVersion", "title", "description", "capabilities"],
-      "properties": {
-        "format": {"const": "skillforge-course"},
-        "formatVersion": {"const": 1},
-        "packageId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{1,95}$"},
-        "packageVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-        "courseId": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{1,95}$"},
-        "courseVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-        "contentVersion": {"type": "string", "minLength": 1, "maxLength": 200},
-        "title": {"type": "string", "minLength": 1, "maxLength": 200},
-        "description": {"type": "string", "minLength": 1, "maxLength": 20000},
-        "publisher": {"type": "string", "maxLength": 200},
-        "authors": {"type": "array", "maxItems": 32, "items": {"type": "string", "maxLength": 200}},
-        "license": {"type": "string", "maxLength": 200},
-        "minimumSkillForgeVersion": {"type": "string", "maxLength": 100},
-        "capabilities": {"type": "array", "uniqueItems": true, "minItems": 0, "maxItems": 32, "items": {"enum": ["lecture-delivery", "instructor", "readings", "assignments", "assessments", "remediation", "deterministic-labs", "executable-rust-lab", "disposable-linux-runtime", "network-simulation"]}},
-        "visibilityMetadata": {"type": "object", "additionalProperties": false, "properties": {"audience": {"enum": ["public", "private", "local", "enterprise"]}, "builtIn": {"type": "boolean"}}, "required": ["audience"]},
-        "createdAt": {"type": "string", "maxLength": 100},
-        "provenance": {"type": "object", "additionalProperties": false, "properties": {"source": {"enum": ["built-in", "local-import", "private-conformance"]}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "signatureStatus": {"enum": ["unsigned", "verified", "unverified"]}}}
-      }
-    },
-    "course": {"$ref": "#/$defs/course"},
-    "lectures": {"type": "object"},
-    "instructor": {"type": "object"},
-    "readings": {"type": "array"},
-    "assignments": {"type": "array"},
-    "assessments": {"type": "array"},
-    "remediation": {"type": "array"},
-    "labs": {"type": "object"},
-    "assets": {"type": "array", "maxItems": 1024},
-    "migrations": {"type": "array", "maxItems": 32}
-  },
-  "$defs": {
-    "location": {"type": "object", "additionalProperties": false, "required": ["unitId"], "properties": {"unitId": {"type": "string"}, "lessonId": {"type": "string"}, "activityId": {"type": "string"}}},
-    "activity": {"type": "object", "additionalProperties": false, "required": ["id", "type", "title", "estimatedMinutes"], "properties": {"id": {"type": "string"}, "type": {"type": "string"}, "title": {"type": "string"}, "estimatedMinutes": {"type": "number", "minimum": 0, "maximum": 600}, "body": {"type": "string"}, "prompt": {"type": "string"}, "objectiveIds": {"type": "array", "items": {"type": "string"}}, "source": {"$ref": "#/$defs/location"}}},
-    "lesson": {"type": "object", "additionalProperties": false, "required": ["id", "title", "summary", "objectives", "activities"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "summary": {"type": "string"}, "objectives": {"type": "array", "items": {"type": "string"}}, "activities": {"type": "array", "items": {"$ref": "#/$defs/activity"}}}},
-    "unit": {"type": "object", "additionalProperties": false, "required": ["id", "title", "description", "lessons"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "lessons": {"type": "array", "items": {"$ref": "#/$defs/lesson"}}}},
-    "course": {"type": "object", "additionalProperties": false, "required": ["id", "title", "description", "units"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "units": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/unit"}}, "prerequisites": {"type": "array"}, "placement": {"type": "object"}}}
-  }
+  "$comment": "Compatibility alias. The only canonical artifact is skillforge-course-v1.schema.json.",
+  "$ref": "skillforge-course-v1.schema.json"
 }

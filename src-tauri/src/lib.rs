@@ -12,6 +12,77 @@ fn state_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join("learner-state.json"))
 }
 
+fn platform_state_path(app: &AppHandle) -> Result<PathBuf, String> {
+    let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    Ok(dir.join("platform-state.json"))
+}
+
+fn platform_state_map(app: &AppHandle) -> Result<serde_json::Map<String, Value>, String> {
+    let path = platform_state_path(app)?;
+    if !path.exists() {
+        return Ok(serde_json::Map::new());
+    }
+    let raw = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    assert_state_size(&raw, "Saved platform state")?;
+    match serde_json::from_str::<Value>(&raw).map_err(|e| e.to_string())? {
+        Value::Object(map) => Ok(map),
+        _ => Ok(serde_json::Map::new()),
+    }
+}
+
+fn valid_platform_key(key: &str) -> bool {
+    !key.is_empty()
+        && key.len() <= 256
+        && key
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || b"._:@-".contains(&byte))
+}
+
+#[tauri::command]
+fn load_course_state(app: AppHandle, key: String) -> Result<Value, String> {
+    if !valid_platform_key(&key) {
+        return Err("Invalid platform state key.".to_string());
+    }
+    let map = platform_state_map(&app)?;
+    Ok(map
+        .get(&key)
+        .cloned()
+        .unwrap_or_else(|| json!({ "payload": null, "recovered": false })))
+}
+
+#[tauri::command]
+fn save_course_state(app: AppHandle, key: String, envelope: Value) -> Result<Value, String> {
+    if !valid_platform_key(&key) {
+        return Err("Invalid platform state key.".to_string());
+    }
+    let mut map = platform_state_map(&app)?;
+    map.insert(key, envelope);
+    let path = platform_state_path(&app)?;
+    let temp = path.with_extension("tmp");
+    let raw = serde_json::to_string_pretty(&Value::Object(map)).map_err(|e| e.to_string())?;
+    assert_state_size(&raw, "Platform state")?;
+    fs::write(&temp, raw).map_err(|e| e.to_string())?;
+    fs::rename(temp, path).map_err(|e| e.to_string())?;
+    Ok(json!({ "savedAt": Utc::now().to_rfc3339() }))
+}
+
+#[tauri::command]
+fn reset_course_state(app: AppHandle, key: String) -> Result<(), String> {
+    if !valid_platform_key(&key) {
+        return Err("Invalid platform state key.".to_string());
+    }
+    let mut map = platform_state_map(&app)?;
+    map.remove(&key);
+    let path = platform_state_path(&app)?;
+    let temp = path.with_extension("tmp");
+    let raw = serde_json::to_string_pretty(&Value::Object(map)).map_err(|e| e.to_string())?;
+    assert_state_size(&raw, "Platform state")?;
+    fs::write(&temp, raw).map_err(|e| e.to_string())?;
+    fs::rename(temp, path).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 fn assert_state_size(raw: &str, label: &str) -> Result<(), String> {
     if raw.len() > MAX_STATE_CHARS {
         return Err(format!("{label} is too large to handle safely."));
@@ -165,6 +236,9 @@ pub fn run() {
             save_state,
             import_state,
             reset_state,
+            load_course_state,
+            save_course_state,
+            reset_course_state,
             load_content
         ])
         .run(tauri::generate_context!())

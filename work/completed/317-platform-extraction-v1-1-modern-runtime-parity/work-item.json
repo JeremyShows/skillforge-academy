@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "317",
+  "title": "Platform Extraction V1.1 Modern Runtime Parity",
+  "status": "completed",
+  "owner_scope": "governance",
+  "affected_scopes": ["governance", "foundation", "implementation", "docs", "content"],
+  "depends_on": ["316"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-04T17:00:00-05:00",
+    "note": "Created from approved Platform Extraction V1 review before V1.1 runtime-parity implementation began. Base is public 8970368."
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "text": "Public runtime is based on the accepted modern CourseProgress, Classroom, Lecture, Instructor, Academic, and Labs semantics rather than a reduced second learning engine.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]},
+    {"id": "AC-2", "text": "The public package contract is canonical, lossless for supported authored semantics, strictly validated, hierarchy-aware, and owned by the public schema artifact.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]},
+    {"id": "AC-3", "text": "Public persistence unifies legacy state, package progress, Classroom, Lecture, Academic, and Labs data through the native store where available and a browser fallback, with backup compatibility.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]},
+    {"id": "AC-4", "text": "A+, Network+, and Security+ adapters are truthful: no fabricated Labs, lectures, mastery, or assessment authority is claimed where public source does not support it.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]},
+    {"id": "AC-5", "text": "Public and private privacy/ancestry gates pass, with no private authored content, evidence, paths, fixtures, screenshots, or personal-name additions in public history.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]},
+    {"id": "AC-6", "text": "Public browser and runtime tests prove authoritative activity progression, lecture/session persistence, academic surfaces, truthful Labs behavior, backup roundtrip, and multi-course isolation.", "state": "satisfied", "evidence": ["20261004-317-platform-extraction-v1-1-modern-runtime-parity"]}
+  ],
+  "created": "2026-10-04",
+  "updated": "2026-10-04",
+  "source": "Platform Extraction V1.1 TRUE MODERN RUNTIME EXTRACTION + LOSSLESS COURSE CONTRACT request."
+}

@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "url": "http://127.0.0.1:5181/",
+  "observed": {
+    "builtInPackages": 3,
+    "builtInCapabilities": ["instructor", "readings"],
+    "builtInLectureAcademicLabTabs": "omitted",
+    "classroomActivityFlow": "Complete authored activity -> Evidence saved",
+    "legacyMarkCompleteControl": false,
+    "courseIsolation": "A+ activity evidence remained 1/68 after selecting Network+",
+    "fixturePackageInstalled": true,
+    "fixtureModernTabs": ["Lecture", "Academic record", "Labs"],
+    "lectureCursor": "SEGMENT 2 OF 2 after Advance authored segment",
+    "academicSurface": "Fixture Syllabus and Fixture Reading rendered",
+    "labSurface": "Fixture Lab rendered with prediction response, step navigation, pause, reset, and check controls"
+  },
+  "fixture": "evidence/platform/2026-10-04-platform-extraction-v1-1/browser-fixture.skillforge-course.json",
+  "notes": [
+    "A launch-path defect was found and fixed: lecture advancement now creates an in-memory CourseProgress when the learner has not separately enrolled.",
+    "Browser acceptance was rerun after the fix on 2026-10-04."
+  ]
+}

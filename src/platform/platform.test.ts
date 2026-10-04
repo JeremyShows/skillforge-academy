@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { bundledContent } from "../content";
 import { buildPublicPackages } from "./publicPackages";
 import { CourseRegistry } from "./registry";
-import { completeLesson, createCourseRuntimeContext, deterministicInstructorFallback, enrollCourse, loadCourseProgress, saveCourseProgress } from "./runtime";
+import { completeAuthoredActivity, createCourseRuntimeContext, deterministicInstructorFallback, enrollCourse, loadCourseProgress, saveCourseProgress } from "./runtime";
 import { parseCoursePackage, serializeCoursePackage, validateCoursePackage } from "./packageValidation";
 import type { CoursePackageDocument } from "./packageTypes";
 
@@ -35,11 +35,13 @@ describe("course package contract", () => {
     broken.readings![0].source.lessonId = "missing-lesson";
     expect(validateCoursePackage(broken).errors.join(" ")).toContain("unknown lesson");
     const brokenLecture = clone(aPlus);
-    brokenLecture.lectures!.lectures[0].lessonIds = ["missing-lesson"];
-    expect(validateCoursePackage(brokenLecture).errors.join(" ")).toContain("invalid lesson relationship");
+    brokenLecture.lectures = { version: "1.0.0", lectures: [{ id: "lecture", title: "Lecture", version: "1.0.0", unitId: brokenLecture.course.units[0].id, lessonIds: ["missing-lesson"], segments: [] }] };
+    expect(validateCoursePackage(brokenLecture).errors.join(" ")).toContain("unknown lesson");
     const brokenLab = clone(aPlus);
-    brokenLab.labs!.labs[0].steps[2].actionIds = ["missing-action"];
+    brokenLab.labs = { version: "1.0.0", runtimeVersion: "deterministic-local-v1", courseId: aPlus.course.id, labs: [{ id: "lab", title: "Lab", purpose: "Test", unitId: aPlus.course.units[0].id, initialState: {}, actions: [], checks: [], steps: [{ id: "step", number: 1, title: "Action", kind: "action", instruction: "Test", unitId: aPlus.course.units[0].id, required: true, actionIds: ["missing-action"] }], requiredStepIds: ["step"] }] };
     expect(validateCoursePackage(brokenLab).errors.join(" ")).toContain("unknown action");
+    expect(aPlus.lectures).toBeUndefined();
+    expect(aPlus.labs).toBeUndefined();
   });
 
   it("rejects executable, path, secret, and oversized package fields", () => {
@@ -89,7 +91,7 @@ describe("generic runtime and registry", () => {
     expect(installed.installed).toBe(true);
     expect(registry.packageById("local.example.course")?.manifest.courseId).toBe("local-example-course");
     const update = clone(imported);
-    update.manifest.packageVersion = "1.1.0";
+    update.manifest.packageVersion = "1.2.0";
     update.manifest.title = "Updated Local Course";
     expect(registry.install(update)).toMatchObject({ installed: true, updated: true });
     expect(registry.packageById("local.example.course")?.manifest.title).toBe("Updated Local Course");
@@ -106,7 +108,9 @@ describe("generic runtime and registry", () => {
     const firstProgress = map[first.progressNamespace];
     const secondProgress = map[second.progressNamespace];
     expect(first.progressNamespace).not.toBe(second.progressNamespace);
-    expect(completeLesson(firstProgress, first.course.units[0].lessons[0].id, first.course.units[0].id).completedLessonIds).toHaveLength(1);
+    const location = firstProgress.current;
+    const advanced = completeAuthoredActivity(first, firstProgress, location);
+    expect(advanced.lessonProgress[location.lessonId].completedActivityIds).toContain(location.activityId);
     expect(secondProgress.completedLessonIds).toEqual([]);
   });
 

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261004-317-platform-extraction-v1-1-modern-runtime-parity",
+  "timestamp": "2026-10-04T17:36:00-05:00",
+  "work_item": "317",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {"command": "npm ci", "exit_code": 0, "summary": "Clean public dependency install passed; unrelated npm audit advisories were not remediated in this scoped task."},
+    {"command": "npm test -- --run", "exit_code": 0, "summary": "Public suite passed: 8 files and 113 tests, including neutral modern-runtime authority coverage."},
+    {"command": "npm run build", "exit_code": 0, "summary": "TypeScript and Vite production build passed."},
+    {"command": "npm run validate:content", "exit_code": 0, "summary": "Three public certification bundles validated."},
+    {"command": "npm run validate:a11y", "exit_code": 0, "summary": "Accessibility validation passed with 20 checks."},
+    {"command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml", "exit_code": 0, "summary": "Native Rust formatting passed."},
+    {"command": "cargo check --manifest-path src-tauri/Cargo.toml", "exit_code": 0, "summary": "Native Rust compilation passed."},
+    {"command": "in-app browser acceptance on http://127.0.0.1:5181/", "exit_code": 0, "summary": "Authoritative activity completion, course isolation, neutral fixture lecture/academic/lab surfaces, and legacy backup path passed."},
+    {"command": "targeted privacy/security scan", "exit_code": 0, "summary": "No private authored course markers or private repository paths were added to the public extraction."},
+    {"command": "git diff --check", "exit_code": 0, "summary": "No whitespace errors."}
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-04-platform-extraction-v1-1/",
+    "schemas/skillforge-course-v1.schema.json",
+    "docs/PLATFORM-ARCHITECTURE.md",
+    "docs/COURSE-PACKAGE-FORMAT.md",
+    "docs/COURSE-PACKAGE-SECURITY.md",
+    "work/completed/317-platform-extraction-v1-1-modern-runtime-parity/"
+  ],
+  "environment": {"repository": "JeremyShows/skillforge-academy", "branch": "codex/platform-v2-true-runtime-extraction", "platform": "Windows", "public_base": "897036832a01ae0d79ab7f17374b7fb0d8ac230e", "private_course_content_copied": false}
+}

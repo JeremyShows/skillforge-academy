@@ -1,306 +1,185 @@
 import {
-  COURSE_PACKAGE_FORMAT,
-  COURSE_PACKAGE_FORMAT_VERSION,
-  PACKAGE_CAPABILITIES,
-  type CoursePackageDocument,
-  type CoursePackageLab,
-  type CoursePackageManifest,
-  type PackageCapability,
-  type PackageLocation
+  COURSE_PACKAGE_FORMAT, COURSE_PACKAGE_FORMAT_VERSION, PACKAGE_CAPABILITIES,
+  type CoursePackageDocument, type CoursePackageLab, type CoursePackageManifest, type PackageCapability, type PackageLocation
 } from "./packageTypes";
 
 export const PACKAGE_LIMITS = {
-  maxBytes: 2_000_000,
-  maxStringLength: 20_000,
-  maxUnits: 128,
-  maxLessons: 1_024,
-  maxActivities: 8_192,
-  maxLectures: 512,
-  maxLabs: 256,
-  maxAssets: 1_024,
-  maxReferences: 16_384
+  maxBytes: 2_000_000, maxStringLength: 20_000, maxUnits: 128, maxLessons: 1_024,
+  maxActivities: 8_192, maxLectures: 512, maxLabs: 256, maxAssets: 1_024, maxReferences: 16_384
 } as const;
-
-const SUPPORTED_CAPABILITIES = new Set<PackageCapability>([
-  "lecture-delivery", "instructor", "readings", "assignments", "assessments", "remediation", "deterministic-labs"
-]);
-const KNOWN_MODES = new Set(["TEACH", "SOCRATIC", "EXPLAIN", "REVIEW", "LAB", "ASSESS"]);
+const SUPPORTED_CAPABILITIES = new Set<PackageCapability>(["lecture-delivery", "instructor", "readings", "assignments", "assessments", "remediation", "deterministic-labs"]);
 const FORBIDDEN_KEYS = /^(script|scripts|command|commands|shell|powershell|bash|executable|executableplugin|dynamicimport|eval|processes|processcommand|processexecution|subprocess|native|nativelibrary|dll|binary|moduleurl|endpoint|apikey|secret|token|password|credential|credentials|filepath|localpath|assetpath|env|environmentvariables)$/i;
 const SECRET_VALUE = /(-----BEGIN (?:RSA|OPENSSH|EC|PRIVATE) KEY-----|\bAKIA[0-9A-Z]{16}\b|\bgh[pousr]_[A-Za-z0-9_]{20,}\b|\bsk-[A-Za-z0-9]{20,}\b)/;
+const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+const ID = /^[a-z0-9][a-z0-9._:-]{1,127}$/;
+const LECTURE_KINDS = new Set(["opening","lecture","explanation","diagram","worked-trace","code-walkthrough","demonstration","pause-and-predict","socratic-question","knowledge-check","guided-practice","independent-practice","assessment","remediation","recap","closing"]);
+const LAB_KINDS = new Set(["briefing","prediction","action","observation","check","reflection","formal-activity"]);
+const LAB_OPERATORS = new Set(["equals","not-equals","greater-than","less-than"]);
 
-export interface PackageValidationReport {
-  errors: string[];
-  unsupportedCapabilities: PackageCapability[];
-  serializedBytes: number;
-}
+export interface PackageValidationReport { errors: string[]; unsupportedCapabilities: PackageCapability[]; serializedBytes: number; }
+export interface ParsedCoursePackage { document?: CoursePackageDocument; report: PackageValidationReport; }
 
-export interface ParsedCoursePackage {
-  document?: CoursePackageDocument;
-  report: PackageValidationReport;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
+function record(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
 function stringValue(value: unknown, path: string, errors: string[], required = true): string | undefined {
-  if (typeof value !== "string" || (required && !value.trim())) {
-    if (required) errors.push(`${path} must be a non-empty string`);
-    return undefined;
-  }
+  if (typeof value !== "string" || (required && !value.trim())) { if (required) errors.push(`${path} must be a non-empty string`); return undefined; }
   if (value.length > PACKAGE_LIMITS.maxStringLength) errors.push(`${path} exceeds the string limit`);
   return value;
 }
-
-function arrayValue(value: unknown, path: string, errors: string[]): unknown[] | undefined {
-  if (!Array.isArray(value)) {
-    errors.push(`${path} must be an array`);
-    return undefined;
-  }
+function arrayValue(value: unknown, path: string, errors: string[], required = true): unknown[] | undefined {
+  if (!Array.isArray(value)) { if (required) errors.push(`${path} must be an array`); return undefined; }
   return value;
 }
-
 function stableStringify(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return `[${value.map(item => item === undefined ? "null" : stableStringify(item)).join(",")}]`;
   const object = value as Record<string, unknown>;
   return `{${Object.keys(object).filter(key => object[key] !== undefined).sort().map(key => `${JSON.stringify(key)}:${stableStringify(object[key])}`).join(",")}}`;
 }
+export function serializeCoursePackage(document: CoursePackageDocument): string { return stableStringify(document); }
 
-export function serializeCoursePackage(document: CoursePackageDocument): string {
-  return stableStringify(document);
+function unknownFields(value: Record<string, unknown>, allowed: readonly string[], path: string, errors: string[]): void {
+  const known = new Set(allowed);
+  for (const key of Object.keys(value)) if (!known.has(key)) errors.push(`${path}.${key} is an unknown field; use extensionMetadata for extensions`);
 }
-
 function scanForbidden(value: unknown, path: string, errors: string[], seen = new Set<object>()): void {
-  if (typeof value === "string") {
-    if (SECRET_VALUE.test(value)) errors.push(`${path} contains a secret-shaped value`);
-    return;
-  }
+  if (typeof value === "string") { if (SECRET_VALUE.test(value)) errors.push(`${path} contains a secret-shaped value`); return; }
   if (!value || typeof value !== "object") return;
-  if (seen.has(value)) {
-    errors.push(`${path} contains a cyclic structure`);
-    return;
-  }
+  if (seen.has(value)) { errors.push(`${path} contains a cyclic structure`); return; }
   seen.add(value);
   if (Array.isArray(value)) value.forEach((item, index) => scanForbidden(item, `${path}[${index}]`, errors, seen));
-  else Object.entries(value).forEach(([key, child]) => {
-    if (FORBIDDEN_KEYS.test(key)) errors.push(`${path}.${key} is not allowed in a declarative package`);
-    scanForbidden(child, `${path}.${key}`, errors, seen);
-  });
+  else Object.entries(value).forEach(([key, child]) => { if (FORBIDDEN_KEYS.test(key)) errors.push(`${path}.${key} is not allowed in a declarative package`); scanForbidden(child, `${path}.${key}`, errors, seen); });
   seen.delete(value);
 }
-
-function duplicateIds(values: { id?: unknown }[], path: string, errors: string[]): Set<string> {
-  const ids = new Set<string>();
-  values.forEach((value, index) => {
+function ids(rows: unknown[], path: string, errors: string[]): Set<string> {
+  const result = new Set<string>();
+  rows.forEach((value, index) => {
+    if (!record(value)) { errors.push(`${path}[${index}] must be an object`); return; }
     const id = stringValue(value.id, `${path}[${index}].id`, errors);
-    if (id && ids.has(id)) errors.push(`${path} contains duplicate id ${id}`);
-    if (id) ids.add(id);
+    if (id && !ID.test(id)) errors.push(`${path}[${index}].id has an invalid identifier`);
+    if (id && result.has(id)) errors.push(`${path} contains duplicate id ${id}`);
+    if (id) result.add(id);
   });
-  return ids;
+  return result;
 }
-
-function locationExists(location: unknown, path: string, unitIds: Set<string>, lessonIds: Set<string>, activityIds: Set<string>, errors: string[]): void {
-  if (!isRecord(location)) {
-    errors.push(`${path} must be a package location`);
-    return;
-  }
-  const unitId = stringValue(location.unitId, `${path}.unitId`, errors);
-  const lessonId = stringValue(location.lessonId, `${path}.lessonId`, errors, false);
-  const activityId = stringValue(location.activityId, `${path}.activityId`, errors, false);
-  if (unitId && !unitIds.has(unitId)) errors.push(`${path}.unitId references an unknown unit`);
-  if (lessonId && !lessonIds.has(lessonId)) errors.push(`${path}.lessonId references an unknown lesson`);
-  if (activityId && !activityIds.has(activityId)) errors.push(`${path}.activityId references an unknown activity`);
-}
-
-function validateManifest(manifest: unknown, errors: string[], unsupported: PackageCapability[]): manifest is CoursePackageManifest {
-  if (!isRecord(manifest)) {
-    errors.push("manifest must be an object");
-    return false;
-  }
-  if (manifest.format !== COURSE_PACKAGE_FORMAT) errors.push(`manifest.format must be ${COURSE_PACKAGE_FORMAT}`);
-  if (manifest.formatVersion !== COURSE_PACKAGE_FORMAT_VERSION) errors.push(`manifest.formatVersion ${String(manifest.formatVersion)} is unsupported`);
-  const idPattern = /^[a-z0-9][a-z0-9._-]{1,95}$/;
-  for (const key of ["packageId", "courseId"] as const) {
-    const value = stringValue(manifest[key], `manifest.${key}`, errors);
-    if (value && !idPattern.test(value)) errors.push(`manifest.${key} has an invalid identifier`);
-  }
-  for (const key of ["packageVersion", "courseVersion", "contentVersion", "title", "description"] as const) stringValue(manifest[key], `manifest.${key}`, errors);
-  const capabilities = arrayValue(manifest.capabilities, "manifest.capabilities", errors) ?? [];
+function validateManifest(value: unknown, errors: string[], unsupported: PackageCapability[]): value is CoursePackageManifest {
+  if (!record(value)) { errors.push("manifest must be an object"); return false; }
+  unknownFields(value, ["format","formatVersion","packageId","packageVersion","courseId","courseVersion","contentVersion","title","description","publisher","authors","license","minimumSkillForgeVersion","capabilities","visibilityMetadata","createdAt","provenance","extensionMetadata"], "manifest", errors);
+  if (value.format !== COURSE_PACKAGE_FORMAT) errors.push(`manifest.format must be ${COURSE_PACKAGE_FORMAT}`);
+  if (value.formatVersion !== COURSE_PACKAGE_FORMAT_VERSION) errors.push(`manifest.formatVersion ${String(value.formatVersion)} is unsupported`);
+  for (const key of ["packageId","courseId"] as const) { const id = stringValue(value[key], `manifest.${key}`, errors); if (id && !ID.test(id)) errors.push(`manifest.${key} has an invalid identifier`); }
+  for (const key of ["packageVersion","courseVersion","contentVersion","title","description"] as const) { const text = stringValue(value[key], `manifest.${key}`, errors); if (["packageVersion","courseVersion"].includes(key) && text && !VERSION.test(text)) errors.push(`manifest.${key} must use major.minor.patch version grammar`); }
+  const capabilities = arrayValue(value.capabilities, "manifest.capabilities", errors) ?? [];
   const seen = new Set<string>();
   capabilities.forEach((capability, index) => {
     if (typeof capability !== "string" || !PACKAGE_CAPABILITIES.includes(capability as PackageCapability)) errors.push(`manifest.capabilities[${index}] is unknown`);
-    else {
-      if (seen.has(capability)) errors.push(`manifest.capabilities contains duplicate ${capability}`);
-      seen.add(capability);
-      if (!SUPPORTED_CAPABILITIES.has(capability as PackageCapability)) unsupported.push(capability as PackageCapability);
-    }
+    else { if (seen.has(capability)) errors.push(`manifest.capabilities contains duplicate ${capability}`); seen.add(capability); if (!SUPPORTED_CAPABILITIES.has(capability as PackageCapability)) unsupported.push(capability as PackageCapability); }
   });
-  if (manifest.authors !== undefined && (!Array.isArray(manifest.authors) || manifest.authors.some(author => typeof author !== "string"))) errors.push("manifest.authors must contain strings only");
+  if (value.authors !== undefined && (!Array.isArray(value.authors) || value.authors.some(item => typeof item !== "string"))) errors.push("manifest.authors must contain strings only");
+  if (record(value.visibilityMetadata)) unknownFields(value.visibilityMetadata, ["audience","builtIn","extensionMetadata"], "manifest.visibilityMetadata", errors);
+  if (record(value.provenance)) unknownFields(value.provenance, ["source","sha256","signatureStatus","sourceRevision","extensionMetadata"], "manifest.provenance", errors);
   return true;
 }
 
-function validateCourse(document: Record<string, unknown>, errors: string[]): { unitIds: Set<string>; lessonIds: Set<string>; activityIds: Set<string> } {
-  const course = isRecord(document.course) ? document.course : undefined;
-  if (!course) {
-    errors.push("course must be an object");
-    return { unitIds: new Set(), lessonIds: new Set(), activityIds: new Set() };
-  }
-  stringValue(course.id, "course.id", errors);
-  stringValue(course.title, "course.title", errors);
-  stringValue(course.description, "course.description", errors);
-  const units = arrayValue(course.units, "course.units", errors) ?? [];
+interface Hierarchy {
+  unitIds: Set<string>; lessonIds: Set<string>; activityIds: Set<string>;
+  lessonUnit: Map<string,string>; activityLesson: Map<string,string>; activityUnit: Map<string,string>;
+}
+function validateCourse(value: unknown, errors: string[]): Hierarchy {
+  const empty: Hierarchy = { unitIds: new Set(), lessonIds: new Set(), activityIds: new Set(), lessonUnit: new Map(), activityLesson: new Map(), activityUnit: new Map() };
+  if (!record(value)) { errors.push("course must be an object"); return empty; }
+  unknownFields(value, ["id","title","description","subtitle","subject","level","audience","type","outcomes","estimatedTotalMinutes","units","prerequisites","placement","capstone","finalAssessment","metadata","extensionMetadata"], "course", errors);
+  for (const key of ["id","title","description"] as const) stringValue(value[key], `course.${key}`, errors);
+  const units = arrayValue(value.units, "course.units", errors) ?? [];
   if (units.length > PACKAGE_LIMITS.maxUnits) errors.push("course.units exceeds the collection limit");
-  const unitIds = duplicateIds(units as { id?: unknown }[], "course.units", errors);
-  const lessonRows: Record<string, unknown>[] = [];
-  const activityRows: Record<string, unknown>[] = [];
-  units.forEach((unit, unitIndex) => {
-    if (!isRecord(unit)) {
-      errors.push(`course.units[${unitIndex}] must be an object`);
-      return;
-    }
-    stringValue(unit.title, `course.units[${unitIndex}].title`, errors);
-    stringValue(unit.description, `course.units[${unitIndex}].description`, errors);
-    const lessons = arrayValue(unit.lessons, `course.units[${unitIndex}].lessons`, errors) ?? [];
-    lessons.forEach(lesson => { if (isRecord(lesson)) { lessonRows.push(lesson); const activities = Array.isArray(lesson.activities) ? lesson.activities : []; activities.forEach(activity => { if (isRecord(activity)) activityRows.push(activity); }); } });
-  });
-  if (lessonRows.length > PACKAGE_LIMITS.maxLessons) errors.push("course lessons exceed the collection limit");
-  if (activityRows.length > PACKAGE_LIMITS.maxActivities) errors.push("course activities exceed the collection limit");
-  const lessonIds = duplicateIds(lessonRows, "course.lessons", errors);
-  const activityIds = duplicateIds(activityRows, "course.activities", errors);
-  units.forEach((unit, unitIndex) => {
-    if (!isRecord(unit) || !Array.isArray(unit.lessons)) return;
-    unit.lessons.forEach((lesson, lessonIndex) => {
-      if (!isRecord(lesson)) { errors.push(`course.units[${unitIndex}].lessons[${lessonIndex}] must be an object`); return; }
-      stringValue(lesson.title, `course.units[${unitIndex}].lessons[${lessonIndex}].title`, errors);
-      stringValue(lesson.summary, `course.units[${unitIndex}].lessons[${lessonIndex}].summary`, errors);
-      if (!Array.isArray(lesson.objectives) || lesson.objectives.some(item => typeof item !== "string")) errors.push(`course lesson ${String(lesson.id)} objectives must be strings`);
-      if (!Array.isArray(lesson.activities)) { errors.push(`course lesson ${String(lesson.id)} activities must be an array`); return; }
-      lesson.activities.forEach((activity, activityIndex) => {
-        if (!isRecord(activity)) { errors.push(`course lesson ${String(lesson.id)} activity ${activityIndex} must be an object`); return; }
-        stringValue(activity.type, `activity ${String(activity.id)}.type`, errors);
-        stringValue(activity.title, `activity ${String(activity.id)}.title`, errors);
-        if (typeof activity.estimatedMinutes !== "number" || activity.estimatedMinutes < 0 || activity.estimatedMinutes > 600) errors.push(`activity ${String(activity.id)}.estimatedMinutes is invalid`);
-        if (activity.source !== undefined) locationExists(activity.source, `activity ${String(activity.id)}.source`, unitIds, lessonIds, activityIds, errors);
+  const unitIds = ids(units, "course.units", errors);
+  const lessonIds = new Set<string>(), activityIds = new Set<string>(), lessonUnit = new Map<string,string>(), activityLesson = new Map<string,string>(), activityUnit = new Map<string,string>();
+  let lessonCount=0, activityCount=0;
+  units.forEach((unit, ui) => {
+    if (!record(unit)) return;
+    unknownFields(unit, ["id","title","description","lessons","prerequisites","masteryRequirements","moduleAssessment","extensionMetadata"], `course.units[${ui}]`, errors);
+    stringValue(unit.title, `course.units[${ui}].title`, errors); stringValue(unit.description, `course.units[${ui}].description`, errors);
+    const lessons = arrayValue(unit.lessons, `course.units[${ui}].lessons`, errors) ?? [];
+    lessonCount += lessons.length; if (lessonCount > PACKAGE_LIMITS.maxLessons) errors.push("course lessons exceed the collection limit");
+    lessons.forEach((lesson, li) => {
+      if (!record(lesson)) { errors.push(`course.units[${ui}].lessons[${li}] must be an object`); return; }
+      unknownFields(lesson, ["id","title","summary","objectives","activities","prerequisites","concepts","tags","masteryRule","extensionMetadata"], `course.units[${ui}].lessons[${li}]`, errors);
+      const lessonId = stringValue(lesson.id, `course.units[${ui}].lessons[${li}].id`, errors);
+      stringValue(lesson.title, `course.units[${ui}].lessons[${li}].title`, errors); stringValue(lesson.summary, `course.units[${ui}].lessons[${li}].summary`, errors);
+      if (lessonId) { if (lessonIds.has(lessonId)) errors.push(`course.lessons contains duplicate id ${lessonId}`); lessonIds.add(lessonId); lessonUnit.set(lessonId, String(unit.id)); }
+      const activities = arrayValue(lesson.activities, `course.units[${ui}].lessons[${li}].activities`, errors) ?? [];
+      activityCount += activities.length; if (activityCount > PACKAGE_LIMITS.maxActivities) errors.push("course activities exceed the collection limit");
+      activities.forEach((activity, ai) => {
+        if (!record(activity)) { errors.push(`course.units[${ui}].lessons[${li}].activities[${ai}] must be an object`); return; }
+        unknownFields(activity, ["id","type","title","estimatedMinutes","body","prompt","objectiveIds","conceptIds","source","required","formal","masteryRubric","responseGuide","scenario","stages","extensionMetadata"], `course.units[${ui}].lessons[${li}].activities[${ai}]`, errors);
+        const activityId = stringValue(activity.id, `course.units[${ui}].lessons[${li}].activities[${ai}].id`, errors);
+        stringValue(activity.type, `course.units[${ui}].lessons[${li}].activities[${ai}].type`, errors); stringValue(activity.title, `course.units[${ui}].lessons[${li}].activities[${ai}].title`, errors);
+        if (activityId) { if (activityIds.has(activityId)) errors.push(`course.activities contains duplicate id ${activityId}`); activityIds.add(activityId); activityLesson.set(activityId, String(lesson.id)); activityUnit.set(activityId, String(unit.id)); }
+        if (record(activity.source)) checkLocation(activity.source, `course.units[${ui}].lessons[${li}].activities[${ai}].source`, {unitIds,lessonIds,activityIds,lessonUnit,activityLesson,activityUnit}, errors, true);
       });
     });
   });
-  if (Array.isArray(course.prerequisites)) course.prerequisites.forEach((item, index) => {
-    if (!isRecord(item)) { errors.push(`course.prerequisites[${index}] must be an object`); return; }
-    for (const key of ["requiredUnitIds", "requiredLessonIds"] as const) if (item[key] !== undefined && (!Array.isArray(item[key]) || item[key].some(id => typeof id !== "string"))) errors.push(`course.prerequisites[${index}].${key} must contain strings`);
-    (item.requiredUnitIds as unknown[] | undefined)?.forEach(id => { if (!unitIds.has(String(id))) errors.push(`prerequisite references unknown unit ${String(id)}`); });
-    (item.requiredLessonIds as unknown[] | undefined)?.forEach(id => { if (!lessonIds.has(String(id))) errors.push(`prerequisite references unknown lesson ${String(id)}`); });
-  });
-  return { unitIds, lessonIds, activityIds };
+  const hierarchy={unitIds,lessonIds,activityIds,lessonUnit,activityLesson,activityUnit};
+  for (const row of [value.capstone, value.finalAssessment]) if (row !== undefined) validateAssessment(row, "course.assessment", hierarchy, errors);
+  return hierarchy;
 }
-
-function validateLectures(document: Record<string, unknown>, unitIds: Set<string>, lessonIds: Set<string>, activityIds: Set<string>, errors: string[]): void {
-  if (document.lectures === undefined) return;
-  const catalog = isRecord(document.lectures) ? document.lectures : undefined;
-  const lectures = catalog && Array.isArray(catalog.lectures) ? catalog.lectures : [];
-  if (!catalog || typeof catalog.version !== "string") errors.push("lectures.version must be a string");
-  if (lectures.length > PACKAGE_LIMITS.maxLectures) errors.push("lectures exceed the collection limit");
-  const ids = duplicateIds(lectures as { id?: unknown }[], "lectures", errors);
-  void ids;
-  lectures.forEach((lecture, index) => {
-    if (!isRecord(lecture)) { errors.push(`lectures[${index}] must be an object`); return; }
-    const unitId = stringValue(lecture.unitId, `lectures[${index}].unitId`, errors);
-    if (unitId && !unitIds.has(unitId)) errors.push(`lecture ${String(lecture.id)} references an unknown unit`);
-    if (!Array.isArray(lecture.lessonIds) || lecture.lessonIds.some(id => typeof id !== "string" || !lessonIds.has(id))) errors.push(`lecture ${String(lecture.id)} has an invalid lesson relationship`);
-    if (!Array.isArray(lecture.segments)) { errors.push(`lecture ${String(lecture.id)}.segments must be an array`); return; }
-    lecture.segments.forEach(segment => {
-      if (!isRecord(segment)) { errors.push(`lecture ${String(lecture.id)} has a malformed segment`); return; }
-      if (segment.lessonId !== undefined && (typeof segment.lessonId !== "string" || !lessonIds.has(segment.lessonId))) errors.push(`lecture ${String(lecture.id)} has an invalid segment lesson reference`);
-      if (segment.activityId !== undefined && (typeof segment.activityId !== "string" || !activityIds.has(segment.activityId))) errors.push(`lecture ${String(lecture.id)} has an invalid segment activity reference`);
-    });
-  });
+function checkLocation(value: unknown, path: string, h: Hierarchy, errors: string[], requireActivity = false): void {
+  if (!record(value)) { errors.push(`${path} must be a package location`); return; }
+  unknownFields(value, ["unitId","lessonId","activityId","extensionMetadata"], path, errors);
+  const unit = stringValue(value.unitId, `${path}.unitId`, errors);
+  const lesson = stringValue(value.lessonId, `${path}.lessonId`, errors, false);
+  const activity = stringValue(value.activityId, `${path}.activityId`, errors, requireActivity);
+  if (unit && !h.unitIds.has(unit)) errors.push(`${path}.unitId references an unknown unit`);
+  if (lesson && !h.lessonIds.has(lesson)) errors.push(`${path}.lessonId references an unknown lesson`);
+  if (activity && !h.activityIds.has(activity)) errors.push(`${path}.activityId references an unknown activity`);
+  if (lesson && unit && h.lessonUnit.get(lesson) !== unit) errors.push(`${path} has an invalid lesson relationship with its unit`);
+  if (activity && lesson && h.activityLesson.get(activity) !== lesson) errors.push(`${path} has an invalid activity relationship with its lesson`);
+  if (activity && unit && h.activityUnit.get(activity) !== unit) errors.push(`${path} has an invalid activity relationship with its unit`);
+  if (activity && !lesson) errors.push(`${path}.lessonId is required when activityId is present`);
 }
-
-function validateLocations(collection: unknown, path: string, unitIds: Set<string>, lessonIds: Set<string>, activityIds: Set<string>, errors: string[]): void {
-  if (collection === undefined) return;
-  if (!Array.isArray(collection)) { errors.push(`${path} must be an array`); return; }
-  if (collection.length > PACKAGE_LIMITS.maxReferences) errors.push(`${path} exceeds the collection limit`);
-  collection.forEach((item, index) => { if (isRecord(item)) locationExists(item.source, `${path}[${index}].source`, unitIds, lessonIds, activityIds, errors); else errors.push(`${path}[${index}] must be an object`); });
+function validateAssessment(value: unknown, path: string, h: Hierarchy, errors: string[]): void {
+  if (!record(value)) { errors.push(`${path} must be an object`); return; }
+  unknownFields(value, ["id","title","instructions","source","rubric","unitId","kind","sourceActivityIds","required","stages","extensionMetadata"], path, errors);
+  stringValue(value.id, `${path}.id`, errors); stringValue(value.title, `${path}.title`, errors); stringValue(value.instructions, `${path}.instructions`, errors);
+  checkLocation(value.source, `${path}.source`, h, errors, true);
+  if (!Array.isArray(value.rubric)) errors.push(`${path}.rubric must be an array`);
+  if (value.sourceActivityIds !== undefined && Array.isArray(value.sourceActivityIds)) value.sourceActivityIds.forEach((id,index)=>{ if(typeof id!=="string" || !h.activityIds.has(id)) errors.push(`${path}.sourceActivityIds[${index}] references an unknown activity`); });
 }
-
-function validateInstructor(instructor: unknown, errors: string[]): void {
-  if (instructor === undefined) return;
-  if (!isRecord(instructor)) { errors.push("instructor must be an object"); return; }
-  stringValue(instructor.id, "instructor.id", errors);
-  stringValue(instructor.displayRole, "instructor.displayRole", errors);
-  stringValue(instructor.subjectScope, "instructor.subjectScope", errors);
-  stringValue(instructor.fallbackLanguage, "instructor.fallbackLanguage", errors);
-  if (!Array.isArray(instructor.allowedModes) || instructor.allowedModes.some(mode => typeof mode !== "string" || !KNOWN_MODES.has(mode))) errors.push("instructor.allowedModes contains an unknown mode");
-  if (!Array.isArray(instructor.pedagogicalInstructions) || instructor.pedagogicalInstructions.some(item => typeof item !== "string")) errors.push("instructor.pedagogicalInstructions must contain strings");
+function validateLecture(value: unknown, h: Hierarchy, errors: string[]): void {
+  if (!record(value)) { errors.push("lectures must be an object"); return; }
+  unknownFields(value, ["version","lectures","extensionMetadata"], "lectures", errors);
+  const lectures=arrayValue(value.lectures,"lectures.lectures",errors)??[]; if(lectures.length>PACKAGE_LIMITS.maxLectures) errors.push("lectures exceeds the collection limit");
+  const lectureIds=ids(lectures,"lectures.lectures",errors);
+  lectures.forEach((row,i)=>{ if(!record(row)) return; unknownFields(row,["id","title","version","unitId","lessonIds","segments","estimatedMinutes","extensionMetadata"],`lectures.lectures[${i}]`,errors); const unit=stringValue(row.unitId,`lectures.lectures[${i}].unitId`,errors); if(unit&&!h.unitIds.has(unit)) errors.push(`lectures.lectures[${i}].unitId references an unknown unit`); const lessonIds=arrayValue(row.lessonIds,`lectures.lectures[${i}].lessonIds`,errors)??[]; lessonIds.forEach((id,j)=>{if(typeof id!=="string"||!h.lessonIds.has(id))errors.push(`lectures.lectures[${i}].lessonIds[${j}] references an unknown lesson`);else if(unit&&h.lessonUnit.get(id)!==unit)errors.push(`lectures.lectures[${i}].lessonIds[${j}] has an invalid lesson relationship`);}); const segments=arrayValue(row.segments,`lectures.lectures[${i}].segments`,errors)??[]; segments.forEach((segment,j)=>{if(!record(segment)){errors.push(`lectures.lectures[${i}].segments[${j}] must be an object`);return;} unknownFields(segment,["id","kind","title","body","source","lessonId","activityId","required","authoredContent","interaction","references","extensionMetadata"],`lectures.lectures[${i}].segments[${j}]`,errors); if(typeof segment.kind!=="string"||!LECTURE_KINDS.has(segment.kind))errors.push(`lectures.lectures[${i}].segments[${j}].kind is unknown`); if(segment.source!==undefined)checkLocation(segment.source,`lectures.lectures[${i}].segments[${j}].source`,h,errors,false); else if(segment.lessonId!==undefined||segment.activityId!==undefined)checkLocation({unitId:unit,lessonId:segment.lessonId,activityId:segment.activityId},`lectures.lectures[${i}].segments[${j}]`,h,errors,false);}); void lectureIds; });
 }
-
-function validateLabs(labs: unknown, unitIds: Set<string>, lessonIds: Set<string>, activityIds: Set<string>, manifest: CoursePackageManifest | undefined, errors: string[]): void {
-  if (labs === undefined) return;
-  if (!isRecord(labs) || typeof labs.version !== "string" || typeof labs.runtimeVersion !== "string" || !Array.isArray(labs.labs)) { errors.push("labs catalog is malformed"); return; }
-  if (manifest && labs.courseId !== manifest.courseId) errors.push("labs.courseId must match manifest.courseId");
-  if (labs.labs.length > PACKAGE_LIMITS.maxLabs) errors.push("labs exceed the collection limit");
-  labs.labs.forEach((lab, labIndex) => {
-    if (!isRecord(lab)) { errors.push(`labs[${labIndex}] must be an object`); return; }
-    stringValue(lab.id, `labs[${labIndex}].id`, errors);
-    stringValue(lab.title, `labs[${labIndex}].title`, errors);
-    const unitId = stringValue(lab.unitId, `labs[${labIndex}].unitId`, errors);
-    if (unitId && !unitIds.has(unitId)) errors.push(`lab ${String(lab.id)} references an unknown unit`);
-    locationExists(lab.sourceLocation, `labs[${labIndex}].sourceLocation`, unitIds, lessonIds, activityIds, errors);
-    const typedLab = lab as unknown as CoursePackageLab;
-    const actionIds = duplicateIds(Array.isArray(typedLab.actions) ? typedLab.actions : [], `labs[${labIndex}].actions`, errors);
-    const checkIds = duplicateIds(Array.isArray(typedLab.checks) ? typedLab.checks : [], `labs[${labIndex}].checks`, errors);
-    const stepIds = duplicateIds(Array.isArray(typedLab.steps) ? typedLab.steps : [], `labs[${labIndex}].steps`, errors);
-    if (!Array.isArray(typedLab.requiredStepIds) || typedLab.requiredStepIds.some(id => !stepIds.has(id))) errors.push(`lab ${String(lab.id)} has an invalid required step`);
-    typedLab.steps?.forEach(step => {
-      if (!stepIds.has(step.id)) return;
-      locationExists(step.sourceLocation, `lab ${String(lab.id)} step ${step.id}.sourceLocation`, unitIds, lessonIds, activityIds, errors);
-      step.actionIds?.forEach(id => { if (!actionIds.has(id)) errors.push(`lab ${String(lab.id)} step ${step.id} references unknown action ${id}`); });
-      step.checkIds?.forEach(id => { if (!checkIds.has(id)) errors.push(`lab ${String(lab.id)} step ${step.id} references unknown check ${id}`); });
-    });
-    typedLab.actions?.forEach(action => action.effects?.forEach(effect => { if (!effect.key) errors.push(`lab ${String(lab.id)} has an effect without a state key`); }));
-  });
+function validateAcademic(value: unknown,h:Hierarchy,manifest:CoursePackageManifest|undefined,errors:string[]):void {
+  if(!record(value)){errors.push("academic must be an object");return;} unknownFields(value,["version","program","syllabus","units","readings","assignments","assessments","completionRequirements","extensionMetadata"],"academic",errors);
+  if(record(value.program))unknownFields(value.program,["id","title","description","courseIds","status","extensionMetadata"],"academic.program",errors);
+  if(record(value.syllabus))unknownFields(value.syllabus,["id","title","description","learningOutcomes","policies","prerequisites","capstoneAssessmentId","extensionMetadata"],"academic.syllabus",errors);
+  const units=arrayValue(value.units,"academic.units",errors)??[]; units.forEach((row,i)=>{if(!record(row))return; unknownFields(row,["id","moduleId","title","description","learningObjectives","prerequisiteUnitIds","extensionMetadata"],`academic.units[${i}]`,errors); const id=stringValue(row.moduleId,`academic.units[${i}].moduleId`,errors);if(id&&!h.unitIds.has(id))errors.push(`academic.units[${i}].moduleId references an unknown unit`);});
+  const readings=arrayValue(value.readings,"academic.readings",errors)??[]; readings.forEach((row,i)=>{if(record(row)){unknownFields(row,["id","title","body","source","unitId","lessonId","required","extensionMetadata"],`academic.readings[${i}]`,errors);checkLocation(row.source,`academic.readings[${i}].source`,h,errors,true);}});
+  const assignments=arrayValue(value.assignments,"academic.assignments",errors)??[]; assignments.forEach((row,i)=>{if(record(row)){unknownFields(row,["id","title","instructions","source","unitId","lessonId","sourceActivityIds","required","extensionMetadata"],`academic.assignments[${i}]`,errors);checkLocation(row.source,`academic.assignments[${i}].source`,h,errors,true);}});
+  const assessments=arrayValue(value.assessments,"academic.assessments",errors)??[]; assessments.forEach((row,i)=>validateAssessment(row,`academic.assessments[${i}]`,h,errors));
+  void manifest;
 }
-
-export function validateCoursePackage(input: unknown): PackageValidationReport {
-  const errors: string[] = [];
-  const unsupportedCapabilities: PackageCapability[] = [];
-  if (!isRecord(input)) return { errors: ["package must be an object"], unsupportedCapabilities, serializedBytes: 0 };
-  const serialized = stableStringify(input);
-  const serializedBytes = new TextEncoder().encode(serialized).byteLength;
-  if (serializedBytes > PACKAGE_LIMITS.maxBytes) errors.push(`package exceeds ${PACKAGE_LIMITS.maxBytes} bytes`);
-  scanForbidden(input, "package", errors);
-  const manifest = validateManifest(input.manifest, errors, unsupportedCapabilities) ? input.manifest : undefined;
-  const refs = validateCourse(input, errors);
-  if (manifest && isRecord(input.course) && input.course.id !== manifest.courseId) errors.push("course.id must match manifest.courseId");
-  validateInstructor(input.instructor, errors);
-  validateLectures(input, refs.unitIds, refs.lessonIds, refs.activityIds, errors);
-  validateLocations(input.readings, "readings", refs.unitIds, refs.lessonIds, refs.activityIds, errors);
-  validateLocations(input.assignments, "assignments", refs.unitIds, refs.lessonIds, refs.activityIds, errors);
-  validateLocations(input.assessments, "assessments", refs.unitIds, refs.lessonIds, refs.activityIds, errors);
-  validateLocations(input.remediation, "remediation", refs.unitIds, refs.lessonIds, refs.activityIds, errors);
-  validateLabs(input.labs, refs.unitIds, refs.lessonIds, refs.activityIds, manifest, errors);
-  if (Array.isArray(input.assets) && input.assets.length > PACKAGE_LIMITS.maxAssets) errors.push("assets exceed the collection limit");
-  return { errors: [...new Set(errors)], unsupportedCapabilities: [...new Set(unsupportedCapabilities)], serializedBytes };
-}
-
-export function parseCoursePackage(text: string): ParsedCoursePackage {
-  const bytes = new TextEncoder().encode(text).byteLength;
-  if (bytes > PACKAGE_LIMITS.maxBytes) return { report: { errors: [`package exceeds ${PACKAGE_LIMITS.maxBytes} bytes before parsing`], unsupportedCapabilities: [], serializedBytes: bytes } };
-  try {
-    const document: unknown = JSON.parse(text);
-    const report = validateCoursePackage(document);
-    return { document: report.errors.length ? undefined : document as CoursePackageDocument, report };
-  } catch {
-    return { report: { errors: ["package is not valid JSON"], unsupportedCapabilities: [], serializedBytes: bytes } };
+function validateLabs(value: unknown,h:Hierarchy,manifest:CoursePackageManifest|undefined,errors:string[]):void {
+  if(!record(value)){errors.push("labs must be an object");return;} unknownFields(value,["version","runtimeVersion","courseId","labs","extensionMetadata"],"labs",errors);
+  if(manifest&&value.courseId!==manifest.courseId)errors.push("labs.courseId must match manifest.courseId");
+  const labs=arrayValue(value.labs,"labs.labs",errors)??[]; if(labs.length>PACKAGE_LIMITS.maxLabs)errors.push("labs exceeds the collection limit"); labs.forEach((lab,i)=>{if(!record(lab))return;unknownFields(lab,["id","title","purpose","unitId","sourceLocation","sourceLocations","learningObjective","estimatedMinutes","required","environment","initialState","actions","checks","steps","requiredStepIds","reflectionPrompts","instructorNote","extensionMetadata"],`labs.labs[${i}]`,errors); if(typeof lab.unitId==="string"&&!h.unitIds.has(lab.unitId))errors.push(`labs.labs[${i}].unitId references an unknown unit`); if(lab.sourceLocation!==undefined)checkLocation(lab.sourceLocation,`labs.labs[${i}].sourceLocation`,h,errors,true); if(Array.isArray(lab.sourceLocations))lab.sourceLocations.forEach((loc,j)=>checkLocation(loc,`labs.labs[${i}].sourceLocations[${j}]`,h,errors,true)); const actionIds=ids(Array.isArray(lab.actions)?lab.actions:[] ,`labs.labs[${i}].actions`,errors); const checkIds=ids(Array.isArray(lab.checks)?lab.checks:[] ,`labs.labs[${i}].checks`,errors); const stepIds=ids(Array.isArray(lab.steps)?lab.steps:[] ,`labs.labs[${i}].steps`,errors); (Array.isArray(lab.actions)?lab.actions:[]).forEach((action,j)=>{if(record(action)){unknownFields(action,["id","label","instruction","preconditions","effects","createsObservation","extensionMetadata"],`labs.labs[${i}].actions[${j}]`,errors);if(Array.isArray(action.effects))action.effects.forEach((effect,k)=>{if(record(effect)){unknownFields(effect,["key","operation","value","extensionMetadata"],`labs.labs[${i}].actions[${j}].effects[${k}]`,errors);if(!["set","increment","append"].includes(String(effect.operation)))errors.push(`labs.labs[${i}].actions[${j}].effects[${k}].operation is unknown`);}});}}); (Array.isArray(lab.checks)?lab.checks:[]).forEach((check,j)=>{if(record(check)){unknownFields(check,["id","title","description","required","conditions","sourceLocation","extensionMetadata"],`labs.labs[${i}].checks[${j}]`,errors);if(Array.isArray(check.conditions))check.conditions.forEach((condition,k)=>{if(record(condition)&&!LAB_OPERATORS.has(String(condition.operator)))errors.push(`labs.labs[${i}].checks[${j}].conditions[${k}].operator is unknown`);});}}); (Array.isArray(lab.steps)?lab.steps:[]).forEach((step,j)=>{if(record(step)){unknownFields(step,["id","number","title","kind","instruction","unitId","sourceLocation","required","actionIds","checkIds","observationPrompt","reflectionPrompt","formalActivityId","extensionMetadata"],`labs.labs[${i}].steps[${j}]`,errors);if(typeof step.kind!=="string"||!LAB_KINDS.has(step.kind))errors.push(`labs.labs[${i}].steps[${j}].kind is unknown`);if(Array.isArray(step.actionIds))step.actionIds.forEach((id,k)=>{if(!actionIds.has(id))errors.push(`labs.labs[${i}].steps[${j}].actionIds[${k}] references an unknown action`);});if(Array.isArray(step.checkIds))step.checkIds.forEach((id,k)=>{if(!checkIds.has(id))errors.push(`labs.labs[${i}].steps[${j}].checkIds[${k}] references an unknown check`);});if(step.sourceLocation!==undefined)checkLocation(step.sourceLocation,`labs.labs[${i}].steps[${j}].sourceLocation`,h,errors,false);if(step.kind==="formal-activity"&&typeof step.formalActivityId==="string"&&!h.activityIds.has(step.formalActivityId))errors.push(`labs.labs[${i}].steps[${j}].formalActivityId references an unknown activity`);}}); (Array.isArray(lab.requiredStepIds)?lab.requiredStepIds:[]).forEach((id,j)=>{if(!stepIds.has(id))errors.push(`labs.labs[${i}].requiredStepIds[${j}] references an unknown step`);}); });
   }
+export function validateCoursePackage(input: unknown): PackageValidationReport {
+  const errors:string[]=[]; const unsupported:PackageCapability[]=[]; let serializedBytes=0;
+  if(!record(input)){return {errors:["package must be an object"],unsupportedCapabilities:[],serializedBytes:0};}
+  unknownFields(input,["manifest","course","lectures","instructor","academic","readings","assignments","assessments","remediation","labs","assets","migrations","extensionMetadata"],"package",errors);
+  try{serializedBytes=new TextEncoder().encode(stableStringify(input)).byteLength;if(serializedBytes>PACKAGE_LIMITS.maxBytes)errors.push("package exceeds the byte limit");}catch{errors.push("package could not be serialized");}
+  scanForbidden(input,"package",errors);
+  const manifest=validateManifest(input.manifest,errors,unsupported)?input.manifest:undefined;
+  const hierarchy=validateCourse(input.course,errors);
+  if(manifest&&record(input.course)&&input.course.id!==manifest.courseId)errors.push("course.id must match manifest.courseId");
+  if(input.lectures!==undefined)validateLecture(input.lectures,hierarchy,errors);
+  if(input.academic!==undefined)validateAcademic(input.academic,hierarchy,manifest,errors);
+  if(input.labs!==undefined)validateLabs(input.labs,hierarchy,manifest,errors);
+  for(const key of ["readings","assignments","remediation"] as const){const rows=arrayValue(input[key],`package.${key}`,errors,false)??[];rows.forEach((row,i)=>{if(record(row)){unknownFields(row,key==="readings"?["id","title","body","source","unitId","lessonId","required","extensionMetadata"]:key==="assignments"?["id","title","instructions","source","unitId","lessonId","sourceActivityIds","required","extensionMetadata"]:["id","title","instructions","source","unitId","lessonId","sourceActivityIds","extensionMetadata"],`package.${key}[${i}]`,errors);checkLocation(row.source,`package.${key}[${i}].source`,hierarchy,errors,true);}});}
+  return {errors,unsupportedCapabilities:[...new Set(unsupported)],serializedBytes};
 }
-
-export async function sha256CoursePackage(document: CoursePackageDocument): Promise<string> {
-  const bytes = new TextEncoder().encode(serializeCoursePackage(document));
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map(value => value.toString(16).padStart(2, "0")).join("");
-}
-
-export function isPackageLocation(value: unknown): value is PackageLocation {
-  return isRecord(value) && typeof value.unitId === "string";
-}
+export function parseCoursePackage(text:string):ParsedCoursePackage{if(typeof text!=="string")return{report:{errors:["package text must be a string"],unsupportedCapabilities:[],serializedBytes:0}};if(new TextEncoder().encode(text).byteLength>PACKAGE_LIMITS.maxBytes)return{report:{errors:["package exceeds the byte limit"],unsupportedCapabilities:[],serializedBytes:0}};try{const value=JSON.parse(text) as unknown;const report=validateCoursePackage(value);return{document:report.errors.length?undefined:value as CoursePackageDocument,report};}catch{return{report:{errors:["package is not valid JSON"],unsupportedCapabilities:[],serializedBytes:0}};}}
+export async function sha256CoursePackage(document:CoursePackageDocument):Promise<string>{const bytes=new TextEncoder().encode(serializeCoursePackage(document));const digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(value=>value.toString(16).padStart(2,"0")).join("");}
