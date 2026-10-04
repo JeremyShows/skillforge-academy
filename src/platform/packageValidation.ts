@@ -178,6 +178,8 @@ export function validateCoursePackage(input: unknown): PackageValidationReport {
   if(input.lectures!==undefined)validateLecture(input.lectures,hierarchy,errors);
   if(input.academic!==undefined)validateAcademic(input.academic,hierarchy,manifest,errors);
   if(input.labs!==undefined)validateLabs(input.labs,hierarchy,manifest,errors);
+  const assessments = arrayValue(input.assessments, "package.assessments", errors, false) ?? [];
+  assessments.forEach((row, index) => validateAssessment(row, `package.assessments[${index}]`, hierarchy, errors));
   for(const key of ["readings","assignments","remediation"] as const){const rows=arrayValue(input[key],`package.${key}`,errors,false)??[];rows.forEach((row,i)=>{if(record(row)){unknownFields(row,key==="readings"?["id","title","body","source","unitId","lessonId","required","extensionMetadata"]:key==="assignments"?["id","title","instructions","source","unitId","lessonId","sourceActivityIds","required","extensionMetadata"]:["id","title","instructions","source","unitId","lessonId","sourceActivityIds","extensionMetadata"],`package.${key}[${i}]`,errors);checkLocation(row.source,`package.${key}[${i}].source`,hierarchy,errors,true);}});}
   return {errors,unsupportedCapabilities:[...new Set(unsupported)],serializedBytes};
 }

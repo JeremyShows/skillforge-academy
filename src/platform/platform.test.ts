@@ -44,6 +44,38 @@ describe("course package contract", () => {
     expect(aPlus.labs).toBeUndefined();
   });
 
+  it("rejects adversarial cross-wired hierarchy tuples across authored surfaces", () => {
+    const firstUnit = aPlus.course.units[0];
+    const secondUnit = aPlus.course.units[1];
+    const firstLesson = firstUnit.lessons[0];
+    const secondLesson = secondUnit.lessons[0];
+    const firstActivity = firstLesson.activities[0];
+    const secondActivity = secondLesson.activities[0];
+    const crossLocation = { unitId: firstUnit.id, lessonId: secondLesson.id, activityId: secondActivity.id };
+
+    const reading = clone(aPlus);
+    reading.readings = [{ id: "cross-reading", title: "Cross", body: "Cross", source: crossLocation, required: true }];
+    expect(validateCoursePackage(reading).errors.join(" ")).toContain("invalid lesson relationship");
+
+    const assignment = clone(aPlus);
+    assignment.assignments = [{ id: "cross-assignment", title: "Cross", instructions: "Cross", source: crossLocation, sourceActivityIds: [secondActivity.id], required: true }];
+    expect(validateCoursePackage(assignment).errors.join(" ")).toContain("invalid lesson relationship");
+
+    const assessment = clone(aPlus);
+    assessment.assessments = [{ id: "cross-assessment", title: "Cross", instructions: "Cross", source: crossLocation, sourceActivityIds: [secondActivity.id], rubric: [], required: true }];
+    expect(validateCoursePackage(assessment).errors.join(" ")).toContain("invalid lesson relationship");
+
+    const lecture = clone(aPlus);
+    lecture.lectures = { version: "1.0.0", lectures: [{ id: "cross-lecture", title: "Cross", version: "1.0.0", unitId: firstUnit.id, lessonIds: [secondLesson.id], segments: [] }] };
+    expect(validateCoursePackage(lecture).errors.join(" ")).toContain("invalid lesson relationship");
+
+    const lab = clone(aPlus);
+    lab.labs = { version: "1.0.0", runtimeVersion: "deterministic-local-v1", courseId: aPlus.course.id, labs: [{ id: "cross-lab", title: "Cross", purpose: "Cross", unitId: firstUnit.id, sourceLocation: crossLocation, initialState: {}, actions: [], checks: [], steps: [{ id: "cross-step", number: 1, title: "Cross", kind: "briefing", instruction: "Cross", unitId: firstUnit.id, sourceLocation: crossLocation, required: true }], requiredStepIds: ["cross-step"] }] };
+    expect(validateCoursePackage(lab).errors.join(" ")).toContain("invalid lesson relationship");
+
+    expect(firstActivity.id).not.toBe(secondActivity.id);
+  });
+
   it("rejects executable, path, secret, and oversized package fields", () => {
     const executable = clone(aPlus) as CoursePackageDocument & { command?: string };
     executable.command = "powershell -Command whoami";

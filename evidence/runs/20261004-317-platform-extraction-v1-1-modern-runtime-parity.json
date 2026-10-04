@@ -7,7 +7,7 @@
   "provenance": "concrete",
   "commands": [
     {"command": "npm ci", "exit_code": 0, "summary": "Clean public dependency install passed; unrelated npm audit advisories were not remediated in this scoped task."},
-    {"command": "npm test -- --run", "exit_code": 0, "summary": "Public suite passed: 9 files and 116 tests, including modern-runtime authority and platform backup roundtrip coverage."},
+    {"command": "npm test -- --run", "exit_code": 0, "summary": "Public suite passed: 9 files and 117 tests, including modern-runtime authority, platform backup roundtrip, and adversarial hierarchy coverage."},
     {"command": "npm run build", "exit_code": 0, "summary": "TypeScript and Vite production build passed."},
     {"command": "npm run validate:content", "exit_code": 0, "summary": "Three public certification bundles validated."},
     {"command": "npm run validate:a11y", "exit_code": 0, "summary": "Accessibility validation passed with 20 checks."},
