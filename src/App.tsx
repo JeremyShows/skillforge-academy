@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { loadContent, bundledContent, type ContentBundle } from "./content";
+import PlatformHub from "./platform/PlatformHub";
 import { ContentProvider, useContent } from "./ContentContext";
 import { decryptBackup, encryptBackup } from "./backup";
 import { APP_BUILD, APP_VERSION, buildDiagnosticBundle, downloadDiagnosticBundle, recordDiagnosticError } from "./diagnostics";
@@ -153,6 +154,7 @@ export default function App() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [onboarding, setOnboarding] = useState(false);
   const [studyFocus, setStudyFocus] = useState<StudyFocus | null>(null);
+  const [platformMode, setPlatformMode] = useState(true);
 
   useEffect(() => {
     Promise.all([readState(), loadContent()]).then(([s, c]) => {
@@ -167,8 +169,8 @@ export default function App() {
     const fresh = state.attempts.length === 0 && state.lessonsRead.length === 0 && Object.keys(state.answered).length === 0;
     try { if (fresh && !localStorage.getItem(ONBOARDED_KEY)) setOnboarding(true); } catch { /* storage unavailable */ }
   }, [ready]);
-  const dismissOnboarding = () => { try { localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* ignore */ } setOnboarding(false); };
   useEffect(() => { if (ready) writeState(state); }, [state, ready]);
+  const dismissOnboarding = () => { try { localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* ignore */ } setOnboarding(false); };
   // Keep focus on a real, available track: if a saved activeCertId points at a
   // track that was removed or flipped to coming-soon, fall back deterministically.
   useEffect(() => {
@@ -185,6 +187,10 @@ export default function App() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+  const contentRef = useRef<HTMLElement>(null);
+  useEffect(() => { if (ready) contentRef.current?.focus(); }, [view, ready]);
+
+  if (platformMode) return <PlatformHub content={content} onOpenCertificationWorkspace={() => setPlatformMode(false)} />;
 
   const update = (next: Partial<LearnerState>) => setState(s => ({ ...s, ...next }));
   // Navigate, and on a phone-width screen dismiss the slide-over drawer after picking.
@@ -196,8 +202,6 @@ export default function App() {
   const attempts = state.attempts.filter(a => a.certId === state.activeCertId);
   const avg = attempts.length ? Math.round(attempts.reduce((a, x) => a + pct(x.score, x.total), 0) / attempts.length) : 0;
   const notifications = buildNotifications(state, content);
-  const contentRef = useRef<HTMLElement>(null);
-  useEffect(() => { if (ready) contentRef.current?.focus(); }, [view, ready]);
 
   if (!ready) return <div className="splash"><div className="brand-mark"><Zap /></div><h1>SkillForge Academy</h1><p>Preparing your workspace...</p></div>;
 
