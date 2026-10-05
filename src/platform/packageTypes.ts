@@ -45,9 +45,9 @@ export interface CoursePackageActivity {
   id: string; type: CoursePackageActivityType | string; title: string; estimatedMinutes: number; body?: string; prompt?: string;
   objectiveIds?: string[]; conceptIds?: string[]; tags?: string[]; source?: PackageLocation; required?: boolean; formal?: boolean;
   masteryRubric?: CoursePackageMasteryCriterion[]; responseGuide?: string[]; scenario?: string;
-  responseType?: "text" | "choice" | "prediction"; responsePrompt?: string; expectedReasoning?: string[]; options?: string[];
+  responseType?: "text" | "choice" | "prediction" | "classification" | "ordered-steps" | "decision"; responsePrompt?: string; expectedReasoning?: string[]; options?: string[];
   passScore?: number; assessmentId?: string; returnToActivityId?: string; successSignal?: string;
-  blocks?: Array<Record<string, PackageJsonValue>>; stages?: Array<{ number: number; title: string; prompt: string; required: boolean }>;
+  blocks?: Array<Record<string, PackageJsonValue>>; stages?: Array<{ number: number; title: string; prompt: string; required: boolean; rubric: CoursePackageMasteryCriterion[] }>;
   extensionMetadata?: Record<string, PackageJsonValue>;
 }
 
@@ -83,7 +83,7 @@ export interface CoursePackageLectureSegment {
   id: string; kind: LectureSegmentKind; title: string; body: string; source?: PackageLocation;
   lessonId?: string; activityId?: string; required?: boolean;
   authoredContent?: { prose?: string; diagram?: string; trace?: string[]; code?: { language: string; source: string } };
-  interaction?: { prompt?: string; responseType?: "text" | "choice" | "prediction"; options?: string[] };
+  interaction?: { prompt?: string; responseType: "none" | "free-response" | "prediction" | "question"; options?: string[] };
   references?: string[];
 }
 export interface CoursePackageLecture { id: string; title: string; version: string; unitId: string; lessonIds: string[]; segments: CoursePackageLectureSegment[]; estimatedMinutes?: number; }
@@ -97,10 +97,10 @@ export interface CoursePackageAssignment { id: string; title: string; instructio
 export interface CoursePackageAssessment {
   id: string; title: string; instructions: string; source: PackageLocation; rubric: string[]; unitId?: string;
   kind?: "quiz" | "mastery-gate" | "unit-assessment" | "capstone" | "cumulative-assessment";
-  sourceActivityIds?: string[]; required?: boolean; passScore?: number; description?: string; prompt?: string; scenario?: string;
+  activityIds?: string[]; sourceActivityIds?: string[]; required?: boolean; passScore?: number; description?: string; prompt?: string; scenario?: string;
   conceptIds?: string[]; responseGuide?: string; finalIntegration?: boolean; novelScenario?: string; blocks?: Array<Record<string, PackageJsonValue>>;
   sourceLessonIds?: string[]; masteryRubric?: CoursePackageMasteryCriterion[];
-  stages?: Array<{ number: number; title: string; prompt: string; required: boolean }>;
+  stages?: Array<{ number: number; title: string; prompt: string; required: boolean; rubric: CoursePackageMasteryCriterion[] }>;
 }
 export interface CoursePackageRemediation { id: string; title: string; instructions: string; source: PackageLocation; unitId?: string; lessonId?: string; sourceActivityIds?: string[]; }
 

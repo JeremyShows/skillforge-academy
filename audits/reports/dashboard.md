@@ -15,7 +15,7 @@
 | Audit findings | 5 |
 | Decision records | 10 |
 | Policy records | 1 |
-| Evidence runs | 55 |
+| Evidence runs | 56 |
 
 ## Work
 
@@ -25,13 +25,11 @@
 | active | 2 |
 | blocked | 2 |
 | deferred | 1 |
-| completed | 46 |
+| completed | 47 |
 
 ## Audit freshness
 
-| Scope | Review was due |
-| --- | --- |
-| . | 2026-09-14 |
+All audit scopes are within their review cadence.
 
 ## Active items
 

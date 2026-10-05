@@ -1,0 +1,61 @@
+{
+  "manifest": {
+    "format": "skillforge-course",
+    "formatVersion": 1,
+    "packageId": "fixture.neutral.v121",
+    "packageVersion": "1.0.0",
+    "courseId": "fixture-neutral-runtime",
+    "courseVersion": "1.0.0",
+    "contentVersion": "fixture-v121",
+    "title": "Neutral Runtime Acceptance Fixture",
+    "description": "A small public-safe fixture for validating course package import, formal evidence, remediation, and lecture interactions.",
+    "capabilities": ["lecture-delivery", "remediation", "assessments"],
+    "visibilityMetadata": {"audience": "local", "builtIn": false},
+    "provenance": {"source": "local-import", "signatureStatus": "unsigned"}
+  },
+  "course": {
+    "id": "fixture-neutral-runtime",
+    "title": "Neutral Runtime Acceptance Fixture",
+    "description": "A neutral package used only to exercise the public runtime contract.",
+    "type": "course",
+    "level": "beginner",
+    "units": [
+      {
+        "id": "unit-1",
+        "title": "Runtime Contract",
+        "description": "A single neutral unit for browser acceptance.",
+        "lessons": [
+          {
+            "id": "lesson-1",
+            "title": "Evidence and Interaction",
+            "summary": "Complete an instructional activity, a formal gate, remediation, and a retry.",
+            "objectives": ["Demonstrate authored evidence", "Respond to lecture interactions"],
+            "activities": [
+              {"id":"intro","type":"instruction","title":"Read the authored brief","estimatedMinutes":1,"body":"Read this neutral authored brief before opening the formal gate.","required":true},
+              {"id":"gate","type":"mastery_check","title":"Formal evidence gate","estimatedMinutes":2,"prompt":"State the required evidence signal.","formal":true,"required":true,"passScore":1,"masteryRubric":[{"id":"evidence","description":"The response names the authored evidence signal.","required":true,"evidence":"verified","keywords":["evidence"]}]},
+              {"id":"remediate","type":"remediation","title":"Review the evidence distinction","estimatedMinutes":1,"body":"Review the authored distinction, then retry the formal gate.","required":true}
+            ],
+            "masteryRule": {"gateActivityId":"gate","criteria":[{"id":"evidence","description":"The response names the authored evidence signal.","required":true,"evidence":"verified","keywords":["evidence"]}],"passScore":1,"requiredActivityIds":["intro","gate"],"retryPolicy":"remediate-then-retry","remediationActivityId":"remediate"}
+          }
+        ]
+      }
+    ]
+  },
+  "lectures": {
+    "version": "1.0.0",
+    "lectures": [
+      {
+        "id": "lecture-1",
+        "title": "Neutral Interaction Walkthrough",
+        "version": "1.0.0",
+        "unitId": "unit-1",
+        "lessonIds": ["lesson-1"],
+        "segments": [
+          {"id":"segment-none","kind":"opening","title":"Opening","body":"Begin the neutral walkthrough.","source":{"unitId":"unit-1","lessonId":"lesson-1"},"required":true,"interaction":{"responseType":"none"}},
+          {"id":"segment-question","kind":"socratic-question","title":"Question","body":"What evidence would you record?","source":{"unitId":"unit-1","lessonId":"lesson-1"},"required":true,"interaction":{"responseType":"question","prompt":"Answer the authored question."}},
+          {"id":"segment-free","kind":"guided-practice","title":"Free response","body":"Explain the evidence signal in your own words.","source":{"unitId":"unit-1","lessonId":"lesson-1"},"required":true,"interaction":{"responseType":"free-response","prompt":"Write a short explanation."}}
+        ]
+      }
+    ]
+  }
+}

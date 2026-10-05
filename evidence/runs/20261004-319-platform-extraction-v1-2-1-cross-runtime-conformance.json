@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261004-319-platform-extraction-v1-2-1-cross-runtime-conformance",
+  "timestamp": "2026-10-04T20:15:00-05:00",
+  "work_item": "319",
+  "result": "passed",
+  "commands": [
+    {"command":"npm test -- --run","exit_code":0,"summary":"11 test files and 130 tests passed."},
+    {"command":"npm run build","exit_code":0,"summary":"TypeScript and Vite production build passed; only the existing large-chunk warning remains."},
+    {"command":"npm run validate:content","exit_code":0,"summary":"Content validation passed for all three certification tracks."},
+    {"command":"npm run validate:a11y","exit_code":0,"summary":"Accessibility validation passed with 20 checks."},
+    {"command":"cargo fmt --check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Rust formatting gate passed."},
+    {"command":"python -m repopact.cli validate --root .","exit_code":0,"summary":"RepoPact governance validation passed after dashboard regeneration and work-item evidence closure."},
+    {"command":"browser acceptance","exit_code":0,"summary":"Neutral package import, enrollment, formal fail-closed flow, remediation retry, and lecture interaction surface passed."}
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-04-platform-extraction-v1-2-1",
+    "audits/AUDIT-2026-10-04-platform-extraction-v1-2-1.md",
+    "work/completed/319-platform-extraction-v1-2-1-cross-runtime-conformance"
+  ],
+  "environment": {"repository":"ForgeWireLabs/skillforge-academy","platform":"Windows","base_revision":"9092f07e8316e8d4a32ec4ce9e8a1806ff73f8a5"}
+}

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-04",
+  "surface": "local Vite app at http://127.0.0.1:1450/",
+  "fixture": "fixtures/neutral-formal-interactions.skillforge-course",
+  "privacy": "neutral public-safe fixture; no private course content or path",
+  "result": "pass",
+  "checks": [
+    {"id":"import", "result":"pass", "observation":"Package installed locally and appeared as Neutral Runtime Acceptance Fixture."},
+    {"id":"enroll", "result":"pass", "observation":"Enroll and open created the local course record and opened Classroom."},
+    {"id":"formal-open", "result":"pass", "observation":"Formal evidence gate visibly stated that opening does not create mastery evidence."},
+    {"id":"formal-empty", "result":"pass", "observation":"Blank authored response left the formal gate incomplete and moved the resume point to remediation."},
+    {"id":"formal-wrong", "result":"pass", "observation":"Wrong authored response did not produce evidence; remediation remained available."},
+    {"id":"remediation-retry", "result":"pass", "observation":"Remediation response followed by the keyword evidence retry produced Evidence saved for the gate."},
+    {"id":"lecture-none-question-free-response", "result":"pass", "observation":"Lecture traversed the none opening and exposed canonical question and free-response segments with a response field; the final screen showed Expected interaction: free-response."},
+    {"id":"persistence-surface", "result":"pass", "observation":"The installed-course card reflected the learner record after the formal retry."}
+  ],
+  "limitations": ["This is a neutral browser acceptance fixture, not a full built-in certification smoke test."]
+}

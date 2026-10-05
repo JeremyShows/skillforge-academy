@@ -27,6 +27,9 @@ function masteryRubric(criteria: CoursePackageMasteryCriterion[] | undefined, pa
   const map = (items: CoursePackageMasteryCriterion[] | undefined): MasteryCriterion[] => (items ?? []).map(item => ({ id: item.id, label: item.description, keywords: item.keywords ?? [], patterns: item.patterns, required: item.required }));
   return { requiredConcepts: map(criteria), passingScore };
 }
+function packageStageRubric(criteria: CoursePackageMasteryCriterion[]): MasteryRubric {
+  return masteryRubric(criteria);
+}
 function authoredBlocks(activity: CoursePackageActivity): InstructionBlock[] | undefined {
   return activity.blocks as InstructionBlock[] | undefined;
 }
@@ -56,11 +59,11 @@ export function packageToCourse(document: CoursePackageDocument): Course {
   }));
   const firstLocation = modules[0]?.lessons[0]?.activities[0] ? { moduleId: modules[0].id, lessonId: modules[0].lessons[0].id, activityId: modules[0].lessons[0].activities[0].id } : undefined;
   const assessment = (input: CoursePackageAssessment | undefined, fallbackId: string): CourseAssessment => ({
-    id: input?.id ?? fallbackId, title: input?.title ?? "No authored assessment", activityIds: input?.sourceActivityIds ?? (input?.source?.activityId ? [input.source.activityId] : []),
+    id: input?.id ?? fallbackId, title: input?.title ?? "No authored assessment", activityIds: input?.activityIds ?? input?.sourceActivityIds ?? (input?.source?.activityId ? [input.source.activityId] : []),
     passScore: input?.passScore ?? 1, description: input?.description ?? input?.instructions ?? "No formal assessment authority is declared by this package.", scenario: input?.scenario,
     prompt: input?.prompt, responseGuide: input?.responseGuide ?? input?.rubric?.join("\n"), conceptIds: input?.conceptIds, blocks: input?.blocks as InstructionBlock[] | undefined,
     rubric: masteryRubric(input?.masteryRubric), sourceLessonIds: input?.sourceLessonIds ?? (input?.source?.lessonId ? [input.source.lessonId] : []), finalIntegration: input?.finalIntegration, novelScenario: input?.novelScenario,
-    stages: input?.stages?.map(stage => ({ number: stage.number, title: stage.title, prompt: stage.prompt, rubric: { requiredConcepts: [] } }))
+    stages: input?.stages?.map(stage => ({ number: stage.number, title: stage.title, prompt: stage.prompt, rubric: packageStageRubric(stage.rubric) }))
   });
   if (!firstLocation) throw new Error(`Course ${document.course.id} has no first activity`);
   return {
@@ -83,7 +86,7 @@ export function packageLectureToModern(document: CoursePackageDocument, course: 
     explicit: true, references: [], tags: [], segments: lecture.segments.map(segment => ({
       id: segment.id, type: mapKind[segment.kind] ?? "EXPLANATION", title: segment.title, conceptIds: [], authoredContent: segment.authoredContent?.diagram ? { kind: "diagram", label: segment.title, nodes: [], edges: [], textEquivalent: segment.authoredContent.diagram } : segment.authoredContent?.trace ? { kind: "trace", steps: segment.authoredContent.trace, textEquivalent: segment.body } : segment.authoredContent?.code ? { kind: "code", language: segment.authoredContent.code.language, code: segment.authoredContent.code.source, annotations: [], textEquivalent: segment.body } : segment.authoredContent?.prose ? { kind: "prose", paragraphs: [segment.authoredContent.prose] } : { kind: "prose", paragraphs: [segment.body] },
       sourceActivityId: segment.activityId, sourceLocation: segment.source ? locationFor(segment.source) : segment.lessonId && segment.activityId ? { moduleId: lecture.unitId, lessonId: segment.lessonId, activityId: segment.activityId } : undefined,
-      prompt: segment.interaction?.prompt, expectedInteraction: segment.interaction?.responseType === "prediction" ? "prediction" : segment.interaction?.responseType === "choice" ? "question" : segment.interaction?.responseType === "text" ? "free-response" : "none",
+      prompt: segment.interaction?.prompt, expectedInteraction: segment.interaction?.responseType ?? "none",
       references: segment.references ?? [], estimatedMinutes: 1, required: segment.required !== false
     }))
   }));
@@ -167,6 +170,32 @@ export function completeAuthoredActivity(context: CourseRuntimeContext, progress
   return withCompatibility(completeActivity(context.course, progress, location, outcome), context, { assessmentAttempts: progress.assessmentAttempts, notes: progress.notes });
 }
 export function isFormalActivity(activity: CourseActivity | undefined): activity is Extract<CourseActivity, { type: "mastery_check" | "module_assessment" | "capstone_activity" }> { return activity?.type === "mastery_check" || activity?.type === "module_assessment" || activity?.type === "capstone_activity"; }
+export interface AssessmentEvaluatorPort { evaluate(activity: Extract<CourseActivity, { type: "mastery_check" | "module_assessment" | "capstone_activity" }>, response: string, stage?: number): ActivityOutcome; }
+function invalidFormalOutcome(activityId: string, response: string, stage: number | undefined, validationErrors: string[]): ActivityOutcome {
+  return { passed: false, score: 0, response, stage, masteryEvidence: "none", assessment: { activityId, passed: false, score: 0, semanticAvailable: false, provenance: "invalid-semantic", masteryEvidence: "none", criteria: [], missingConceptIds: [], misconceptionIds: [], feedback: "This formal activity has no valid deterministic evaluation contract.", semanticContractValid: false, validationErrors } };
+}
+export const deterministicRubricEvaluator: AssessmentEvaluatorPort = {
+  evaluate(activity, response, stage) {
+    const passScore = activity.passScore;
+    const criteria = activity.rubric?.requiredConcepts ?? [];
+    if (!Number.isFinite(passScore) || passScore <= 0 || passScore > 1) return invalidFormalOutcome(activity.id, response, stage, ["passScore must be greater than 0 and no greater than 1"]);
+    if (!criteria.length) return invalidFormalOutcome(activity.id, response, stage, ["mastery rubric must contain at least one criterion"]);
+    const text = response.trim().toLocaleLowerCase();
+    const results = criteria.map(item => {
+      const terms = [...item.keywords, ...(item.patterns ?? [])].filter(term => typeof term === "string" && term.trim()).map(term => term.toLocaleLowerCase());
+      const signalAvailable = terms.length > 0;
+      const met = signalAvailable && terms.some(term => text.includes(term));
+      return { id: item.id, label: item.label, met, status: (met ? "met" : "missing") as "met" | "missing" };
+    });
+    const unsupported = criteria.filter(item => item.required !== false && ![...item.keywords, ...(item.patterns ?? [])].some(term => typeof term === "string" && term.trim()));
+    if (unsupported.length) return invalidFormalOutcome(activity.id, response, stage, unsupported.map(item => `required criterion ${item.id} has no evaluable authored signal`));
+    const required = results.filter((_, index) => criteria[index].required !== false);
+    const met = required.filter(item => item.met).length;
+    const score = required.length ? met / required.length : 0;
+    const passed = score >= passScore;
+    return { passed, score, response, stage, masteryEvidence: passed ? "self-assessed" : "none", assessment: { activityId: activity.id, passed, score, semanticAvailable: true, provenance: "semantic", masteryEvidence: passed ? "self-assessed" : "none", criteria: results, missingConceptIds: results.filter(item => !item.met).map(item => item.id), misconceptionIds: [], feedback: passed ? "Authored criteria met." : "Review the missing authored criteria and retry.", semanticContractValid: true } };
+  }
+};
 export function evaluateAuthoredActivityResponse(context: CourseRuntimeContext, location: CourseLocation, response: string, stage?: number): ActivityOutcome {
   const activity = context.course.modules.flatMap(module => module.lessons).flatMap(lesson => lesson.activities).find(item => item.id === location.activityId);
   if (!activity) return { passed: false, note: "The authored activity could not be found." };
@@ -175,12 +204,7 @@ export function evaluateAuthoredActivityResponse(context: CourseRuntimeContext, 
   if (activity.type === "remediation") return text ? { passed: true, masteryEvidence: "self-assessed", response: text } : { passed: false, note: "Remediation requires a response." };
   if (!text) return { passed: false, score: 0, response: text, note: "A response is required before this activity can be evaluated." };
   if (!isFormalActivity(activity)) return { passed: true, masteryEvidence: "self-assessed", response: text, note: "Authored practice response recorded." };
-  const criteria = activity.rubric.requiredConcepts.filter(item => item.required !== false);
-  const results = criteria.map(item => { const haystack = text.toLocaleLowerCase(); const terms = [...item.keywords, ...(item.patterns ?? [])].filter(Boolean).map(term => term.toLocaleLowerCase()); return { id: item.id, label: item.label, met: terms.length === 0 || terms.some(term => haystack.includes(term)), status: (terms.length === 0 || terms.some(term => haystack.includes(term)) ? "met" : "missing") as "met" | "missing" }; });
-  const met = results.filter(item => item.met).length;
-  const score = criteria.length ? met / criteria.length : 1;
-  const passed = score >= activity.passScore;
-  return { passed, score, response: text, stage, masteryEvidence: passed ? "self-assessed" : "none", assessment: { activityId: activity.id, passed, score, semanticAvailable: criteria.some(item => item.keywords.length > 0 || Boolean(item.patterns?.length)), provenance: criteria.length ? "semantic" : "self-check", masteryEvidence: passed ? "self-assessed" : "none", criteria: results, missingConceptIds: results.filter(item => !item.met).map(item => item.id), misconceptionIds: [], feedback: passed ? "Authored criteria met." : "Review the missing authored criteria and retry.", semanticContractValid: true } };
+  return deterministicRubricEvaluator.evaluate(activity, text, stage);
 }
 export function applyAuthoredActivityResponse(context: CourseRuntimeContext, progress: CourseProgress, location: CourseLocation, response: string, stage?: number): CourseProgress {
   const activity = context.course.modules.flatMap(module => module.lessons).flatMap(lesson => lesson.activities).find(item => item.id === location.activityId);
