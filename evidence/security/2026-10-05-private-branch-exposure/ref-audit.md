@@ -13,9 +13,11 @@ Audit point: 2026-10-05, after deletion of the leaked public branch.
 
 ## Reachability results
 
-The audit enumerated 13 remaining public branches and 6 public tags, then
-examined their reachable object paths and ref-tip text for the known private
-marker classes. Results:
+The initial containment audit enumerated 13 remaining public branches and 6
+public tags. After this public evidence branch was pushed, a final re-audit
+enumerated 14 public branches and 6 public tags. Both audits examined
+reachable object paths and ref-tip text for the known private marker classes.
+Final results:
 
 - Reachable private-marker path matches: 0.
 - Ref-tip private-marker text matches: 0.
