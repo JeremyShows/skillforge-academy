@@ -1,92 +1,123 @@
 import type { Certification, Lesson } from "../types";
 import type { ContentBundle } from "../content/validate";
 import { contentRevision } from "../content/revision";
+import type { Course, CourseAssessment, CourseLesson, CourseModule, RemediationActivity, TeachingActivity } from "../course/types";
 import type { CoursePackageDocument } from "./packageTypes";
 
 function lessonBody(lesson: Lesson): string {
   return lesson.sections.map(section => [section.heading, section.body, ...(section.bullets ?? [])].filter(Boolean).join("\n")).join("\n\n");
 }
-function location(unitId: string, lessonId: string, activityId: string) { return { unitId, lessonId, activityId }; }
 
-export function buildPublicCoursePackage(content: ContentBundle, cert: Certification): CoursePackageDocument {
+function emptyAssessment(id: string, title: string): CourseAssessment {
+  return { id, title, activityIds: [], passScore: 1, description: "No separate authored assessment is declared for this public certification lesson projection." };
+}
+
+function makeCourse(content: ContentBundle, cert: Certification): Course {
   const domains = content.domains.filter(domain => domain.certId === cert.id);
   const lessons = content.lessons.filter(lesson => lesson.certId === cert.id);
-  const units = domains.map(domain => ({
+  const modules: CourseModule[] = domains.map(domain => ({
     id: domain.id,
     title: domain.name,
-    description: domain.description,
-    lessons: lessons.filter(lesson => lesson.domain === domain.id).map(lesson => {
+    summary: domain.description,
+    learningOutcomes: domain.topics,
+    prerequisiteModuleIds: [],
+    prerequisiteConceptIds: [],
+    lessons: lessons.filter(lesson => lesson.domain === domain.id).map((lesson): CourseLesson => {
       const activityId = `${lesson.id}:instruction`;
+      const remediationId = `${lesson.id}:remediation`;
+      const instruction: TeachingActivity = {
+        id: activityId,
+        type: "instruction",
+        title: `Study ${lesson.title}`,
+        estimatedMinutes: lesson.estMinutes,
+        body: lessonBody(lesson),
+        keyPoints: lesson.objectives,
+        objectiveIds: lesson.objectiveId ? [lesson.objectiveId] : [],
+        required: true
+      };
+      const remediation: RemediationActivity = {
+        id: remediationId,
+        type: "remediation",
+        title: `Review ${lesson.title}`,
+        estimatedMinutes: Math.max(5, Math.ceil(lesson.estMinutes / 2)),
+        body: `Revisit the authored explanation for ${lesson.title}.`,
+        practicePrompt: "State the key idea in your own words before returning to the lesson.",
+        returnToActivityId: activityId,
+        successSignal: "Learner can explain the authored objective without prompting.",
+        required: false
+      };
       return {
         id: lesson.id,
         title: lesson.title,
         summary: lesson.sections[0]?.body ?? lesson.title,
         objectives: lesson.objectives,
-        activities: [{
-          id: activityId,
-          type: "instruction",
-          title: `Study ${lesson.title}`,
-          estimatedMinutes: lesson.estMinutes,
-          body: lessonBody(lesson),
-          objectiveIds: lesson.objectiveId ? [lesson.objectiveId] : [],
-          source: location(domain.id, lesson.id, activityId),
-          required: true
-        }]
+        estimatedMinutes: lesson.estMinutes,
+        conceptIds: lesson.objectiveId ? [lesson.objectiveId] : [],
+        activities: [instruction, remediation],
+        masteryRule: { gateActivityId: activityId, passScore: 1, requiredActivityIds: [activityId], retryPolicy: "remediate-then-retry" },
+        remediationActivityId: remediationId,
+        references: [],
+        tags: [cert.shortName]
       };
-    })
+    }),
+    estimatedMinutes: lessons.filter(lesson => lesson.domain === domain.id).reduce((sum, lesson) => sum + lesson.estMinutes, 0),
+    masteryRequirements: domain.topics
   }));
-  const readings = units.flatMap(unit => unit.lessons.map(lesson => ({
-    id: `${lesson.id}:reading`,
-    title: lesson.title,
-    body: lesson.activities[0]?.body ?? lesson.summary,
-    source: location(unit.id, lesson.id, lesson.activities[0]?.id ?? ""),
-    unitId: unit.id,
-    lessonId: lesson.id,
-    required: true
-  })));
+  const totalMinutes = modules.reduce((sum, module) => sum + module.estimatedMinutes, 0);
+  return {
+    id: cert.id,
+    version: "1.3.0",
+    contentVersion: contentRevision(content),
+    title: cert.name,
+    subtitle: `${cert.vendor} ${cert.shortName} authored study track`,
+    description: cert.description,
+    subject: cert.name,
+    level: "foundational",
+    audience: "independent learner",
+    prerequisites: [],
+    prerequisiteConceptIds: [],
+    outcomes: [`Explain the authored concepts in the ${cert.name} study track.`, "Use the existing practice workspace to test recall."],
+    estimatedTotalMinutes: totalMinutes,
+    modules,
+    optionalResources: [],
+    capstone: emptyAssessment(`${cert.id}:capstone`, `${cert.name} capstone`),
+    finalAssessment: emptyAssessment(`${cert.id}:final-assessment`, `${cert.name} final assessment`),
+    metadata: { author: "SkillForge contributors", source: "public-certification-content", tags: [cert.shortName] },
+    visibility: "public",
+    type: "certification"
+  };
+}
+
+export function buildPublicCoursePackage(content: ContentBundle, cert: Certification): CoursePackageDocument {
+  const course = makeCourse(content, cert);
   return {
     manifest: {
       format: "skillforge-course",
       formatVersion: 1,
       packageId: `builtin.${cert.id}`,
-      packageVersion: "1.1.0",
-      courseId: cert.id,
-      courseVersion: "1.1.0",
-      contentVersion: contentRevision(content),
-      title: cert.name,
-      description: cert.description,
+      packageVersion: "1.3.0",
+      courseId: course.id,
+      courseVersion: course.version,
+      contentVersion: course.contentVersion,
+      title: course.title,
+      description: course.description,
       publisher: "SkillForge",
       authors: ["SkillForge contributors"],
       license: "Apache-2.0",
-      capabilities: ["instructor", "readings"],
+      capabilities: ["instructor", "readings", "remediation"],
       visibilityMetadata: { audience: "public", builtIn: true },
       provenance: { source: "built-in", signatureStatus: "unsigned" }
     },
-    course: {
-      id: cert.id,
-      title: cert.name,
-      description: cert.description,
-      subtitle: `${cert.vendor} ${cert.shortName} authored study track`,
-      subject: cert.name,
-      type: "certification",
-      level: "beginner",
-      audience: ["independent learner"],
-      outcomes: [`Explain the authored concepts in the ${cert.name} study track.`, "Use the existing practice workspace to test recall."],
-      estimatedTotalMinutes: units.reduce((sum, unit) => sum + unit.lessons.reduce((inner, lesson) => inner + lesson.activities[0].estimatedMinutes, 0), 0),
-      units,
-      prerequisites: [],
-      placement: { description: "Start with the first available unit; placement is advisory and never changes mastery." },
-      metadata: { source: "public-certification-content", formalAssessmentAuthority: "certification-practice-workspace" }
-    },
+    course,
     instructor: {
       id: "skillforge-instructor",
       displayRole: "Course Instructor",
       subjectScope: cert.name,
       pedagogicalInstructions: ["Stay within the authored course material.", "Use deterministic fallback language when no provider is configured.", "Never grant mastery or alter academic progress."],
       allowedModes: ["TEACH", "CLARIFY", "EXPLAIN_DIFFERENTLY", "HINT", "SOCRATIC", "RECAP"],
-      fallbackLanguage: "Use the authored lesson, state the evidence, and identify the next practice step."
-    },
-    readings
+      fallbackLanguage: "Use the authored lesson, state the evidence, and identify the next practice step.",
+      fallbackContext: "Public certification content is bounded to the authored course and existing practice workspace."
+    }
   };
 }
 

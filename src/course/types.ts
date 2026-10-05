@@ -235,8 +235,6 @@ export interface Course {
   outcomes: string[];
   estimatedTotalMinutes: number;
   modules: CourseModule[];
-  /** Package-contract alias retained at the boundary; modules are authoritative internally. */
-  units: CourseModule[];
   optionalResources: string[];
   capstone: CourseAssessment;
   finalAssessment: CourseAssessment;

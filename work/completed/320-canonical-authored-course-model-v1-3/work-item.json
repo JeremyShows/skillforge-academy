@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "320",
+  "title": "Canonical Authored Course Model V1.3",
+  "status": "completed",
+  "owner_scope": "governance",
+  "affected_scopes": ["implementation", "content", "docs", "governance"],
+  "depends_on": ["319"],
+  "provenance": "concrete",
+  "preflight": {"created_before_work_started": true, "created_at": "2026-10-04T00:00:00-05:00", "note": "Exact public base 83f88fa11fdd77d44945e97eeb048a3d8ce41917."},
+  "acceptance_criteria": [
+    {"id":"AC-1","text":"Public canonical package types faithfully represent the authored Course, activity union, blocks, rubrics, lectures, academic catalog, instructor profile, and labs.","state":"satisfied","evidence":["20261004-320-canonical-authored-course-model-v1-3"]},
+    {"id":"AC-2","text":"Unknown authored semantic enums and activity/block variants reject without fallback projection.","state":"satisfied","evidence":["20261004-320-canonical-authored-course-model-v1-3"]},
+    {"id":"AC-3","text":"Public package runtime reconstructs authored definitions without lossy defaults, while learner/runtime state remains separate.","state":"satisfied","evidence":["20261004-320-canonical-authored-course-model-v1-3"]},
+    {"id":"AC-4","text":"Neutral public fixtures and package parity tests cover the V1.3 loss regressions and privacy boundary.","state":"satisfied","evidence":["20261004-320-canonical-authored-course-model-v1-3"]}
+  ],
+  "created": "2026-10-04",
+  "updated": "2026-10-04",
+  "source": "Canonical Authored Course Model V1.3 request."
+}

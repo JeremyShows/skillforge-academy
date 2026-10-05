@@ -1,245 +1,130 @@
-import {
-  COURSE_PACKAGE_FORMAT, COURSE_PACKAGE_FORMAT_VERSION, PACKAGE_CAPABILITIES,
-  type CoursePackageDocument, type CoursePackageLab, type CoursePackageManifest, type PackageCapability, type PackageLocation
-} from "./packageTypes";
+import { COURSE_PACKAGE_FORMAT, COURSE_PACKAGE_FORMAT_VERSION, PACKAGE_CAPABILITIES, type CoursePackageDocument, type CoursePackageManifest, type PackageCapability } from "./packageTypes";
 
-export const PACKAGE_LIMITS = {
-  maxBytes: 2_000_000, maxStringLength: 20_000, maxUnits: 128, maxLessons: 1_024,
-  maxActivities: 8_192, maxLectures: 512, maxLabs: 256, maxAssets: 1_024, maxReferences: 16_384
-} as const;
-const SUPPORTED_CAPABILITIES = new Set<PackageCapability>(["lecture-delivery", "instructor", "readings", "assignments", "assessments", "remediation", "deterministic-labs"]);
-const FORBIDDEN_KEYS = /^(script|scripts|command|commands|shell|powershell|bash|executable|executableplugin|dynamicimport|eval|processes|processcommand|processexecution|subprocess|native|nativelibrary|dll|binary|moduleurl|endpoint|apikey|secret|token|password|credential|credentials|filepath|localpath|assetpath|env|environmentvariables)$/i;
-const SECRET_VALUE = /(-----BEGIN (?:RSA|OPENSSH|EC|PRIVATE) KEY-----|\bAKIA[0-9A-Z]{16}\b|\bgh[pousr]_[A-Za-z0-9_]{20,}\b|\bsk-[A-Za-z0-9]{20,}\b)/;
-const VERSION = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
-const ID = /^[a-z0-9][a-z0-9._:-]{1,127}$/;
-const LECTURE_KINDS = new Set(["opening","lecture","explanation","diagram","worked-trace","code-walkthrough","demonstration","pause-and-predict","socratic-question","knowledge-check","guided-practice","independent-practice","assessment","remediation","recap","closing"]);
-const LAB_KINDS = new Set(["briefing","prediction","action","observation","check","reflection","formal-activity"]);
-const LAB_OPERATORS = new Set(["equals","not-equals","greater-than","less-than"]);
-const INSTRUCTOR_MODES = new Set(["TEACH","CLARIFY","EXPLAIN_DIFFERENTLY","HINT","SOCRATIC","WORKED_EXAMPLE","CONNECT_TO_EXPERIENCE","CHALLENGE","REMEDIATE","RECAP","OFFICE_HOURS"]);
-const LECTURE_INTERACTIONS = new Set(["none", "free-response", "prediction", "question"]);
-const FORMAL_ACTIVITY_TYPES = new Set(["mastery_check", "module_assessment", "capstone_activity"]);
-
+export const PACKAGE_LIMITS = { maxBytes: 2_000_000, maxModules: 500, maxLessons: 10_000, maxActivities: 100_000 } as const;
 export interface PackageValidationReport { errors: string[]; unsupportedCapabilities: PackageCapability[]; serializedBytes: number; }
 export interface ParsedCoursePackage { document?: CoursePackageDocument; report: PackageValidationReport; }
+type Row = Record<string, unknown>;
+type Hierarchy = { modules: Set<string>; lessons: Set<string>; activities: Set<string>; lessonModule: Map<string, string> };
 
-function record(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
-function stringValue(value: unknown, path: string, errors: string[], required = true): string | undefined {
-  if (typeof value !== "string" || (required && !value.trim())) { if (required) errors.push(`${path} must be a non-empty string`); return undefined; }
-  if (value.length > PACKAGE_LIMITS.maxStringLength) errors.push(`${path} exceeds the string limit`);
-  return value;
-}
-function arrayValue(value: unknown, path: string, errors: string[], required = true): unknown[] | undefined {
-  if (!Array.isArray(value)) { if (required) errors.push(`${path} must be an array`); return undefined; }
-  return value;
-}
-function stableStringify(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(item => item === undefined ? "null" : stableStringify(item)).join(",")}]`;
-  const object = value as Record<string, unknown>;
-  return `{${Object.keys(object).filter(key => object[key] !== undefined).sort().map(key => `${JSON.stringify(key)}:${stableStringify(object[key])}`).join(",")}}`;
-}
-export function serializeCoursePackage(document: CoursePackageDocument): string { return stableStringify(document); }
+const ACTIVITY_TYPES = new Set(["instruction", "concept_explanation", "worked_example", "guided_practice", "scenario", "code_review", "debugging_lab", "incident_lab", "system_design", "architecture_defense", "performance_defense", "security", "knowledge_check", "multiple_choice", "short_answer", "free_response", "retrieval_practice", "explain_back", "interview_drill", "no_notes", "reflective_prompt", "flashcard_review", "pbq", "mastery_check", "module_assessment", "capstone_activity", "remediation"]);
+const BLOCK_TYPES = new Set(["prose", "code", "comparison", "timeline", "trace", "failure-trace", "measurement", "decision", "callout"]);
+const LECTURE_TYPES = new Set(["OPENING", "LECTURE", "EXPLANATION", "DIAGRAM", "WORKED_TRACE", "CODE_WALKTHROUGH", "DEMONSTRATION", "PAUSE_AND_PREDICT", "SOCRATIC_QUESTION", "KNOWLEDGE_CHECK", "GUIDED_PRACTICE", "INDEPENDENT_PRACTICE", "ASSESSMENT", "REMEDIATION", "RECAP", "CLOSING"]);
+const LECTURE_INTERACTIONS = new Set(["none", "free-response", "prediction", "question"]);
+const INSTRUCTOR_MODES = new Set(["TEACH", "CLARIFY", "EXPLAIN_DIFFERENTLY", "HINT", "SOCRATIC", "WORKED_EXAMPLE", "CONNECT_TO_EXPERIENCE", "CHALLENGE", "REMEDIATE", "RECAP", "OFFICE_HOURS"]);
+const COURSE_LEVELS = new Set(["foundational", "intermediate", "advanced", "senior", "principal"]);
+const COURSE_TYPES = new Set(["certification", "professional", "interview", "technical", "course", "custom-private"]);
 
-function unknownFields(value: Record<string, unknown>, allowed: readonly string[], path: string, errors: string[]): void {
-  const known = new Set(allowed);
-  for (const key of Object.keys(value)) if (!known.has(key) && !(key === "number" && path.startsWith("labs.labs["))) errors.push(`${path}.${key} is an unknown field; use extensionMetadata for extensions`);
-}
-function validateCriterion(value: unknown, path: string, errors: string[], requireSignal = false): void {
-  if (!record(value)) { errors.push(`${path} must be an object`); return; }
-  unknownFields(value, ["id","description","required","evidence","keywords","patterns","extensionMetadata"], path, errors);
-  stringValue(value.id, `${path}.id`, errors); stringValue(value.description, `${path}.description`, errors);
-  if (typeof value.required !== "boolean") errors.push(`${path}.required must be a boolean`);
-  if (!["self-assessed","verified","assisted"].includes(String(value.evidence))) errors.push(`${path}.evidence is unknown`);
-  for (const key of ["keywords", "patterns"] as const) if (value[key] !== undefined && (!Array.isArray(value[key]) || value[key].some(item => typeof item !== "string" || !item.trim()))) errors.push(`${path}.${key} must contain non-empty strings`);
-  const signal = [ ...(Array.isArray(value.keywords) ? value.keywords : []), ...(Array.isArray(value.patterns) ? value.patterns : []) ].some(item => typeof item === "string" && item.trim());
-  if (requireSignal && value.required !== false && !signal) errors.push(`${path} required criterion must declare keywords or patterns for deterministic evaluation`);
-}
-function scanForbidden(value: unknown, path: string, errors: string[], seen = new Set<object>()): void {
-  if (typeof value === "string") { if (SECRET_VALUE.test(value)) errors.push(`${path} contains a secret-shaped value`); return; }
+function isRow(value: unknown): value is Row { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
+function unknownFields(value: Row, allowed: readonly string[], path: string, errors: string[]): void { for (const key of Object.keys(value)) if (!allowed.includes(key)) errors.push(`${path}.${key} is an unknown field`); }
+function requiredString(value: unknown, path: string, errors: string[]): value is string { if (typeof value !== "string" || !value.trim()) { errors.push(`${path} must be a non-empty string`); return false; } return true; }
+function optionalString(value: unknown, path: string, errors: string[]): void { if (value !== undefined && typeof value !== "string") errors.push(`${path} must be a string`); }
+function array(value: unknown, path: string, errors: string[], required = true): unknown[] { if (!Array.isArray(value)) { if (required) errors.push(`${path} must be an array`); return []; } return value; }
+function strings(value: unknown, path: string, errors: string[], required = true): void { array(value, path, errors, required).forEach((item, index) => requiredString(item, `${path}[${index}]`, errors)); }
+function number(value: unknown, path: string, errors: string[], min = 0, max = Number.POSITIVE_INFINITY): void { if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) errors.push(`${path} must be a finite number in range`); }
+function stableStringify(value: unknown): string { if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`; if (isRow(value)) return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`; return JSON.stringify(value); }
+function forbidden(value: unknown, path: string, errors: string[], seen = new Set<object>()): void {
+  const secret = /-----BEGIN (?:RSA|OPENSSH|EC|PRIVATE) KEY-----|\bAKIA[0-9A-Z]{16}\b|\bgh[pousr]_[A-Za-z0-9_]{20,}\b|\bsk-[A-Za-z0-9]{20,}\b/;
+  const badKey = /^(script|scripts|command|commands|shell|powershell|bash|executable|eval|process|subprocess|native|dll|binary|endpoint|apikey|secret|token|password|credential|filepath|localpath|assetpath|env)$/i;
+  if (typeof value === "string") { if (secret.test(value)) errors.push(`${path} contains a secret-shaped value`); return; }
   if (!value || typeof value !== "object") return;
   if (seen.has(value)) { errors.push(`${path} contains a cyclic structure`); return; }
   seen.add(value);
-  if (Array.isArray(value)) value.forEach((item, index) => scanForbidden(item, `${path}[${index}]`, errors, seen));
-  else Object.entries(value).forEach(([key, child]) => { if (FORBIDDEN_KEYS.test(key)) errors.push(`${path}.${key} is not allowed in a declarative package`); scanForbidden(child, `${path}.${key}`, errors, seen); });
+  if (Array.isArray(value)) value.forEach((item, index) => forbidden(item, `${path}[${index}]`, errors, seen));
+  else Object.entries(value).forEach(([key, child]) => { if (badKey.test(key)) errors.push(`${path}.${key} is not allowed in a declarative package`); forbidden(child, `${path}.${key}`, errors, seen); });
   seen.delete(value);
 }
-function ids(rows: unknown[], path: string, errors: string[]): Set<string> {
-  const result = new Set<string>();
-  rows.forEach((value, index) => {
-    if (!record(value)) { errors.push(`${path}[${index}] must be an object`); return; }
-    const id = stringValue(value.id, `${path}[${index}].id`, errors);
-    if (id && !ID.test(id)) errors.push(`${path}[${index}].id has an invalid identifier`);
-    if (id && result.has(id)) errors.push(`${path} contains duplicate id ${id}`);
-    if (id) result.add(id);
-  });
-  return result;
-}
+
 function validateManifest(value: unknown, errors: string[], unsupported: PackageCapability[]): value is CoursePackageManifest {
-  if (!record(value)) { errors.push("manifest must be an object"); return false; }
-  unknownFields(value, ["format","formatVersion","packageId","packageVersion","courseId","courseVersion","contentVersion","title","description","publisher","authors","license","minimumSkillForgeVersion","capabilities","visibilityMetadata","createdAt","provenance","extensionMetadata"], "manifest", errors);
-  if (value.format !== COURSE_PACKAGE_FORMAT) errors.push(`manifest.format must be ${COURSE_PACKAGE_FORMAT}`);
-  if (value.formatVersion !== COURSE_PACKAGE_FORMAT_VERSION) errors.push(`manifest.formatVersion ${String(value.formatVersion)} is unsupported`);
-  for (const key of ["packageId","courseId"] as const) { const id = stringValue(value[key], `manifest.${key}`, errors); if (id && !ID.test(id)) errors.push(`manifest.${key} has an invalid identifier`); }
-  for (const key of ["packageVersion","courseVersion","contentVersion","title","description"] as const) { const text = stringValue(value[key], `manifest.${key}`, errors); if (["packageVersion","courseVersion"].includes(key) && text && !VERSION.test(text)) errors.push(`manifest.${key} must use major.minor.patch version grammar`); }
-  const capabilities = arrayValue(value.capabilities, "manifest.capabilities", errors) ?? [];
+  if (!isRow(value)) { errors.push("manifest must be an object"); return false; }
+  unknownFields(value, ["format", "formatVersion", "packageId", "packageVersion", "courseId", "courseVersion", "contentVersion", "title", "description", "publisher", "authors", "license", "minimumSkillForgeVersion", "capabilities", "visibilityMetadata", "createdAt", "provenance", "extensionMetadata"], "manifest", errors);
+  if (value.format !== COURSE_PACKAGE_FORMAT) errors.push("manifest.format is not canonical");
+  if (value.formatVersion !== COURSE_PACKAGE_FORMAT_VERSION) errors.push("manifest.formatVersion is unsupported");
+  for (const key of ["packageId", "packageVersion", "courseId", "courseVersion", "contentVersion", "title", "description"] as const) requiredString(value[key], `manifest.${key}`, errors);
   const seen = new Set<string>();
-  capabilities.forEach((capability, index) => {
+  array(value.capabilities, "manifest.capabilities", errors).forEach((capability, index) => {
     if (typeof capability !== "string" || !PACKAGE_CAPABILITIES.includes(capability as PackageCapability)) errors.push(`manifest.capabilities[${index}] is unknown`);
-    else { if (seen.has(capability)) errors.push(`manifest.capabilities contains duplicate ${capability}`); seen.add(capability); if (!SUPPORTED_CAPABILITIES.has(capability as PackageCapability)) unsupported.push(capability as PackageCapability); }
+    else { if (seen.has(capability)) errors.push(`manifest.capabilities[${index}] is duplicated`); seen.add(capability); if (["executable-rust-lab", "disposable-linux-runtime", "network-simulation"].includes(capability)) unsupported.push(capability as PackageCapability); }
   });
-  if (value.authors !== undefined && (!Array.isArray(value.authors) || value.authors.some(item => typeof item !== "string"))) errors.push("manifest.authors must contain strings only");
-  if (record(value.visibilityMetadata)) unknownFields(value.visibilityMetadata, ["audience","builtIn","extensionMetadata"], "manifest.visibilityMetadata", errors);
-  if (record(value.provenance)) unknownFields(value.provenance, ["source","sha256","signatureStatus","sourceRevision","extensionMetadata"], "manifest.provenance", errors);
+  if (isRow(value.visibilityMetadata)) { unknownFields(value.visibilityMetadata, ["audience", "builtIn"], "manifest.visibilityMetadata", errors); if (!["public", "private", "local", "enterprise"].includes(String(value.visibilityMetadata.audience))) errors.push("manifest.visibilityMetadata.audience is unknown"); }
+  if (isRow(value.provenance)) { unknownFields(value.provenance, ["source", "sha256", "signatureStatus", "sourceRevision"], "manifest.provenance", errors); if (!["built-in", "local-import", "private-conformance"].includes(String(value.provenance.source))) errors.push("manifest.provenance.source is unknown"); if (!["unsigned", "verified", "unverified"].includes(String(value.provenance.signatureStatus))) errors.push("manifest.provenance.signatureStatus is unknown"); }
   return true;
 }
 
-interface Hierarchy {
-  unitIds: Set<string>; lessonIds: Set<string>; activityIds: Set<string>;
-  lessonUnit: Map<string,string>; activityLesson: Map<string,string>; activityUnit: Map<string,string>;
+function validateBlock(value: unknown, path: string, errors: string[]): void {
+  if (!isRow(value)) { errors.push(`${path} must be an object`); return; }
+  const type = String(value.type); if (!BLOCK_TYPES.has(type)) { errors.push(`${path}.type is unknown`); return; }
+  const allowed: Record<string, string[]> = { prose: ["type", "heading", "body"], code: ["type", "heading", "language", "code", "annotations"], comparison: ["type", "heading", "columns", "rows"], timeline: ["type", "heading", "steps"], trace: ["type", "heading", "steps"], "failure-trace": ["type", "heading", "steps"], measurement: ["type", "heading", "columns", "rows", "takeaway"], decision: ["type", "heading", "options"], callout: ["type", "heading", "body", "tone"] };
+  unknownFields(value, allowed[type], path, errors); requiredString(value.heading, `${path}.heading`, errors);
+  if (type === "prose" || type === "callout") requiredString(value.body, `${path}.body`, errors);
+  if (type === "code") { requiredString(value.language, `${path}.language`, errors); requiredString(value.code, `${path}.code`, errors); strings(value.annotations, `${path}.annotations`, errors, false); }
+  if (type === "comparison") { strings(value.columns, `${path}.columns`, errors); array(value.rows, `${path}.rows`, errors).forEach((item, index) => strings(item, `${path}.rows[${index}]`, errors)); }
+  if (["timeline", "trace", "failure-trace"].includes(type)) strings(value.steps, `${path}.steps`, errors);
+  if (type === "measurement") { strings(value.columns, `${path}.columns`, errors); array(value.rows, `${path}.rows`, errors).forEach((item, index) => strings(item, `${path}.rows[${index}]`, errors)); requiredString(value.takeaway, `${path}.takeaway`, errors); }
+  if (type === "decision") array(value.options, `${path}.options`, errors).forEach((item, index) => { if (!isRow(item)) errors.push(`${path}.options[${index}] must be an object`); else { unknownFields(item, ["label", "tradeoff"], `${path}.options[${index}]`, errors); requiredString(item.label, `${path}.options[${index}].label`, errors); requiredString(item.tradeoff, `${path}.options[${index}].tradeoff`, errors); } });
+  if (value.tone !== undefined && !["note", "warning", "rule"].includes(String(value.tone))) errors.push(`${path}.tone is unknown`);
 }
+function validateCriterion(value: unknown, path: string, errors: string[]): void { if (!isRow(value)) { errors.push(`${path} must be an object`); return; } unknownFields(value, ["id", "label", "keywords", "patterns", "required"], path, errors); requiredString(value.id, `${path}.id`, errors); requiredString(value.label, `${path}.label`, errors); strings(value.keywords, `${path}.keywords`, errors); strings(value.patterns, `${path}.patterns`, errors, false); }
+function validateRubric(value: unknown, path: string, errors: string[], required: boolean): void { if (!isRow(value)) { if (required) errors.push(`${path} must be an object`); return; } unknownFields(value, ["requiredConcepts", "requiredQualifiers", "prohibitedMisconceptions", "minimumWords", "passingScore"], path, errors); const criteria = array(value.requiredConcepts, `${path}.requiredConcepts`, errors, required); if (required && criteria.length === 0) errors.push(`${path}.requiredConcepts must contain at least one criterion`); criteria.forEach((item, index) => { validateCriterion(item, `${path}.requiredConcepts[${index}]`, errors); if (required && isRow(item) && item.required !== false && ![...(Array.isArray(item.keywords) ? item.keywords : []), ...(Array.isArray(item.patterns) ? item.patterns : [])].some(signal => typeof signal === "string" && signal.trim())) errors.push(`${path}.requiredConcepts[${index}] required criterion must declare a signal`); }); for (const key of ["requiredQualifiers", "prohibitedMisconceptions"] as const) array(value[key], `${path}.${key}`, errors, false).forEach((item, index) => validateCriterion(item, `${path}.${key}[${index}]`, errors)); if (value.minimumWords !== undefined) number(value.minimumWords, `${path}.minimumWords`, errors); if (value.passingScore !== undefined) number(value.passingScore, `${path}.passingScore`, errors, 0.000001, 1); }
+
+function validateActivity(value: unknown, path: string, hierarchy: Hierarchy, errors: string[]): void {
+  if (!isRow(value)) { errors.push(`${path} must be an object`); return; }
+  const type = String(value.type); if (!ACTIVITY_TYPES.has(type)) { errors.push(`${path}.type is unknown`); return; }
+  const base = ["id", "type", "title", "estimatedMinutes", "required", "objectiveIds", "tags", "authoredContentId"];
+  const teaching = ["body", "keyPoints", "whyItMatters", "blocks"];
+  const practice = ["prompt", "body", "context", "steps", "hints", "expectedReasoning", "answer", "blocks", "responseRequired", "responseType", "responsePrompt", "pedagogicalRole"];
+  const retrieval = ["prompt", "context", "expectedAnswer", "commonMistake", "exerciseId", "rubric", "blocks", "responseRequired", "responsePrompt", "pedagogicalRole"];
+  const embedded = ["prompt", "front", "back", "scenario", "checks", "sourceId", "responseRequired", "responsePrompt", "pedagogicalRole"];
+  const gate = ["prompt", "options", "answer", "expectedAnswer", "passScore", "explanation", "rubric", "blocks", "conceptIds", "stage", "assessmentId"];
+  const remediation = ["body", "practicePrompt", "returnToActivityId", "successSignal", "blocks", "misconceptionIds", "remediationPaths", "retryPrompt"];
+  const allowed = type === "instruction" || type === "concept_explanation" ? teaching : ["worked_example", "guided_practice", "scenario", "code_review", "debugging_lab", "incident_lab", "system_design", "architecture_defense", "performance_defense", "security"].includes(type) ? practice : ["knowledge_check", "multiple_choice", "short_answer", "free_response", "retrieval_practice", "explain_back", "interview_drill", "no_notes", "reflective_prompt"].includes(type) ? retrieval : ["flashcard_review", "pbq"].includes(type) ? embedded : ["mastery_check", "module_assessment", "capstone_activity"].includes(type) ? gate : remediation;
+  unknownFields(value, [...base, ...allowed], path, errors); requiredString(value.id, `${path}.id`, errors); requiredString(value.title, `${path}.title`, errors); number(value.estimatedMinutes, `${path}.estimatedMinutes`, errors); if (typeof value.id === "string") { if (hierarchy.activities.has(value.id)) errors.push(`${path}.id is duplicated`); hierarchy.activities.add(value.id); }
+  strings(value.objectiveIds, `${path}.objectiveIds`, errors, false); strings(value.tags, `${path}.tags`, errors, false);
+  if (type === "instruction" || type === "concept_explanation") { requiredString(value.body, `${path}.body`, errors); strings(value.keyPoints, `${path}.keyPoints`, errors); }
+  if (practice.includes("expectedReasoning") && ["worked_example", "guided_practice", "scenario", "code_review", "debugging_lab", "incident_lab", "system_design", "architecture_defense", "performance_defense", "security"].includes(type)) { strings(value.expectedReasoning, `${path}.expectedReasoning`, errors); if (value.responseType !== undefined && !["text", "classification", "ordered-steps", "decision"].includes(String(value.responseType))) errors.push(`${path}.responseType is unknown`); }
+  if (retrieval.includes("expectedAnswer") && ["knowledge_check", "multiple_choice", "short_answer", "free_response", "retrieval_practice", "explain_back", "interview_drill", "no_notes", "reflective_prompt"].includes(type)) { requiredString(value.prompt, `${path}.prompt`, errors); requiredString(value.expectedAnswer, `${path}.expectedAnswer`, errors); strings(value.rubric, `${path}.rubric`, errors, false); }
+  if (["flashcard_review", "pbq"].includes(type)) { requiredString(value.prompt, `${path}.prompt`, errors); strings(value.checks, `${path}.checks`, errors); }
+  if (["mastery_check", "module_assessment", "capstone_activity"].includes(type)) { requiredString(value.prompt, `${path}.prompt`, errors); requiredString(value.expectedAnswer, `${path}.expectedAnswer`, errors); requiredString(value.explanation, `${path}.explanation`, errors); number(value.passScore, `${path}.passScore`, errors, 0.000001, 1); validateRubric(value.rubric, `${path}.rubric`, errors, true); strings(value.conceptIds, `${path}.conceptIds`, errors, false); }
+  if (type === "remediation") { for (const key of ["body", "practicePrompt", "returnToActivityId", "successSignal"] as const) requiredString(value[key], `${path}.${key}`, errors); strings(value.misconceptionIds, `${path}.misconceptionIds`, errors, false); }
+  if (Array.isArray(value.blocks)) value.blocks.forEach((block, index) => validateBlock(block, `${path}.blocks[${index}]`, errors));
+}
+
+function validateAssessment(value: unknown, path: string, hierarchy: Hierarchy, errors: string[]): void { if (!isRow(value)) { errors.push(`${path} must be an object`); return; } unknownFields(value, ["id", "title", "activityIds", "passScore", "description", "scenario", "prompt", "blocks", "sourceLessonIds", "responseGuide", "conceptIds", "rubric", "novelScenario", "stages", "finalIntegration"], path, errors); for (const key of ["id", "title", "description"] as const) requiredString(value[key], `${path}.${key}`, errors); array(value.activityIds, `${path}.activityIds`, errors).forEach((id, index) => { if (typeof id !== "string" || !hierarchy.activities.has(id)) errors.push(`${path}.activityIds[${index}] references an unknown activity`); }); number(value.passScore, `${path}.passScore`, errors, 0.000001, 1); if (Array.isArray(value.blocks)) value.blocks.forEach((block, index) => validateBlock(block, `${path}.blocks[${index}]`, errors)); validateRubric(value.rubric, `${path}.rubric`, errors, false); if (Array.isArray(value.stages)) value.stages.forEach((stage, index) => { if (!isRow(stage)) errors.push(`${path}.stages[${index}] must be an object`); else { unknownFields(stage, ["number", "title", "prompt", "rubric"], `${path}.stages[${index}]`, errors); number(stage.number, `${path}.stages[${index}].number`, errors, 1); requiredString(stage.title, `${path}.stages[${index}].title`, errors); requiredString(stage.prompt, `${path}.stages[${index}].prompt`, errors); validateRubric(stage.rubric, `${path}.stages[${index}].rubric`, errors, true); } }); }
+
 function validateCourse(value: unknown, errors: string[]): Hierarchy {
-  const empty: Hierarchy = { unitIds: new Set(), lessonIds: new Set(), activityIds: new Set(), lessonUnit: new Map(), activityLesson: new Map(), activityUnit: new Map() };
-  if (!record(value)) { errors.push("course must be an object"); return empty; }
-  unknownFields(value, ["id","title","description","subtitle","subject","level","audience","type","outcomes","estimatedTotalMinutes","units","prerequisites","placement","capstone","finalAssessment","metadata","extensionMetadata"], "course", errors);
-  for (const key of ["id","title","description"] as const) stringValue(value[key], `course.${key}`, errors);
-  const units = arrayValue(value.units, "course.units", errors) ?? [];
-  if (units.length > PACKAGE_LIMITS.maxUnits) errors.push("course.units exceeds the collection limit");
-  const unitIds = ids(units, "course.units", errors);
-  const lessonIds = new Set<string>(), activityIds = new Set<string>(), lessonUnit = new Map<string,string>(), activityLesson = new Map<string,string>(), activityUnit = new Map<string,string>();
-  let lessonCount=0, activityCount=0;
-  units.forEach((unit, ui) => {
-    if (!record(unit)) return;
-    unknownFields(unit, ["id","title","description","lessons","prerequisites","masteryRequirements","moduleAssessment","extensionMetadata"], `course.units[${ui}]`, errors);
-    stringValue(unit.title, `course.units[${ui}].title`, errors); stringValue(unit.description, `course.units[${ui}].description`, errors);
-    const lessons = arrayValue(unit.lessons, `course.units[${ui}].lessons`, errors) ?? [];
-    lessonCount += lessons.length; if (lessonCount > PACKAGE_LIMITS.maxLessons) errors.push("course lessons exceed the collection limit");
-    lessons.forEach((lesson, li) => {
-      if (!record(lesson)) { errors.push(`course.units[${ui}].lessons[${li}] must be an object`); return; }
-      unknownFields(lesson, ["id","title","summary","objectives","activities","prerequisites","concepts","tags","masteryRule","extensionMetadata"], `course.units[${ui}].lessons[${li}]`, errors);
-      const lessonId = stringValue(lesson.id, `course.units[${ui}].lessons[${li}].id`, errors);
-      stringValue(lesson.title, `course.units[${ui}].lessons[${li}].title`, errors); stringValue(lesson.summary, `course.units[${ui}].lessons[${li}].summary`, errors);
-      if (record(lesson.masteryRule)) { unknownFields(lesson.masteryRule,["gateActivityId","criteria","passScore","requiredActivityIds","retryPolicy","remediationActivityId","extensionMetadata"],`course.units[${ui}].lessons[${li}].masteryRule`,errors); stringValue(lesson.masteryRule.gateActivityId,`course.units[${ui}].lessons[${li}].masteryRule.gateActivityId`,errors); if(typeof lesson.masteryRule.passScore!=="number"||lesson.masteryRule.passScore<=0||lesson.masteryRule.passScore>1)errors.push(`course.units[${ui}].lessons[${li}].masteryRule.passScore must be greater than 0 and no greater than 1`); if(!["same-lesson","remediate-then-retry"].includes(String(lesson.masteryRule.retryPolicy)))errors.push(`course.units[${ui}].lessons[${li}].masteryRule.retryPolicy is unknown`); if(Array.isArray(lesson.masteryRule.criteria)) lesson.masteryRule.criteria.forEach((criterion,index)=>validateCriterion(criterion,`course.units[${ui}].lessons[${li}].masteryRule.criteria[${index}]`,errors)); }
-      if (lessonId) { if (lessonIds.has(lessonId)) errors.push(`course.lessons contains duplicate id ${lessonId}`); lessonIds.add(lessonId); lessonUnit.set(lessonId, String(unit.id)); }
-      const activities = arrayValue(lesson.activities, `course.units[${ui}].lessons[${li}].activities`, errors) ?? [];
-      activityCount += activities.length; if (activityCount > PACKAGE_LIMITS.maxActivities) errors.push("course activities exceed the collection limit");
-      activities.forEach((activity, ai) => {
-        if (!record(activity)) { errors.push(`course.units[${ui}].lessons[${li}].activities[${ai}] must be an object`); return; }
-        unknownFields(activity, ["id","type","title","estimatedMinutes","body","prompt","objectiveIds","conceptIds","tags","source","required","formal","masteryRubric","responseGuide","scenario","responseType","responsePrompt","expectedReasoning","options","passScore","assessmentId","returnToActivityId","successSignal","blocks","stages","extensionMetadata"], `course.units[${ui}].lessons[${li}].activities[${ai}]`, errors);
-        const activityId = stringValue(activity.id, `course.units[${ui}].lessons[${li}].activities[${ai}].id`, errors);
-        stringValue(activity.type, `course.units[${ui}].lessons[${li}].activities[${ai}].type`, errors); stringValue(activity.title, `course.units[${ui}].lessons[${li}].activities[${ai}].title`, errors);
-        const activityPath = `course.units[${ui}].lessons[${li}].activities[${ai}]`;
-        if (activity.responseType !== undefined && !["text", "choice", "prediction", "classification", "ordered-steps", "decision"].includes(String(activity.responseType))) errors.push(`${activityPath}.responseType is unknown`);
-        if (FORMAL_ACTIVITY_TYPES.has(String(activity.type)) || activity.formal === true) {
-          if (typeof activity.passScore !== "number" || activity.passScore <= 0 || activity.passScore > 1) errors.push(`${activityPath}.passScore must be greater than 0 and no greater than 1`);
-          if (!Array.isArray(activity.masteryRubric) || activity.masteryRubric.length === 0) errors.push(`${activityPath}.masteryRubric must contain at least one criterion for formal evaluation`);
-          else activity.masteryRubric.forEach((criterion, index) => validateCriterion(criterion, `${activityPath}.masteryRubric[${index}]`, errors, true));
-        } else if (Array.isArray(activity.masteryRubric)) activity.masteryRubric.forEach((criterion, index) => validateCriterion(criterion, `${activityPath}.masteryRubric[${index}]`, errors));
-        if (Array.isArray(activity.stages)) activity.stages.forEach((stage, index) => { if (!record(stage)) { errors.push(`${activityPath}.stages[${index}] must be an object`); return; } unknownFields(stage, ["number","title","prompt","required","rubric","extensionMetadata"], `${activityPath}.stages[${index}]`, errors); if (!Array.isArray(stage.rubric) || stage.rubric.length === 0) errors.push(`${activityPath}.stages[${index}].rubric must contain at least one criterion`); else stage.rubric.forEach((criterion, criterionIndex) => validateCriterion(criterion, `${activityPath}.stages[${index}].rubric[${criterionIndex}]`, errors, true)); });
-        if (activityId) { if (activityIds.has(activityId)) errors.push(`course.activities contains duplicate id ${activityId}`); activityIds.add(activityId); activityLesson.set(activityId, String(lesson.id)); activityUnit.set(activityId, String(unit.id)); }
-        if (record(activity.source)) checkLocation(activity.source, `course.units[${ui}].lessons[${li}].activities[${ai}].source`, {unitIds,lessonIds,activityIds,lessonUnit,activityLesson,activityUnit}, errors, true);
-      });
-    });
-  });
-  const hierarchy={unitIds,lessonIds,activityIds,lessonUnit,activityLesson,activityUnit};
-  units.forEach((unit, ui) => { if (record(unit) && unit.moduleAssessment !== undefined) validateAssessment(unit.moduleAssessment, `course.units[${ui}].moduleAssessment`, hierarchy, errors); });
-  for (const row of [value.capstone, value.finalAssessment]) if (row !== undefined) validateAssessment(row, "course.assessment", hierarchy, errors);
-  return hierarchy;
+  const hierarchy: Hierarchy = { modules: new Set(), lessons: new Set(), activities: new Set(), lessonModule: new Map() };
+  if (!isRow(value)) { errors.push("course must be an object"); return hierarchy; }
+  unknownFields(value, ["id", "version", "contentVersion", "title", "subtitle", "description", "subject", "level", "audience", "prerequisites", "prerequisiteConceptIds", "outcomes", "estimatedTotalMinutes", "modules", "optionalResources", "capstone", "finalAssessment", "metadata", "visibility", "type"], "course", errors);
+  for (const key of ["id", "version", "contentVersion", "title", "subtitle", "description", "subject", "audience"] as const) requiredString(value[key], `course.${key}`, errors);
+  if (!COURSE_LEVELS.has(String(value.level))) errors.push("course.level is unknown"); if (!COURSE_TYPES.has(String(value.type))) errors.push("course.type is unknown"); if (!["public", "private", "local"].includes(String(value.visibility))) errors.push("course.visibility is unknown");
+  strings(value.prerequisites, "course.prerequisites", errors); strings(value.prerequisiteConceptIds, "course.prerequisiteConceptIds", errors, false); strings(value.outcomes, "course.outcomes", errors); number(value.estimatedTotalMinutes, "course.estimatedTotalMinutes", errors); strings(value.optionalResources, "course.optionalResources", errors);
+  if (!isRow(value.metadata)) errors.push("course.metadata must be an object"); else { unknownFields(value.metadata, ["author", "source", "tags", "updatedAt"], "course.metadata", errors); strings(value.metadata.tags, "course.metadata.tags", errors); }
+  array(value.modules, "course.modules", errors).forEach((module, mi) => { if (!isRow(module)) { errors.push(`course.modules[${mi}] must be an object`); return; } const mp = `course.modules[${mi}]`; unknownFields(module, ["id", "title", "summary", "learningOutcomes", "prerequisiteModuleIds", "lessons", "estimatedMinutes", "masteryRequirements", "moduleAssessment", "prerequisiteConceptIds"], mp, errors); requiredString(module.id, `${mp}.id`, errors); if (typeof module.id === "string") { if (hierarchy.modules.has(module.id)) errors.push(`${mp}.id is duplicated`); hierarchy.modules.add(module.id); } requiredString(module.title, `${mp}.title`, errors); requiredString(module.summary, `${mp}.summary`, errors); strings(module.learningOutcomes, `${mp}.learningOutcomes`, errors); strings(module.prerequisiteModuleIds, `${mp}.prerequisiteModuleIds`, errors); strings(module.masteryRequirements, `${mp}.masteryRequirements`, errors); strings(module.prerequisiteConceptIds, `${mp}.prerequisiteConceptIds`, errors, false); number(module.estimatedMinutes, `${mp}.estimatedMinutes`, errors);
+    array(module.lessons, `${mp}.lessons`, errors).forEach((lesson, li) => { if (!isRow(lesson)) { errors.push(`${mp}.lessons[${li}] must be an object`); return; } const lp = `${mp}.lessons[${li}]`; unknownFields(lesson, ["id", "title", "summary", "objectives", "estimatedMinutes", "prerequisiteKnowledge", "prerequisiteLessonIds", "conceptIds", "externalPrerequisites", "activities", "masteryRule", "remediationActivityId", "references", "tags"], lp, errors); requiredString(lesson.id, `${lp}.id`, errors); if (typeof lesson.id === "string") { if (hierarchy.lessons.has(lesson.id)) errors.push(`${lp}.id is duplicated`); hierarchy.lessons.add(lesson.id); hierarchy.lessonModule.set(lesson.id, String(module.id)); } requiredString(lesson.title, `${lp}.title`, errors); requiredString(lesson.summary, `${lp}.summary`, errors); strings(lesson.objectives, `${lp}.objectives`, errors); number(lesson.estimatedMinutes, `${lp}.estimatedMinutes`, errors); for (const key of ["prerequisiteKnowledge", "prerequisiteLessonIds", "conceptIds", "externalPrerequisites", "references"] as const) strings(lesson[key], `${lp}.${key}`, errors, false); strings(lesson.tags, `${lp}.tags`, errors); if (!isRow(lesson.masteryRule)) errors.push(`${lp}.masteryRule must be an object`); else { unknownFields(lesson.masteryRule, ["gateActivityId", "passScore", "requiredActivityIds", "retryPolicy"], `${lp}.masteryRule`, errors); requiredString(lesson.masteryRule.gateActivityId, `${lp}.masteryRule.gateActivityId`, errors); number(lesson.masteryRule.passScore, `${lp}.masteryRule.passScore`, errors, 0.000001, 1); strings(lesson.masteryRule.requiredActivityIds, `${lp}.masteryRule.requiredActivityIds`, errors); if (!["same-lesson", "remediate-then-retry"].includes(String(lesson.masteryRule.retryPolicy))) errors.push(`${lp}.masteryRule.retryPolicy is unknown`); } requiredString(lesson.remediationActivityId, `${lp}.remediationActivityId`, errors); array(lesson.activities, `${lp}.activities`, errors).forEach((activity, ai) => validateActivity(activity, `${lp}.activities[${ai}]`, hierarchy, errors)); }); if (isRow(module.moduleAssessment)) validateAssessment(module.moduleAssessment, `${mp}.moduleAssessment`, hierarchy, errors); });
+  if (isRow(value.capstone)) validateAssessment(value.capstone, "course.capstone", hierarchy, errors); else errors.push("course.capstone must be an object"); if (isRow(value.finalAssessment)) validateAssessment(value.finalAssessment, "course.finalAssessment", hierarchy, errors); else errors.push("course.finalAssessment must be an object"); return hierarchy;
 }
-function checkLocation(value: unknown, path: string, h: Hierarchy, errors: string[], requireActivity = false): void {
-  if (!record(value)) { errors.push(`${path} must be a package location`); return; }
-  unknownFields(value, ["unitId","lessonId","activityId","extensionMetadata"], path, errors);
-  const unit = stringValue(value.unitId, `${path}.unitId`, errors);
-  const lesson = stringValue(value.lessonId, `${path}.lessonId`, errors, false);
-  const activity = stringValue(value.activityId, `${path}.activityId`, errors, requireActivity);
-  if (unit && !h.unitIds.has(unit)) errors.push(`${path}.unitId references an unknown unit`);
-  if (lesson && !h.lessonIds.has(lesson)) errors.push(`${path}.lessonId references an unknown lesson`);
-  if (activity && !h.activityIds.has(activity)) errors.push(`${path}.activityId references an unknown activity`);
-  if (lesson && unit && h.lessonUnit.get(lesson) !== unit) errors.push(`${path} has an invalid lesson relationship with its unit`);
-  if (activity && lesson && h.activityLesson.get(activity) !== lesson) errors.push(`${path} has an invalid activity relationship with its lesson`);
-  if (activity && unit && h.activityUnit.get(activity) !== unit) errors.push(`${path} has an invalid activity relationship with its unit`);
-  if (activity && !lesson) errors.push(`${path}.lessonId is required when activityId is present`);
+
+function validateLecture(value: unknown, hierarchy: Hierarchy, errors: string[]): void {
+  if (!isRow(value)) { errors.push("lectures must be an object"); return; }
+  unknownFields(value, ["courseId", "version", "lectures", "explicitLectureIds"], "lectures", errors); requiredString(value.courseId, "lectures.courseId", errors); requiredString(value.version, "lectures.version", errors); strings(value.explicitLectureIds, "lectures.explicitLectureIds", errors);
+  array(value.lectures, "lectures.lectures", errors).forEach((lecture, index) => { if (!isRow(lecture)) { errors.push(`lectures.lectures[${index}] must be an object`); return; } const p = `lectures.lectures[${index}]`; unknownFields(lecture, ["id", "version", "courseId", "moduleId", "lessonIds", "number", "title", "abstract", "objectives", "prerequisiteConceptIds", "estimatedMinutes", "segments", "references", "tags", "explicit"], p, errors); for (const key of ["id", "version", "courseId", "moduleId", "title", "abstract"] as const) requiredString(lecture[key], `${p}.${key}`, errors); if (typeof lecture.moduleId === "string" && !hierarchy.modules.has(lecture.moduleId)) errors.push(`${p}.moduleId references an unknown module`); const lessonIds = array(lecture.lessonIds, `${p}.lessonIds`, errors); lessonIds.forEach((id, lessonIndex) => { if (typeof id !== "string" || !hierarchy.lessons.has(id)) errors.push(`${p}.lessonIds[${lessonIndex}] references an unknown lesson`); else if (typeof lecture.moduleId === "string" && hierarchy.lessonModule.get(id) !== lecture.moduleId) errors.push(`${p}.lessonIds[${lessonIndex}] has an invalid lesson relationship`); }); strings(lecture.objectives, `${p}.objectives`, errors); strings(lecture.prerequisiteConceptIds, `${p}.prerequisiteConceptIds`, errors); strings(lecture.references, `${p}.references`, errors); strings(lecture.tags, `${p}.tags`, errors); number(lecture.estimatedMinutes, `${p}.estimatedMinutes`, errors); array(lecture.segments, `${p}.segments`, errors).forEach((segment, segmentIndex) => { if (!isRow(segment)) { errors.push(`${p}.segments[${segmentIndex}] must be an object`); return; } const sp = `${p}.segments[${segmentIndex}]`; unknownFields(segment, ["id", "type", "title", "conceptIds", "authoredContent", "teacherCue", "sourceActivityId", "sourceLocation", "prompt", "expectedInteraction", "references", "estimatedMinutes", "required"], sp, errors); requiredString(segment.id, `${sp}.id`, errors); if (!LECTURE_TYPES.has(String(segment.type))) errors.push(`${sp}.type is unknown`); requiredString(segment.title, `${sp}.title`, errors); strings(segment.conceptIds, `${sp}.conceptIds`, errors); number(segment.estimatedMinutes, `${sp}.estimatedMinutes`, errors); if (!LECTURE_INTERACTIONS.has(String(segment.expectedInteraction))) errors.push(`${sp}.expectedInteraction is unknown`); if (typeof segment.sourceActivityId === "string" && !hierarchy.activities.has(segment.sourceActivityId)) errors.push(`${sp}.sourceActivityId references an unknown activity`); if (isRow(segment.authoredContent)) { const kind = String(segment.authoredContent.kind); const allowed: Record<string, string[]> = { prose: ["kind", "paragraphs"], diagram: ["kind", "label", "nodes", "edges", "textEquivalent"], trace: ["kind", "steps", "textEquivalent"], code: ["kind", "language", "code", "annotations", "textEquivalent"] }; if (!allowed[kind]) errors.push(`${sp}.authoredContent.kind is unknown`); else { unknownFields(segment.authoredContent, allowed[kind], `${sp}.authoredContent`, errors); for (const key of allowed[kind].filter(item => item !== "kind")) { if (["label", "language", "code", "textEquivalent"].includes(key)) requiredString(segment.authoredContent[key], `${sp}.authoredContent.${key}`, errors); else strings(segment.authoredContent[key], `${sp}.authoredContent.${key}`, errors); } } } }); });
 }
-function validateAssessment(value: unknown, path: string, h: Hierarchy, errors: string[]): void {
-  if (!record(value)) { errors.push(`${path} must be an object`); return; }
-  unknownFields(value, ["id","title","instructions","source","rubric","unitId","kind","activityIds","sourceActivityIds","required","passScore","description","prompt","scenario","conceptIds","responseGuide","finalIntegration","novelScenario","blocks","sourceLessonIds","masteryRubric","stages","extensionMetadata"], path, errors);
-  stringValue(value.id, `${path}.id`, errors); stringValue(value.title, `${path}.title`, errors); stringValue(value.instructions, `${path}.instructions`, errors);
-  checkLocation(value.source, `${path}.source`, h, errors, true);
-  if (!Array.isArray(value.rubric)) errors.push(`${path}.rubric must be an array`);
-  for (const key of ["activityIds", "sourceActivityIds"] as const) if (value[key] !== undefined && Array.isArray(value[key])) value[key].forEach((id,index)=>{ if(typeof id!=="string" || !h.activityIds.has(id)) errors.push(`${path}.${key}[${index}] references an unknown activity`); });
-  if (value.passScore !== undefined && (typeof value.passScore !== "number" || value.passScore <= 0 || value.passScore > 1)) errors.push(`${path}.passScore must be greater than 0 and no greater than 1`);
-  if (Array.isArray(value.masteryRubric)) value.masteryRubric.forEach((criterion, index) => validateCriterion(criterion, `${path}.masteryRubric[${index}]`, errors, true));
-  if (Array.isArray(value.stages)) value.stages.forEach((stage, index) => {
-    if (!record(stage)) { errors.push(`${path}.stages[${index}] must be an object`); return; }
-    unknownFields(stage, ["number","title","prompt","required","rubric","extensionMetadata"], `${path}.stages[${index}]`, errors);
-    if (!Array.isArray(stage.rubric) || stage.rubric.length === 0) errors.push(`${path}.stages[${index}].rubric must contain at least one criterion`);
-    else stage.rubric.forEach((criterion, criterionIndex) => validateCriterion(criterion, `${path}.stages[${index}].rubric[${criterionIndex}]`, errors, true));
-  });
-}
-function validateLecture(value: unknown, h: Hierarchy, errors: string[]): void {
-  if (!record(value)) { errors.push("lectures must be an object"); return; }
-  unknownFields(value, ["version","lectures","extensionMetadata"], "lectures", errors);
-  const lectures=arrayValue(value.lectures,"lectures.lectures",errors)??[]; if(lectures.length>PACKAGE_LIMITS.maxLectures) errors.push("lectures exceeds the collection limit");
-  const lectureIds=ids(lectures,"lectures.lectures",errors);
-  lectures.forEach((row,i)=>{ if(!record(row)) return; unknownFields(row,["id","title","version","unitId","lessonIds","segments","estimatedMinutes","extensionMetadata"],`lectures.lectures[${i}]`,errors); const unit=stringValue(row.unitId,`lectures.lectures[${i}].unitId`,errors); if(unit&&!h.unitIds.has(unit)) errors.push(`lectures.lectures[${i}].unitId references an unknown unit`); const lessonIds=arrayValue(row.lessonIds,`lectures.lectures[${i}].lessonIds`,errors)??[]; lessonIds.forEach((id,j)=>{if(typeof id!=="string"||!h.lessonIds.has(id))errors.push(`lectures.lectures[${i}].lessonIds[${j}] references an unknown lesson`);else if(unit&&h.lessonUnit.get(id)!==unit)errors.push(`lectures.lectures[${i}].lessonIds[${j}] has an invalid lesson relationship`);}); const segments=arrayValue(row.segments,`lectures.lectures[${i}].segments`,errors)??[]; segments.forEach((segment,j)=>{if(!record(segment)){errors.push(`lectures.lectures[${i}].segments[${j}] must be an object`);return;} unknownFields(segment,["id","kind","title","body","source","lessonId","activityId","required","authoredContent","interaction","references","extensionMetadata"],`lectures.lectures[${i}].segments[${j}]`,errors); if(typeof segment.kind!=="string"||!LECTURE_KINDS.has(segment.kind))errors.push(`lectures.lectures[${i}].segments[${j}].kind is unknown`); if(record(segment.authoredContent)) unknownFields(segment.authoredContent,["prose","diagram","trace","code","extensionMetadata"],`lectures.lectures[${i}].segments[${j}].authoredContent`,errors); if(record(segment.interaction)) { unknownFields(segment.interaction,["prompt","responseType","options","extensionMetadata"],`lectures.lectures[${i}].segments[${j}].interaction`,errors); if(!LECTURE_INTERACTIONS.has(String(segment.interaction.responseType))) errors.push(`lectures.lectures[${i}].segments[${j}].interaction.responseType is unknown`); } if(segment.source!==undefined)checkLocation(segment.source,`lectures.lectures[${i}].segments[${j}].source`,h,errors,false); else if(segment.lessonId!==undefined||segment.activityId!==undefined)checkLocation({unitId:unit,lessonId:segment.lessonId,activityId:segment.activityId},`lectures.lectures[${i}].segments[${j}]`,h,errors,false);}); void lectureIds; });
-}
-function validateInstructor(value: unknown, errors: string[]): void {
-  if (!record(value)) { errors.push("instructor must be an object"); return; }
-  unknownFields(value,["id","displayRole","subjectScope","pedagogicalInstructions","allowedModes","fallbackLanguage","extensionMetadata"],"instructor",errors);
-  for (const key of ["id","displayRole","subjectScope","fallbackLanguage"] as const) stringValue(value[key],`instructor.${key}`,errors);
-  const instructions=arrayValue(value.pedagogicalInstructions,"instructor.pedagogicalInstructions",errors)??[]; if(instructions.some(item=>typeof item!=="string")) errors.push("instructor.pedagogicalInstructions must contain strings only");
-  const modes=arrayValue(value.allowedModes,"instructor.allowedModes",errors)??[]; const seen=new Set<string>(); modes.forEach((mode,index)=>{if(typeof mode!=="string"||!INSTRUCTOR_MODES.has(mode))errors.push(`instructor.allowedModes[${index}] is not a canonical InstructorMode`);else if(seen.has(mode))errors.push(`instructor.allowedModes contains duplicate ${mode}`);else seen.add(mode);});
-}
-function validateAssets(value: unknown, errors: string[]): void { const rows=arrayValue(value,"assets",errors)??[]; if(rows.length>PACKAGE_LIMITS.maxAssets)errors.push("assets exceeds the collection limit"); rows.forEach((row,index)=>{if(!record(row)){errors.push(`assets[${index}] must be an object`);return;} unknownFields(row,["id","kind","label","mediaType","byteLength","extensionMetadata"],`assets[${index}]`,errors); stringValue(row.id,`assets[${index}].id`,errors); stringValue(row.label,`assets[${index}].label`,errors); stringValue(row.mediaType,`assets[${index}].mediaType`,errors); if(typeof row.byteLength!=="number"||row.byteLength<0)errors.push(`assets[${index}].byteLength must be a non-negative number`);}); }
-function validateMigrations(value: unknown, errors: string[]): void { const rows=arrayValue(value,"migrations",errors)??[]; rows.forEach((row,index)=>{if(!record(row)){errors.push(`migrations[${index}] must be an object`);return;} unknownFields(row,["fromCourseVersion","toCourseVersion","strategy","notes","extensionMetadata"],`migrations[${index}]`,errors); for(const key of ["fromCourseVersion","toCourseVersion","notes"] as const)stringValue(row[key],`migrations[${index}].${key}`,errors); if(!["preserve","reset-required","manual-review"].includes(String(row.strategy)))errors.push(`migrations[${index}].strategy is unknown`);}); }
-function validateAcademic(value: unknown,h:Hierarchy,manifest:CoursePackageManifest|undefined,errors:string[]):void {
-  if(!record(value)){errors.push("academic must be an object");return;} unknownFields(value,["version","program","syllabus","units","readings","assignments","assessments","completionRequirements","policySemantics","completionPolicySemantics","assessmentPlanSemantics","extensionMetadata"],"academic",errors);
-  if(record(value.program))unknownFields(value.program,["id","title","description","courseIds","status","extensionMetadata"],"academic.program",errors);
-  if(record(value.syllabus))unknownFields(value.syllabus,["id","title","description","learningOutcomes","policies","prerequisites","capstoneAssessmentId","extensionMetadata"],"academic.syllabus",errors);
-  const units=arrayValue(value.units,"academic.units",errors)??[]; units.forEach((row,i)=>{if(!record(row))return; unknownFields(row,["id","moduleId","title","description","learningObjectives","prerequisiteUnitIds","extensionMetadata"],`academic.units[${i}]`,errors); const id=stringValue(row.moduleId,`academic.units[${i}].moduleId`,errors);if(id&&!h.unitIds.has(id))errors.push(`academic.units[${i}].moduleId references an unknown unit`);});
-  const readings=arrayValue(value.readings,"academic.readings",errors)??[]; readings.forEach((row,i)=>{if(record(row)){unknownFields(row,["id","title","body","source","unitId","lessonId","required","extensionMetadata"],`academic.readings[${i}]`,errors);checkLocation(row.source,`academic.readings[${i}].source`,h,errors,true);}});
-  const assignments=arrayValue(value.assignments,"academic.assignments",errors)??[]; assignments.forEach((row,i)=>{if(record(row)){unknownFields(row,["id","title","instructions","source","unitId","lessonId","sourceActivityIds","required","extensionMetadata"],`academic.assignments[${i}]`,errors);checkLocation(row.source,`academic.assignments[${i}].source`,h,errors,true);}});
-  const assessments=arrayValue(value.assessments,"academic.assessments",errors)??[]; assessments.forEach((row,i)=>validateAssessment(row,`academic.assessments[${i}]`,h,errors));
-  for (const key of ["policySemantics","completionPolicySemantics","assessmentPlanSemantics"] as const) if (value[key] !== undefined && !record(value[key])) errors.push(`academic.${key} must be an object`);
-  void manifest;
-}
-function validateLabs(value: unknown,h:Hierarchy,manifest:CoursePackageManifest|undefined,errors:string[]):void {
-  if(!record(value)){errors.push("labs must be an object");return;} unknownFields(value,["version","runtimeVersion","courseId","labs","extensionMetadata"],"labs",errors);
-  if(manifest&&value.courseId!==manifest.courseId)errors.push("labs.courseId must match manifest.courseId");
-  const labs=arrayValue(value.labs,"labs.labs",errors)??[]; if(labs.length>PACKAGE_LIMITS.maxLabs)errors.push("labs exceeds the collection limit"); labs.forEach((lab,i)=>{if(!record(lab))return;unknownFields(lab,["id","title","purpose","unitId","sourceLocation","sourceLocations","learningObjective","estimatedMinutes","required","environment","initialState","actions","checks","steps","requiredStepIds","reflectionPrompts","instructorNote","extensionMetadata"],`labs.labs[${i}]`,errors); if(typeof lab.unitId==="string"&&!h.unitIds.has(lab.unitId))errors.push(`labs.labs[${i}].unitId references an unknown unit`); if(lab.sourceLocation!==undefined)checkLocation(lab.sourceLocation,`labs.labs[${i}].sourceLocation`,h,errors,true); if(Array.isArray(lab.sourceLocations))lab.sourceLocations.forEach((loc,j)=>checkLocation(loc,`labs.labs[${i}].sourceLocations[${j}]`,h,errors,true)); const actionIds=ids(Array.isArray(lab.actions)?lab.actions:[] ,`labs.labs[${i}].actions`,errors); const checkIds=ids(Array.isArray(lab.checks)?lab.checks:[] ,`labs.labs[${i}].checks`,errors); const stepIds=ids(Array.isArray(lab.steps)?lab.steps:[] ,`labs.labs[${i}].steps`,errors); (Array.isArray(lab.actions)?lab.actions:[]).forEach((action,j)=>{if(record(action)){unknownFields(action,["id","label","instruction","preconditions","effects","createsObservation","extensionMetadata"],`labs.labs[${i}].actions[${j}]`,errors);if(Array.isArray(action.effects))action.effects.forEach((effect,k)=>{if(record(effect)){unknownFields(effect,["key","operation","value","extensionMetadata"],`labs.labs[${i}].actions[${j}].effects[${k}]`,errors);if(!["set","increment","append"].includes(String(effect.operation)))errors.push(`labs.labs[${i}].actions[${j}].effects[${k}].operation is unknown`);}});}}); (Array.isArray(lab.checks)?lab.checks:[]).forEach((check,j)=>{if(record(check)){unknownFields(check,["id","title","description","required","conditions","sourceLocation","extensionMetadata"],`labs.labs[${i}].checks[${j}]`,errors);if(Array.isArray(check.conditions))check.conditions.forEach((condition,k)=>{if(record(condition)&&!LAB_OPERATORS.has(String(condition.operator)))errors.push(`labs.labs[${i}].checks[${j}].conditions[${k}].operator is unknown`);});}}); (Array.isArray(lab.steps)?lab.steps:[]).forEach((step,j)=>{if(record(step)){unknownFields(step,["id","number","title","kind","instruction","unitId","sourceLocation","required","actionIds","checkIds","observationPrompt","reflectionPrompt","formalActivityId","extensionMetadata"],`labs.labs[${i}].steps[${j}]`,errors);if(typeof step.kind!=="string"||!LAB_KINDS.has(step.kind))errors.push(`labs.labs[${i}].steps[${j}].kind is unknown`);if(Array.isArray(step.actionIds))step.actionIds.forEach((id,k)=>{if(!actionIds.has(id))errors.push(`labs.labs[${i}].steps[${j}].actionIds[${k}] references an unknown action`);});if(Array.isArray(step.checkIds))step.checkIds.forEach((id,k)=>{if(!checkIds.has(id))errors.push(`labs.labs[${i}].steps[${j}].checkIds[${k}] references an unknown check`);});if(step.sourceLocation!==undefined)checkLocation(step.sourceLocation,`labs.labs[${i}].steps[${j}].sourceLocation`,h,errors,false);if(step.kind==="formal-activity"&&typeof step.formalActivityId==="string"&&!h.activityIds.has(step.formalActivityId))errors.push(`labs.labs[${i}].steps[${j}].formalActivityId references an unknown activity`);}}); (Array.isArray(lab.requiredStepIds)?lab.requiredStepIds:[]).forEach((id,j)=>{if(!stepIds.has(id))errors.push(`labs.labs[${i}].requiredStepIds[${j}] references an unknown step`);}); });
-  }
+
+function validateInstructor(value: unknown, errors: string[]): void { if (!isRow(value)) { errors.push("instructor must be an object"); return; } unknownFields(value, ["id", "displayRole", "subjectScope", "pedagogicalInstructions", "allowedModes", "fallbackLanguage", "fallbackContext"], "instructor", errors); for (const key of ["id", "displayRole", "subjectScope", "fallbackLanguage"] as const) requiredString(value[key], `instructor.${key}`, errors); optionalString(value.fallbackContext, "instructor.fallbackContext", errors); strings(value.pedagogicalInstructions, "instructor.pedagogicalInstructions", errors); array(value.allowedModes, "instructor.allowedModes", errors).forEach((mode, index) => { if (typeof mode !== "string" || !INSTRUCTOR_MODES.has(mode)) errors.push(`instructor.allowedModes[${index}] is not a canonical InstructorMode`); }); }
+function validateAcademic(value: unknown, errors: string[]): void { if (!isRow(value)) { errors.push("academic must be an object"); return; } unknownFields(value, ["version", "programs", "courses"], "academic", errors); requiredString(value.version, "academic.version", errors); array(value.programs, "academic.programs", errors).forEach((program, index) => { if (isRow(program)) { unknownFields(program, ["id", "title", "description", "courseIds", "status", "accreditationClaim"], `academic.programs[${index}]`, errors); if (!["alpha", "roadmap"].includes(String(program.status))) errors.push(`academic.programs[${index}].status is unknown`); if (program.accreditationClaim !== false) errors.push(`academic.programs[${index}].accreditationClaim must be false`); } }); array(value.courses, "academic.courses", errors).forEach((course, index) => { if (isRow(course)) { unknownFields(course, ["id", "courseId", "academicCatalogVersion", "syllabus", "units", "readings", "assignments", "assessments"], `academic.courses[${index}]`, errors); for (const key of ["id", "courseId", "academicCatalogVersion"] as const) requiredString(course[key], `academic.courses[${index}].${key}`, errors); for (const key of ["units", "readings", "assignments", "assessments"] as const) array(course[key], `academic.courses[${index}].${key}`, errors); } }); }
+function validateLabs(value: unknown, errors: string[]): void { if (!isRow(value)) { errors.push("labs must be an object"); return; } unknownFields(value, ["version", "runtimeVersion", "courseId", "labs"], "labs", errors); for (const key of ["version", "runtimeVersion", "courseId"] as const) requiredString(value[key], `labs.${key}`, errors); array(value.labs, "labs.labs", errors).forEach((lab, index) => { if (!isRow(lab)) return; const p = `labs.labs[${index}]`; unknownFields(lab, ["id", "number", "courseId", "moduleId", "unitId", "title", "purpose", "learningObjective", "estimatedMinutes", "required", "sourceLocations", "environment", "initialState", "steps", "actions", "checks", "requiredStepIds", "reflectionPrompts", "instructorNote"], p, errors); for (const key of ["id", "courseId", "moduleId", "unitId", "title", "purpose", "learningObjective"] as const) requiredString(lab[key], `${p}.${key}`, errors); optionalString(lab.instructorNote, `${p}.instructorNote`, errors); number(lab.number, `${p}.number`, errors, 1); number(lab.estimatedMinutes, `${p}.estimatedMinutes`, errors); array(lab.steps, `${p}.steps`, errors).forEach((step, stepIndex) => { if (isRow(step)) { unknownFields(step, ["id", "number", "title", "kind", "instruction", "required", "actionIds", "checkIds", "observationPrompt", "reflectionPrompt", "formalActivityId", "sourceLocation"], `${p}.steps[${stepIndex}]`, errors); if (!["briefing", "prediction", "action", "observation", "check", "reflection", "formal-activity"].includes(String(step.kind))) errors.push(`${p}.steps[${stepIndex}].kind is unknown`); } }); array(lab.actions, `${p}.actions`, errors); array(lab.checks, `${p}.checks`, errors); }); }
+
 export function validateCoursePackage(input: unknown): PackageValidationReport {
-  const errors:string[]=[]; const unsupported:PackageCapability[]=[]; let serializedBytes=0;
-  if(!record(input)){return {errors:["package must be an object"],unsupportedCapabilities:[],serializedBytes:0};}
-  unknownFields(input,["manifest","course","lectures","instructor","academic","readings","assignments","assessments","remediation","labs","assets","migrations","extensionMetadata"],"package",errors);
-  try{serializedBytes=new TextEncoder().encode(stableStringify(input)).byteLength;if(serializedBytes>PACKAGE_LIMITS.maxBytes)errors.push("package exceeds the byte limit");}catch{errors.push("package could not be serialized");}
-  scanForbidden(input,"package",errors);
-  const manifest=validateManifest(input.manifest,errors,unsupported)?input.manifest:undefined;
-  const hierarchy=validateCourse(input.course,errors);
-  if(manifest&&record(input.course)&&input.course.id!==manifest.courseId)errors.push("course.id must match manifest.courseId");
-  if(input.lectures!==undefined)validateLecture(input.lectures,hierarchy,errors);
-  if(input.instructor!==undefined)validateInstructor(input.instructor,errors);
-  if(input.academic!==undefined)validateAcademic(input.academic,hierarchy,manifest,errors);
-  if(input.labs!==undefined)validateLabs(input.labs,hierarchy,manifest,errors);
-  if(input.assets!==undefined)validateAssets(input.assets,errors);
-  if(input.migrations!==undefined)validateMigrations(input.migrations,errors);
-  const assessments = arrayValue(input.assessments, "package.assessments", errors, false) ?? [];
-  assessments.forEach((row, index) => validateAssessment(row, `package.assessments[${index}]`, hierarchy, errors));
-  for(const key of ["readings","assignments","remediation"] as const){const rows=arrayValue(input[key],`package.${key}`,errors,false)??[];rows.forEach((row,i)=>{if(record(row)){unknownFields(row,key==="readings"?["id","title","body","source","unitId","lessonId","required","extensionMetadata"]:key==="assignments"?["id","title","instructions","source","unitId","lessonId","sourceActivityIds","required","extensionMetadata"]:["id","title","instructions","source","unitId","lessonId","sourceActivityIds","extensionMetadata"],`package.${key}[${i}]`,errors);checkLocation(row.source,`package.${key}[${i}].source`,hierarchy,errors,true);}});}
-  return {errors,unsupportedCapabilities:[...new Set(unsupported)],serializedBytes};
+  const errors: string[] = []; const unsupportedCapabilities: PackageCapability[] = []; let serializedBytes = 0;
+  if (!isRow(input)) return { errors: ["package must be an object"], unsupportedCapabilities, serializedBytes };
+  unknownFields(input, ["manifest", "course", "lectures", "instructor", "academic", "labs", "assets", "migrations", "extensionMetadata"], "package", errors);
+  try { serializedBytes = new TextEncoder().encode(stableStringify(input)).byteLength; if (serializedBytes > PACKAGE_LIMITS.maxBytes) errors.push("package exceeds the byte limit"); } catch { errors.push("package could not be serialized"); }
+  forbidden(input, "package", errors); const manifestValid = validateManifest(input.manifest, errors, unsupportedCapabilities); const manifest = manifestValid && isRow(input.manifest) ? input.manifest as unknown as CoursePackageManifest : undefined; const hierarchy = validateCourse(input.course, errors);
+  if (manifest && isRow(input.course)) { if (input.course.id !== manifest.courseId) errors.push("course.id must match manifest.courseId"); if (input.course.version !== manifest.courseVersion) errors.push("course.version must match manifest.courseVersion"); if (input.course.contentVersion !== manifest.contentVersion) errors.push("course.contentVersion must match manifest.contentVersion"); }
+  if (input.lectures !== undefined) validateLecture(input.lectures, hierarchy, errors); if (input.instructor !== undefined) validateInstructor(input.instructor, errors); if (input.academic !== undefined) validateAcademic(input.academic, errors); if (input.labs !== undefined) validateLabs(input.labs, errors);
+  if (input.assets !== undefined) array(input.assets, "assets", errors).forEach((asset, index) => { if (!isRow(asset)) { errors.push(`assets[${index}] must be an object`); return; } unknownFields(asset, ["id", "kind", "label", "mediaType", "byteLength"], `assets[${index}]`, errors); requiredString(asset.id, `assets[${index}].id`, errors); requiredString(asset.label, `assets[${index}].label`, errors); requiredString(asset.mediaType, `assets[${index}].mediaType`, errors); number(asset.byteLength, `assets[${index}].byteLength`, errors); if (!["image", "diagram", "text"].includes(String(asset.kind))) errors.push(`assets[${index}].kind is unknown`); });
+  return { errors, unsupportedCapabilities: [...new Set(unsupportedCapabilities)], serializedBytes };
 }
-function migrateLectureInteractionAliases(value: unknown): unknown {
-  if (!record(value)) return value;
-  const copy = JSON.parse(JSON.stringify(value)) as Record<string, unknown>;
-  const lectures = record(copy.lectures) && Array.isArray(copy.lectures.lectures) ? copy.lectures.lectures : [];
-  lectures.forEach(lecture => {
-    if (!record(lecture) || !Array.isArray(lecture.segments)) return;
-    lecture.segments.forEach(segment => {
-      if (!record(segment) || !record(segment.interaction)) return;
-      if (segment.interaction.responseType === "text") segment.interaction.responseType = "free-response";
-      if (segment.interaction.responseType === "choice") segment.interaction.responseType = "question";
-    });
-  });
-  return copy;
-}
-export function parseCoursePackage(text:string):ParsedCoursePackage{if(typeof text!=="string")return{report:{errors:["package text must be a string"],unsupportedCapabilities:[],serializedBytes:0}};if(new TextEncoder().encode(text).byteLength>PACKAGE_LIMITS.maxBytes)return{report:{errors:["package exceeds the byte limit"],unsupportedCapabilities:[],serializedBytes:0}};try{const value=migrateLectureInteractionAliases(JSON.parse(text) as unknown);const report=validateCoursePackage(value);return{document:report.errors.length?undefined:value as CoursePackageDocument,report};}catch{return{report:{errors:["package is not valid JSON"],unsupportedCapabilities:[],serializedBytes:0}};}}
-export async function sha256CoursePackage(document:CoursePackageDocument):Promise<string>{const bytes=new TextEncoder().encode(serializeCoursePackage(document));const digest=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(digest)).map(value=>value.toString(16).padStart(2,"0")).join("");}
+export function serializeCoursePackage(document: CoursePackageDocument): string { return stableStringify(document); }
+function migrateLectureInteractionAliases(value: unknown): unknown { if (!isRow(value)) return value; const copy = JSON.parse(JSON.stringify(value)) as Row; const lectures = isRow(copy.lectures) && Array.isArray(copy.lectures.lectures) ? copy.lectures.lectures : []; lectures.forEach(lecture => { if (!isRow(lecture) || !Array.isArray(lecture.segments)) return; lecture.segments.forEach(segment => { if (!isRow(segment)) return; if (segment.expectedInteraction === "text") segment.expectedInteraction = "free-response"; if (segment.expectedInteraction === "choice") segment.expectedInteraction = "question"; }); }); return copy; }
+export function parseCoursePackage(text: string): ParsedCoursePackage { if (typeof text !== "string") return { report: { errors: ["package text must be a string"], unsupportedCapabilities: [], serializedBytes: 0 } }; try { const value = migrateLectureInteractionAliases(JSON.parse(text) as unknown); const report = validateCoursePackage(value); return { document: report.errors.length ? undefined : value as CoursePackageDocument, report }; } catch { return { report: { errors: ["package is not valid JSON"], unsupportedCapabilities: [], serializedBytes: 0 } }; } }
+export async function sha256CoursePackage(document: CoursePackageDocument): Promise<string> { const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(serializeCoursePackage(document))); return Array.from(new Uint8Array(digest)).map(value => value.toString(16).padStart(2, "0")).join(""); }

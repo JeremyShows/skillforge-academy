@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261004-320-canonical-authored-course-model-v1-3",
+  "timestamp": "2026-10-05T02:51:00Z",
+  "work_item": "320",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {"command":"npm ci","exit_code":0,"summary":"Installed the repository lockfile dependencies in the isolated public V1.3 worktree."},
+    {"command":"npm test -- --run","exit_code":0,"summary":"129 tests passed across 11 files."},
+    {"command":"npm run build","exit_code":0,"summary":"TypeScript and Vite production build passed."},
+    {"command":"npm run validate:content","exit_code":0,"summary":"3 certification tracks and 150 lessons validated with complete objective coverage."},
+    {"command":"npm run validate:a11y","exit_code":0,"summary":"20 accessibility checks passed."},
+    {"command":"cargo fmt --check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Rust formatting gate passed."},
+    {"command":"cargo check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Tauri Rust check passed."},
+    {"command":"python -m repopact.cli dashboard --root .","exit_code":0,"summary":"Regenerated the repository governance dashboard."},
+    {"command":"python -m repopact.cli validate","exit_code":0,"summary":"RepoPact governance validation passed after correcting the work-item scope and evidence references."},
+    {"command":"git diff --check","exit_code":0,"summary":"No whitespace errors."}
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-04-canonical-authored-model-v1-3",
+    "schemas/skillforge-course-v1.schema.json",
+    "src/platform/packageTypes.ts",
+    "src/platform/packageValidation.ts",
+    "src/platform/runtime.ts",
+    "src/platform/publicPackages.ts",
+    "work/completed/320-canonical-authored-course-model-v1-3"
+  ],
+  "environment": {"repository":"ForgeWireLabs/skillforge-academy","platform":"Windows","base_revision":"83f88fa11fdd77d44945e97eeb048a3d8ce41917","worktree":"C:\\Projects\\skillforge-canonical-authored-v1-3"}
+}
