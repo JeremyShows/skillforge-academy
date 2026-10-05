@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "321",
+  "title": "Private Branch Exposure Remediation 2026-10-05",
+  "status": "active",
+  "owner_scope": "governance",
+  "affected_scopes": ["foundation", "governance", "release", "docs"],
+  "depends_on": ["320"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-05T00:00:00Z",
+    "note": "Stamped before the public remediation evidence branch is committed; the initial containment actions are recorded in the incident evidence and no further implementation proceeds before review."
+  },
+  "acceptance_criteria": [
+    {"id": "AC-1", "text": "The exact leaked commit is preserved in the private repository at the requested branch and SHA without force-push.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
+    {"id": "AC-2", "text": "Only the leaked public branch ref is deleted, with public main and the intended public V1.3 ref unchanged.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
+    {"id": "AC-3", "text": "All remaining public branches and tags are audited for private-marker reachability.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
+    {"id": "AC-4", "text": "The leaked tree and reachable history receive a redacted credential scan with no live-secret candidates.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
+    {"id": "AC-5", "text": "The installer, learner data, shared dirty checkout, and public main remain untouched.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
+    {"id": "AC-6", "text": "An independent reviewer confirms the private recovery, public ref audit, and evidence safety before closeout.", "state": "pending", "evidence": []}
+  ],
+  "created": "2026-10-05",
+  "updated": "2026-10-05"
+}

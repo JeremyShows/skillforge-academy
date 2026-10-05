@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261005-321-private-branch-exposure-remediation",
+  "timestamp": "2026-10-05T05:00:00Z",
+  "work_item": "321",
+  "result": "partial",
+  "provenance": "concrete",
+  "commands": [
+    {"command": "git push private-origin cb8e020dc1e8e69be14e2c4ec643af0ccca104a5:refs/heads/codex/private-package-canonical-authored-v1-3", "exit_code": 0, "summary": "Preserved the exact commit in the private repository without force-push."},
+    {"command": "git push origin --delete codex/private-package-canonical-authored-v1-3", "exit_code": 0, "summary": "Deleted only the leaked public branch ref after private preservation."},
+    {"command": "git ls-remote --heads origin main codex/canonical-authored-course-model-v1-3", "exit_code": 0, "summary": "Confirmed public main at d35510e0ec7df51af7ec85f32699dd3ebabd6fcd and public V1.3 at 67a994a718c30d31ba9b3901920108c1c1db9272."},
+    {"command": "public branch/tag reachable-object and ref-tip marker audit", "exit_code": 0, "summary": "Audited 13 branches and 6 tags; zero private-marker path matches and zero ref-tip text matches."},
+    {"command": "redacted fallback credential scan over leaked tree and 158 reachable commits", "exit_code": 0, "summary": "Zero credential-pattern findings, live-secret candidates, and placeholder/example matches; values were never emitted."},
+    {"command": "Get-FileHash -Algorithm SHA256 SkillForge Academy_1.4.1-beta.1_x64-setup.exe", "exit_code": 0, "summary": "Verified the preserved installer hash B365FA068FB29327005EB6DC4F6FAFD4CC6E50A6D75497B1B55378B418987CF8; installer was not executed."},
+    {"command": "python -m repopact.cli validate", "exit_code": 0, "summary": "RepoPact validation passed after adding the governed evidence run and regenerating the dashboard."}
+  ],
+  "artifacts": [
+    "evidence/security/2026-10-05-private-branch-exposure",
+    "evidence/runs/20261005-321-private-branch-exposure-remediation.json",
+    "work/active/321-private-branch-exposure-remediation-2026-10-05"
+  ],
+  "environment": {
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "public_main": "d35510e0ec7df51af7ec85f32699dd3ebabd6fcd",
+    "public_v1_3": "67a994a718c30d31ba9b3901920108c1c1db9272",
+    "private_recovered_commit": "cb8e020dc1e8e69be14e2c4ec643af0ccca104a5",
+    "installer_executed": false,
+    "learner_data_touched": false,
+    "independent_review": "pending"
+  }
+}
