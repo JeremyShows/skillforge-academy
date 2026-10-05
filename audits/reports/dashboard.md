@@ -22,10 +22,10 @@
 | Status | Count |
 | --- | ---: |
 | proposed | 3 |
-| active | 3 |
+| active | 2 |
 | blocked | 2 |
 | deferred | 1 |
-| completed | 48 |
+| completed | 49 |
 
 ## Audit freshness
 
@@ -35,6 +35,5 @@ All audit scopes are within their review cadence.
 
 - 310: Pre-beta candidate refresh and operational readiness gate (active)
 - 311: CompTIA legal, trademark, and content-IP hardening (active)
-- 321: Private Branch Exposure Remediation 2026-10-05 (active)
 - 212: Add installer code signing when a trusted certificate is available (blocked)
 - 218: Add Tauri iOS mobile support foundation (blocked)

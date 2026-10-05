@@ -2,7 +2,7 @@
   "$schema": "../../../schemas/work-item.schema.json",
   "id": "321",
   "title": "Private Branch Exposure Remediation 2026-10-05",
-  "status": "active",
+  "status": "completed",
   "owner_scope": "governance",
   "affected_scopes": ["foundation", "governance", "release", "docs"],
   "depends_on": ["320"],
@@ -18,7 +18,7 @@
     {"id": "AC-3", "text": "All remaining public branches and tags are audited for private-marker reachability.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
     {"id": "AC-4", "text": "The leaked tree and reachable history receive a redacted credential scan with no live-secret candidates.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
     {"id": "AC-5", "text": "The installer, learner data, shared dirty checkout, and public main remain untouched.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]},
-    {"id": "AC-6", "text": "An independent reviewer confirms the private recovery, public ref audit, and evidence safety before closeout.", "state": "pending", "evidence": []}
+    {"id": "AC-6", "text": "An independent reviewer confirms the private recovery, public ref audit, and evidence safety before closeout.", "state": "satisfied", "evidence": ["20261005-321-private-branch-exposure-remediation"]}
   ],
   "created": "2026-10-05",
   "updated": "2026-10-05"

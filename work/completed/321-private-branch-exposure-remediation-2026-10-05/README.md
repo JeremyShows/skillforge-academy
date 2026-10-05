@@ -1,6 +1,6 @@
 # 321 — Private branch exposure remediation 2026-10-05
 
-> **Status**: Active; awaiting independent review.
+> **Status**: Completed / independently reviewed.
 > **Owners**: governance and release review.
 > **Depends on**: 320.
 
@@ -36,6 +36,8 @@ execute the installer or touch learner data.
 
 ## Closeout
 
-Remain active until an independent reviewer confirms the private recovery,
-public ref audit, and safety of the evidence. Do not move this work item to
-completed from the coding-agent turn.
+Independent review approved closeout after confirming the exact private
+recovery, deletion of the leaked public ref, the final 14-branch/6-tag audit
+with zero private-marker matches, and the public-safe evidence boundary.
+WI321 AC-6 is satisfied. The incident is closed; new work must not reopen its
+architecture without contradictory evidence.
