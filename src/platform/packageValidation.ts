@@ -21,10 +21,10 @@ function optionalString(value: unknown, path: string, errors: string[]): void { 
 function array(value: unknown, path: string, errors: string[], required = true): unknown[] { if (!Array.isArray(value)) { if (required) errors.push(`${path} must be an array`); return []; } return value; }
 function strings(value: unknown, path: string, errors: string[], required = true): void { array(value, path, errors, required).forEach((item, index) => requiredString(item, `${path}[${index}]`, errors)); }
 function number(value: unknown, path: string, errors: string[], min = 0, max = Number.POSITIVE_INFINITY): void { if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) errors.push(`${path} must be a finite number in range`); }
-function stableStringify(value: unknown): string { if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`; if (isRow(value)) return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`; return JSON.stringify(value); }
+function stableStringify(value: unknown): string { if (value === undefined) return "null"; if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`; if (isRow(value)) return `{${Object.keys(value).filter(key => value[key] !== undefined).sort().map(key => `${JSON.stringify(key)}:${stableStringify(value[key])}`).join(",")}}`; return JSON.stringify(value); }
 function forbidden(value: unknown, path: string, errors: string[], seen = new Set<object>()): void {
   const secret = /-----BEGIN (?:RSA|OPENSSH|EC|PRIVATE) KEY-----|\bAKIA[0-9A-Z]{16}\b|\bgh[pousr]_[A-Za-z0-9_]{20,}\b|\bsk-[A-Za-z0-9]{20,}\b/;
-  const badKey = /^(script|scripts|command|commands|shell|powershell|bash|executable|eval|process|subprocess|native|dll|binary|endpoint|apikey|secret|token|password|credential|filepath|localpath|assetpath|env)$/i;
+const badKey = /^(script|scripts|command|commands|shell|powershell|bash|executable|eval|processcommand|processexecution|subprocess|native|dll|binary|endpoint|apikey|secret|token|password|credential|filepath|localpath|assetpath|env)$/i;
   if (typeof value === "string") { if (secret.test(value)) errors.push(`${path} contains a secret-shaped value`); return; }
   if (!value || typeof value !== "object") return;
   if (seen.has(value)) { errors.push(`${path} contains a cyclic structure`); return; }
