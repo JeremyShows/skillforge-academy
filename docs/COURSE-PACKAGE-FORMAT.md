@@ -40,9 +40,12 @@ state through compatible updates.
 `capabilities` declares package intent and supported feature classes. Capability
 names are validated against `PACKAGE_CAPABILITIES`, unsupported executable or
 network capabilities are rejected before installation, and each authored
-catalog is validated independently when present. The current validator does
-not yet enforce a strict bidirectional capability-to-catalog consistency rule;
-runtime surfaces require the corresponding catalog to be present and valid.
+catalog is validated independently when present. Lecture, Academic, and Labs
+surfaces are exposed from their validated authored catalogs. The instructor
+runtime always has a deterministic provider-neutral fallback and optionally
+uses `.instructor` to customize it. Remediation is part of the canonical
+`Course` activity/progress model, not a sibling package catalog. Capabilities
+remain descriptive metadata rather than UI activation switches.
 
 ## Activity identity
 

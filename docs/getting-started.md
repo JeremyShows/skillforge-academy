@@ -80,9 +80,12 @@ incomplete.
 
 ### Academic record and Labs
 
-Packages may expose Lecture, Academic, or Labs when the corresponding authored
-catalogs are present and validate. Academic status is derived from
-CourseProgress; lab actions stay inside the bounded local lab state machine.
+Lecture, Academic, and Labs surfaces are exposed from their corresponding
+validated authored catalogs. The instructor fallback is available without a
+profile, while an optional package instructor section customizes it. Remediation
+is part of the canonical Course activity/progress flow. Academic status is
+derived from CourseProgress; lab actions stay inside the bounded local lab
+state machine.
 
 ## 4. The daily study loop
 

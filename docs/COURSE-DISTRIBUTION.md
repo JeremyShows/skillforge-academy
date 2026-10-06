@@ -3,7 +3,7 @@
 The future distribution flow is:
 
 `SkillForge Course Library` → immutable `.skillforge-course` download → local
-validator → capability/catalog review → install.
+validator → authored-surface review → install.
 
 No marketplace or website is implemented here. A future host needs only package
 metadata such as package ID, title, version, publisher, license, capabilities,
@@ -17,7 +17,8 @@ The implemented local lifecycle is:
 1. Select **Import Course Package** in the Academy shell.
 2. Read the package as data and validate the manifest, canonical course, and
    optional catalogs against the versioned schema. Capability names and
-   authored catalogs are checked independently.
+   authored catalogs are checked independently; capabilities remain descriptive
+   metadata rather than UI activation switches.
 3. Reject unknown contract fields, malformed references, unsupported
    capabilities, executable-looking values, and invalid formal-activity source
    tuples before install. The validator does not yet enforce a strict
@@ -37,10 +38,12 @@ learner state can be retained for recovery rather than silently discarded.
 
 The host does not execute package content. A package can describe a lecture,
 academic record, or deterministic lab, but it cannot install a plugin, run a
-command, open a network connection, or mutate learner state directly. Runtime
-surfaces require their corresponding authored catalogs to be present and valid.
-The formal lecture bridge also fails closed if a segment cannot resolve its
-exact course activity tuple.
+command, open a network connection, or mutate learner state directly. Lecture,
+Academic, and Labs surfaces require their corresponding validated authored
+catalogs. The instructor fallback works without a profile; `package.instructor`
+is optional customization. Remediation remains part of the canonical Course
+activity/progress flow. The formal lecture bridge also fails closed if a
+segment cannot resolve its exact course activity tuple.
 
 Local import is the V1 proof of this boundary. Network discovery, signatures,
 trusted publishers, remote updates, revocation, and catalog policy remain

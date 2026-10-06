@@ -12,15 +12,19 @@ The package boundary is intentionally not a plugin boundary:
 
 - package JSON is parsed and validated before it enters `CourseRegistry`;
 - package values are not imported as JavaScript or Rust modules;
-- the host owns persistence and navigation; validated authored catalog presence
-  determines which runtime surfaces are available;
+- the host owns persistence and navigation; validated `lectures`, `academic`,
+  and `labs` authored catalogs determine those data-backed surfaces;
+- the instructor fallback is deterministic without a profile, while an
+  optional `instructor` section only customizes that fallback;
+- remediation stays inside the canonical Course activity/progress model rather
+  than becoming a sibling catalog;
 - instructor responses cannot mutate CourseProgress; and
 - executable, network-backed, or native lab capabilities are rejected by the
   public runtime.
 
-Manifest capabilities remain declared package metadata. The current validator
-checks supported names and validates each present catalog independently; it does
-not enforce a strict bidirectional capability-to-catalog consistency policy.
+Manifest capabilities remain declared package metadata, not UI activation
+switches. The current validator checks supported names and validates each
+present catalog independently.
 
 Assets are references with bounded metadata. They do not become arbitrary file
 paths or commands. Optional extension data is accepted only in the explicit

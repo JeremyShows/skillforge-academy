@@ -178,25 +178,22 @@ authoritative runtime state.
 
 ### Declared capabilities and authored surfaces
 
-Manifest capabilities declare package intent and supported feature classes. The
-Academy shell exposes a runtime surface only when its corresponding authored
-catalog is present and valid in the selected package:
+Manifest capabilities are descriptive metadata for package intent and supported
+feature classes; they are not UI activation switches. Surface ownership is
+explicit:
 
-| Capability | Runtime surface |
+| Surface | Authored source and runtime behavior |
 | --- | --- |
-| `lecture-delivery` | Authored Lecture sequence and formal-activity bridge |
-| `instructor` | Bounded provider-neutral instructor fallback |
-| `readings` | Authored reading catalog and academic display |
-| `assignments`, `assessments` | Academic record derived from CourseProgress |
-| `remediation` | Authored retry and review flow |
-| `deterministic-labs` | Local lab state machine with authored checks |
+| Lecture | Valid `context.lectures` / `package.lectures` authored catalog |
+| Academic | `package.academic` authored catalog |
+| Labs | Valid `context.labs` / `package.labs` authored catalog |
+| Instructor | Deterministic provider-neutral fallback, optionally customized by `package.instructor` |
+| Remediation | Canonical `Course` activity and `CourseProgress` flow, not a sibling catalog |
 
-Capability presence does not grant behavior by itself. The current validator
-checks capability names against `PACKAGE_CAPABILITIES` and validates each
-present catalog independently; it does not yet enforce a strict bidirectional
-capability-to-catalog consistency rule. Built-in certification projections and
-imported packages therefore expose surfaces from actual authored catalog
-presence, while the manifest retains the package's declared metadata.
+The current validator checks capability names against `PACKAGE_CAPABILITIES` and
+validates each present catalog independently. Imported packages expose the
+surfaces their validated authored data supports, while the manifest retains
+the package's declared metadata.
 
 ### Import, export, and local distribution
 

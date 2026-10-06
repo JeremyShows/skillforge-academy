@@ -49,11 +49,13 @@ readings, labs, instructor configuration, assets, and migrations. The registry:
 The selected package is converted into a `CourseRuntimeContext`. That context
 contains the package, canonical course, progress namespace, declared
 capabilities, and optional authored catalogs. Manifest capabilities are
-validated metadata, not surface activation switches. The current validator
-validates capability names and each present catalog independently; it does not
-yet enforce a strict bidirectional capability-to-catalog consistency rule. A
-missing or invalid catalog means the corresponding surface is unavailable; the
-host does not invent one.
+validated metadata, not surface activation switches. Lecture, Academic, and
+Labs surfaces are exposed from their validated authored catalogs. Instructor
+behavior always has a deterministic provider-neutral fallback; an optional
+`package.instructor` profile customizes that fallback. Remediation belongs to
+the canonical Course activity and CourseProgress flow rather than a sibling
+catalog. The current validator validates capability names and each present
+catalog independently.
 
 ## Learner state and compatibility
 
@@ -136,12 +138,15 @@ formal activity.
 ## Other capability surfaces
 
 - Academic records derive assignment and assessment state from CourseProgress
-  and the declared academic catalog.
-- Labs are bounded local state machines. Their actions and checks are authored
-  data; executable or network-backed lab capabilities are rejected by the
-  public runtime.
-- The instructor fallback is provider-neutral, deterministic, stays within
-  authored course material, and cannot mutate learner state.
+  and `package.academic`.
+- Labs are bounded local state machines exposed from validated `context.labs` /
+  `package.labs` data. Their actions and checks are authored data; executable
+  or network-backed lab capabilities are rejected by the public runtime.
+- The instructor fallback is provider-neutral and deterministic. It works
+  without an instructor profile; `package.instructor` may customize it, and it
+  cannot mutate learner state.
+- Remediation is authored inside the canonical Course activity/progress model,
+  not exposed as a sibling package catalog.
 - Readings and assets remain package-owned references and are validated before
   the package becomes installable.
 
