@@ -55,8 +55,13 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/recharts") || id.includes("node_modules/d3-") ||
-              id.includes("node_modules/react-smooth") || id.includes("node_modules/decimal.js-light")) {
+          const normalizedId = id.replaceAll("\\\\", "/");
+          if (normalizedId.includes("/src/content/a-plus/")) return "content-a-plus";
+          if (normalizedId.includes("/src/content/network-plus/")) return "content-network-plus";
+          if (normalizedId.includes("/src/content/security-plus/")) return "content-security-plus";
+          if (normalizedId.includes("node_modules/lucide-react")) return "icons";
+          if (normalizedId.includes("node_modules/recharts") || normalizedId.includes("node_modules/d3-") ||
+              normalizedId.includes("node_modules/react-smooth") || normalizedId.includes("node_modules/decimal.js-light")) {
             return "charts";
           }
         }
