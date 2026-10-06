@@ -34,8 +34,10 @@ activity evaluation and progress updates to the canonical course runtime.
 ## Package registry boundary
 
 Every course is represented by a `CoursePackageDocument` with a manifest and an
-authored `Course`. Optional catalogs declare lecture delivery, academic records,
-labs, readings, instructor configuration, assets, and migrations. The registry:
+authored `Course`. The `course` field owns course identity and metadata, modules,
+lessons, activities, mastery rules, capstone, and final assessment content.
+Optional sibling package sections hold lecture delivery, academic records and
+readings, labs, instructor configuration, assets, and migrations. The registry:
 
 1. validates the package format and rejects contract-owned unknown fields;
 2. rejects unsupported or executable-looking capabilities before installation;
@@ -46,8 +48,12 @@ labs, readings, instructor configuration, assets, and migrations. The registry:
 
 The selected package is converted into a `CourseRuntimeContext`. That context
 contains the package, canonical course, progress namespace, declared
-capabilities, and optional authored catalogs. A missing catalog means the
-surface is unavailable; the host does not invent one.
+capabilities, and optional authored catalogs. Manifest capabilities are
+validated metadata, not surface activation switches. The current validator
+validates capability names and each present catalog independently; it does not
+yet enforce a strict bidirectional capability-to-catalog consistency rule. A
+missing or invalid catalog means the corresponding surface is unavailable; the
+host does not invent one.
 
 ## Learner state and compatibility
 
@@ -94,9 +100,12 @@ through `src/platform/lectureActivityBridge.ts`:
 5. the lecture runtime advances using the resulting authoritative progress.
 
 The supported formal segment kinds are `GUIDED_PRACTICE`,
-`INDEPENDENT_PRACTICE`, `ASSESSMENT`, and `REMEDIATION`. Informational and
-interactive segments remain native lecture segments and retain their authored
-advance/response behavior.
+`INDEPENDENT_PRACTICE`, `ASSESSMENT`, and `REMEDIATION`. Interactive lecture
+segments are `PAUSE_AND_PREDICT`, `SOCRATIC_QUESTION`, and `KNOWLEDGE_CHECK`.
+Informational lecture segments are `OPENING`, `LECTURE`, `EXPLANATION`,
+`DIAGRAM`, `WORKED_TRACE`, `CODE_WALKTHROUGH`, `DEMONSTRATION`, `RECAP`, and
+`CLOSING`. These native lecture segments retain their authored advance or
+response behavior.
 
 ### Remediation sequencing
 

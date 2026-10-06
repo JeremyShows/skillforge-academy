@@ -10,7 +10,7 @@ on your computer.
 ## 1. Install and first run
 
 1. Download the latest Windows installer from the
-   [releases page](https://github.com/ForgeWireLabs/skillforge-academy/releases)
+   [releases page](https://github.com/JeremyShows/skillforge-academy/releases)
    (see the [README](../README.md#installer) for system requirements and
    checksum verification).
 2. Run the `.exe`. Because the build is not yet code-signed, Windows SmartScreen
@@ -40,8 +40,8 @@ selected. Switching tracks never mixes or resets another track's progress.
 
 The **Academy** view is the course library and launcher. Built-in certification
 tracks and locally imported courses use the same declarative runtime. A course
-card shows its version, capabilities, and local enrollment state; opening a
-course creates or resumes its namespaced `CourseProgress` record.
+card shows its version, declared package metadata, and local enrollment state;
+opening a course creates or resumes its namespaced `CourseProgress` record.
 
 To install a local course package:
 
@@ -66,12 +66,12 @@ activities and uses the appropriate response surface for each.
 
 ### Lecture
 
-If a package declares **Lecture Delivery**, the Lecture tab presents its
-authored sequence. Guided practice, independent practice, assessments, and
-remediation open through the shared authored activity surface. A failed
-assessment enters only the exact authored remediation for the current activity,
-then returns to the assessment for retry. A passing first attempt skips
-remediation.
+If a package includes a valid authored `lectures` catalog, the Lecture tab
+presents its authored sequence. Guided practice, independent practice,
+assessments, and remediation open through the shared authored activity surface.
+A failed assessment enters only the exact authored remediation for the current
+activity, then returns to the assessment for retry. A passing first attempt
+skips remediation.
 
 When all active required segments are complete, the view says **Lecture
 complete** and no longer offers an advance button. Informational and interactive
@@ -80,10 +80,9 @@ incomplete.
 
 ### Academic record and Labs
 
-Packages may also declare an academic record or a deterministic lab. Those tabs
-appear only when the corresponding authored catalogs validate. Academic status
-is derived from CourseProgress; lab actions stay inside the bounded local lab
-state machine.
+Packages may expose Lecture, Academic, or Labs when the corresponding authored
+catalogs are present and validate. Academic status is derived from
+CourseProgress; lab actions stay inside the bounded local lab state machine.
 
 ## 4. The daily study loop
 

@@ -120,14 +120,18 @@ The platform boundary is deliberately small:
 
 1. A package manifest identifies the course, versions, publisher, capabilities,
    provenance, and compatibility requirements.
-2. The authored `Course` hierarchy carries units, lessons, activities,
-   assessments, mastery rules, readings, and optional runtime catalogs.
-3. `CourseRegistry` validates and installs package data locally, compares
+2. The authored `Course` hierarchy carries course identity and metadata, units,
+   lessons, activities, assessments, mastery rules, capstone, and final
+   assessment content.
+3. `CoursePackageDocument` carries optional sibling package sections for
+   `lectures`, `academic`, `labs`, `instructor`, `assets`, `migrations`, and
+   `extensionMetadata`.
+4. `CourseRegistry` validates and installs package data locally, compares
    package versions, exports packages, and keeps imported package identities
    separate from built-ins.
-4. `CourseRuntimeContext` binds the selected package to the generic classroom,
+5. `CourseRuntimeContext` binds the selected package to the generic classroom,
    lecture, academic, lab, instructor, and persistence modules.
-5. A namespaced platform learner envelope stores installed-package metadata and
+6. A namespaced platform learner envelope stores installed-package metadata and
    `CourseProgress` records while preserving the legacy A+ state and backup
    boundary.
 
@@ -152,11 +156,11 @@ across sessions and package updates.
 
 ### Lecture delivery
 
-A course may declare an explicit lecture catalog. Lecture segments are authored
-sequence data, not a second content bank. Teaching and interaction segments use
-the lecture runtime; formal activity segments resolve to the exact course
-activity identified by `(moduleId, lessonId, activityId)` and render through the
-shared `AuthoredActivitySurface`.
+A package may include an explicit `lectures` catalog. Lecture segments are
+authored sequence data, not a second content bank. Informational and interactive
+lecture segments use the lecture runtime; formal activity segments resolve to
+the exact course activity identified by `(moduleId, lessonId, activityId)` and
+render through the shared `AuthoredActivitySurface`.
 
 The formal bridge supports `GUIDED_PRACTICE`, `INDEPENDENT_PRACTICE`,
 `ASSESSMENT`, and `REMEDIATION` segments. A response is evaluated by the
@@ -172,9 +176,11 @@ completion control; a completed lecture renders `Lecture complete` without an
 inert or direct-advance button. This keeps the visible UI aligned with the
 authoritative runtime state.
 
-### Capability-driven surfaces
+### Declared capabilities and authored surfaces
 
-The Academy shell exposes only surfaces declared by the selected package:
+Manifest capabilities declare package intent and supported feature classes. The
+Academy shell exposes a runtime surface only when its corresponding authored
+catalog is present and valid in the selected package:
 
 | Capability | Runtime surface |
 | --- | --- |
@@ -185,10 +191,12 @@ The Academy shell exposes only surfaces declared by the selected package:
 | `remediation` | Authored retry and review flow |
 | `deterministic-labs` | Local lab state machine with authored checks |
 
-Capability presence does not grant behavior by itself: the corresponding
-authored catalog must also validate. Built-in certification projections and
-imported packages therefore use the same contract, while each course opts into
-only the surfaces it actually authors.
+Capability presence does not grant behavior by itself. The current validator
+checks capability names against `PACKAGE_CAPABILITIES` and validates each
+present catalog independently; it does not yet enforce a strict bidirectional
+capability-to-catalog consistency rule. Built-in certification projections and
+imported packages therefore expose surfaces from actual authored catalog
+presence, while the manifest retains the package's declared metadata.
 
 ### Import, export, and local distribution
 
@@ -289,7 +297,7 @@ pre-beta gate `310`). Frozen local installer metadata:
 
 **Prior local release candidate:** SkillForge Academy `1.4.0` (Windows x64), historically at `src-tauri/target/release/bundle/nsis/SkillForge Academy_1.4.0_x64-setup.exe`.
 
-**Latest published GitHub release:** [SkillForge Academy 1.3.2](https://github.com/ForgeWireLabs/skillforge-academy/releases/tag/v1.3.2). Public GitHub publication of a newer Windows installer is pending resolution of an external billing issue.
+**Latest published GitHub release:** [SkillForge Academy 1.3.2](https://github.com/JeremyShows/skillforge-academy/releases/tag/v1.3.2). Public GitHub publication of a newer Windows installer is pending resolution of an external billing issue.
 
 > `1.3.0` is the first release under the SkillForge Academy name. Earlier installers were published as `Apex A+ Academy_*` (e.g. `Apex A+ Academy_1.2.1_x64-setup.exe`).
 
@@ -314,7 +322,7 @@ Get-FileHash ".\SkillForge Academy_1.4.0_x64-setup.exe" -Algorithm SHA256
 ### Start the Desktop App
 
 ```powershell
-git clone https://github.com/ForgeWireLabs/skillforge-academy.git
+git clone https://github.com/JeremyShows/skillforge-academy.git
 cd skillforge-academy
 npm install
 npm run desktop:dev
@@ -427,7 +435,7 @@ remain ongoing work.
 Shipped:
 
 - Multi-certification platform: a content factory, per-track content directories, and a sidebar track switcher with per-track progress, streaks, and analytics
-- Declarative `.skillforge-course` package format with strict validation, local registry install/update/export, capability gating, and versioned package metadata
+- Declarative `.skillforge-course` package format with strict validation, local registry install/update/export, catalog-backed runtime surfaces, and versioned package metadata
 - Generic Academy, Classroom, Lecture, Academic, Labs, and bounded Instructor runtime surfaces over one namespaced CourseProgress authority
 - Formal lecture activity bridge for guided practice, independent practice, assessments, and exact remediation retry flows
 - Lecture completion UI that distinguishes incomplete authored segments from a completed lecture and removes the direct-advance control at completion

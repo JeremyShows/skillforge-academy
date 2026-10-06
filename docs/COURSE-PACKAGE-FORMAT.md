@@ -13,13 +13,22 @@ identity.
 ```text
 CoursePackageDocument
   manifest                 identity, versions, capabilities, provenance
-  course                   canonical units, lessons, activities, mastery rules
+  course                   identity, metadata, modules, lessons, activities,
+                           mastery rules, capstone, final assessment
   lectures?                explicit lecture definitions and segment sequence
+  instructor?              bounded fallback profile
   academic?                syllabus, readings, assignments, assessments
   labs?                    bounded authored lab state machines
-  instructor?              bounded fallback profile
-  assets? / migrations?    validated references and update guidance
+  assets?                  validated package-owned references
+  migrations?              update guidance
+  extensionMetadata?       uninterpreted package extension data
 ```
+
+`course` is the canonical authored learning hierarchy. Readings, assignments,
+and academic assessments live under `CoursePackageDocument.academic`; lecture
+definitions live under `.lectures`; labs live under `.labs`; and the instructor
+profile lives under `.instructor`. These are sibling package catalogs, not
+optional fields nested inside `Course`.
 
 The manifest is the install boundary. `packageId` identifies the package,
 `courseId` identifies the authored course, `packageVersion` identifies the
@@ -28,10 +37,12 @@ content. These values are not learner progress keys; the runtime derives a
 stable progress namespace from the course identity and preserves existing
 state through compatible updates.
 
-`capabilities` is descriptive and validated against the catalogs present in
-the package. Declaring a capability without its authored catalog is an invalid
-or incomplete package, and declaring an unsupported executable or network
-capability is rejected before installation.
+`capabilities` declares package intent and supported feature classes. Capability
+names are validated against `PACKAGE_CAPABILITIES`, unsupported executable or
+network capabilities are rejected before installation, and each authored
+catalog is validated independently when present. The current validator does
+not yet enforce a strict bidirectional capability-to-catalog consistency rule;
+runtime surfaces require the corresponding catalog to be present and valid.
 
 ## Activity identity
 
@@ -55,10 +66,13 @@ The formal lecture segment kinds are:
 | `ASSESSMENT` | Shared surface evaluated by the course mastery runtime |
 | `REMEDIATION` | Exact failure-targeted review that returns to retry |
 
-`OPENING`, `TEACHING`, `INTERACTION`, `DISCUSSION`, `BREAK`, and `CLOSING`
-remain authored lecture sequence content. They do not create a second activity
-record. Their completion is tracked by the lecture run while formal activity
-completion is tracked by `CourseProgress`.
+Interactive lecture segments are `PAUSE_AND_PREDICT`, `SOCRATIC_QUESTION`, and
+`KNOWLEDGE_CHECK`. Informational lecture segments are `OPENING`, `LECTURE`,
+`EXPLANATION`, `DIAGRAM`, `WORKED_TRACE`, `CODE_WALKTHROUGH`,
+`DEMONSTRATION`, `RECAP`, and `CLOSING`. They remain authored lecture sequence
+content and do not create a second activity record. Their completion is tracked
+by the lecture run while formal activity completion is tracked by
+`CourseProgress`.
 
 ## Progress and package portability
 
@@ -72,6 +86,6 @@ whether state can be preserved, must be reset, or needs manual review. A
 migration declaration does not silently rewrite learner data; the persistence
 boundary remains explicit.
 
-Schema SHA-256 (2026-10-04): `2D81D5D34DE875C6EE29FAE4B34D396B596AD2456C11DDD893B69D182A41B72C`.
+Schema SHA-256: `71340ca69d1b7cc271ecbfb59a53ea1898255def20e840e2fbc9a3d1b74fe697`.
 
 Version fields use strict major.minor.patch grammar with optional prerelease identifiers. Registry updates compare numeric core versions and prereleases semantically.

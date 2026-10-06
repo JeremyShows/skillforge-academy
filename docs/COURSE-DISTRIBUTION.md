@@ -3,7 +3,7 @@
 The future distribution flow is:
 
 `SkillForge Course Library` → immutable `.skillforge-course` download → local
-validator → capability review → install.
+validator → capability/catalog review → install.
 
 No marketplace or website is implemented here. A future host needs only package
 metadata such as package ID, title, version, publisher, license, capabilities,
@@ -16,10 +16,12 @@ The implemented local lifecycle is:
 
 1. Select **Import Course Package** in the Academy shell.
 2. Read the package as data and validate the manifest, canonical course, and
-   optional catalogs against the versioned schema.
+   optional catalogs against the versioned schema. Capability names and
+   authored catalogs are checked independently.
 3. Reject unknown contract fields, malformed references, unsupported
    capabilities, executable-looking values, and invalid formal-activity source
-   tuples before install.
+   tuples before install. The validator does not yet enforce a strict
+   bidirectional capability-to-catalog consistency rule.
 4. Add the package to `CourseRegistry` and persist only its identity metadata.
 5. Create a namespaced `CourseRuntimeContext` when the learner opens it.
 6. Keep learner progress in the platform envelope rather than inside the
@@ -35,9 +37,10 @@ learner state can be retained for recovery rather than silently discarded.
 
 The host does not execute package content. A package can describe a lecture,
 academic record, or deterministic lab, but it cannot install a plugin, run a
-command, open a network connection, or mutate learner state directly. The
-formal lecture bridge also fails closed if a segment cannot resolve its exact
-course activity tuple.
+command, open a network connection, or mutate learner state directly. Runtime
+surfaces require their corresponding authored catalogs to be present and valid.
+The formal lecture bridge also fails closed if a segment cannot resolve its
+exact course activity tuple.
 
 Local import is the V1 proof of this boundary. Network discovery, signatures,
 trusted publishers, remote updates, revocation, and catalog policy remain
