@@ -1,24 +1,28 @@
 {
   "runId": "20261005-322-lecture-formal-activity-bridge-browser",
-  "surface": "compiled Vite preview",
-  "url": "http://127.0.0.1:1421/",
+  "surface": "compiled Vite preview with isolated localhost origins",
+  "urls": ["http://localhost:1421/", "http://localhost:1423/"],
   "viewport": "1440x950",
   "fixture": {
     "path": "evidence/platform/2026-10-05-lecture-formal-activity-bridge/neutral-lecture-activity-fixture.skillforge-course",
     "sha256": "E77E2E17D726B2BA40E7C4B443107CA8D6FB3275332FD34005C009E45CC1F926"
   },
   "checks": [
-    {"id":"package-import","passed":true},
-    {"id":"formal-guided-renders","passed":true,"detail":"No direct Advance authored segment button; empty response is gated."},
+    {"id":"formal-guided-renders","passed":true,"detail":"Formal guided practice rendered through AuthoredActivitySurface; empty response was gated."},
     {"id":"guided-completion-advances","passed":true},
     {"id":"independent-completion-advances","passed":true},
     {"id":"assessment-failure-routes-remediation","passed":true},
     {"id":"remediation-retry-returns-to-assessment","passed":true},
     {"id":"assessment-pass-advances","passed":true},
-    {"id":"courseprogress-persisted","passed":true,"storageKey":"skillforge-platform-learner-v1"},
-    {"id":"package-survives-reload","passed":true},
-    {"id":"reloaded-package-selects","passed":true}
+    {"id":"inactive-remediation-skipped","passed":true},
+    {"id":"courseprogress-authority","passed":true,"storageKey":"skillforge-platform-learner-v1"},
+    {"id":"completed-ui-has-no-advance","passed":true}
   ],
+  "flows": {
+    "flowAFirstAttemptPass": {"passed":true,"result":"Assessment passed directly to Closing; Review the signal was not rendered."},
+    "flowBFailRemediateRetry": {"passed":true,"result":"Failure entered Review the signal, remediation returned to Authored assessment, and retry passed to Closing."},
+    "flowCCompletion": {"passed":true,"result":"Lecture complete rendered with zero Advance authored segment buttons."}
+  },
   "screenshots": [
     "browser-guided.png",
     "browser-complete.png"

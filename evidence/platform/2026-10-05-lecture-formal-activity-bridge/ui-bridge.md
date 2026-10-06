@@ -9,4 +9,7 @@ text, response, and advance behavior.
 The surface keeps response submission disabled until a response-bearing
 activity has text, preserves the existing formal rubric evaluator, and exposes
 the existing deterministic instructor fallback without giving it progress
-authority.
+authority. Completion is derived from `lectureCanClose`; the finished state
+shows `Lecture complete` and no longer renders a direct advance control, while
+incomplete informational and interactive segments retain their existing
+controls.

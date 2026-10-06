@@ -1,4 +1,4 @@
-# Course Distribution Boundary
+# Course Distribution Boundary V1.2
 
 The future distribution flow is:
 
@@ -10,7 +10,37 @@ metadata such as package ID, title, version, publisher, license, capabilities,
 minimum app version, size, hash, and signature status. It must not need to know
 course internals or receive learner state.
 
-Local import is the V1 proof of this boundary. Network discovery, signatures,
-trusted publishers, updates from a remote source, and revocation remain future
-distribution work.
+## Local lifecycle
 
+The implemented local lifecycle is:
+
+1. Select **Import Course Package** in the Academy shell.
+2. Read the package as data and validate the manifest, canonical course, and
+   optional catalogs against the versioned schema.
+3. Reject unknown contract fields, malformed references, unsupported
+   capabilities, executable-looking values, and invalid formal-activity source
+   tuples before install.
+4. Add the package to `CourseRegistry` and persist only its identity metadata.
+5. Create a namespaced `CourseRuntimeContext` when the learner opens it.
+6. Keep learner progress in the platform envelope rather than inside the
+   exported package.
+7. Export the authored package when a local copy or transfer is needed.
+
+An update must have a higher semantic `packageVersion`. The registry keeps the
+course identity stable, reports the update, and lets the persistence layer
+apply any declared migration policy. Removing a package is a registry action;
+learner state can be retained for recovery rather than silently discarded.
+
+## Trust boundary
+
+The host does not execute package content. A package can describe a lecture,
+academic record, or deterministic lab, but it cannot install a plugin, run a
+command, open a network connection, or mutate learner state directly. The
+formal lecture bridge also fails closed if a segment cannot resolve its exact
+course activity tuple.
+
+Local import is the V1 proof of this boundary. Network discovery, signatures,
+trusted publishers, remote updates, revocation, and catalog policy remain
+future distribution work. The future host should provide package metadata such
+as package ID, title, version, publisher, license, capabilities, minimum app
+version, size, hash, and signature status without receiving learner state.

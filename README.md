@@ -108,6 +108,102 @@ See [Backup, Restore, And Cross-Device Transfer](docs/backup-restore.md) for pla
 
 Progress is stored locally through the Rust backend. The app does not require a cloud account, does not send telemetry, and does not upload crash reports. When you need help troubleshooting, start with [Support And Troubleshooting](docs/support-troubleshooting.md) or export a local diagnostic file from Preferences — see [Diagnostics And Error Reporting](docs/diagnostics.md). Data-handling details: [Privacy And Security](docs/privacy-security.md).
 
+## Platform Runtime
+
+SkillForge Academy is now a course platform as well as a certification study
+app. The desktop shell hosts one reusable learner runtime, and each course is a
+validated declarative package. The same runtime can launch a built-in track or
+an imported `.skillforge-course` package without a second application-specific
+progress system.
+
+The platform boundary is deliberately small:
+
+1. A package manifest identifies the course, versions, publisher, capabilities,
+   provenance, and compatibility requirements.
+2. The authored `Course` hierarchy carries units, lessons, activities,
+   assessments, mastery rules, readings, and optional runtime catalogs.
+3. `CourseRegistry` validates and installs package data locally, compares
+   package versions, exports packages, and keeps imported package identities
+   separate from built-ins.
+4. `CourseRuntimeContext` binds the selected package to the generic classroom,
+   lecture, academic, lab, instructor, and persistence modules.
+5. A namespaced platform learner envelope stores installed-package metadata and
+   `CourseProgress` records while preserving the legacy A+ state and backup
+   boundary.
+
+Packages are data, not plugins. They cannot execute JavaScript, Rust, shell
+commands, network calls, or native extensions. Unsupported capabilities are
+reported during validation and rejected before installation. See the detailed
+[platform architecture](docs/PLATFORM-ARCHITECTURE.md),
+[package format](docs/COURSE-PACKAGE-FORMAT.md), and
+[package security boundary](docs/COURSE-PACKAGE-SECURITY.md).
+
+### Classroom and CourseProgress
+
+The classroom planner derives its resume point from `CourseProgress`. Activity
+completion, mastery evidence, retry policy, and the current authored location
+are all recorded through that authority. UI screens do not maintain an
+independent “completed” flag and cannot grant mastery by displaying a page.
+
+The generic classroom supports teaching activities, guided practice, scenarios,
+mastery checks, remediation, and imported course capabilities. Every activity
+keeps its authored identity and course location so progress remains portable
+across sessions and package updates.
+
+### Lecture delivery
+
+A course may declare an explicit lecture catalog. Lecture segments are authored
+sequence data, not a second content bank. Teaching and interaction segments use
+the lecture runtime; formal activity segments resolve to the exact course
+activity identified by `(moduleId, lessonId, activityId)` and render through the
+shared `AuthoredActivitySurface`.
+
+The formal bridge supports `GUIDED_PRACTICE`, `INDEPENDENT_PRACTICE`,
+`ASSESSMENT`, and `REMEDIATION` segments. A response is evaluated by the
+course activity runtime, then the resulting `CourseProgress` is used to move the
+lecture cursor. A failed assessment enters remediation only when an authored
+remediation points to the exact failed `CourseProgress.current` location. The
+remediation returns to the assessment retry, and a passing retry proceeds past
+the remediation instead of selecting it by physical array order.
+
+Completion is explicit: an incomplete informational or interactive segment
+offers `Advance authored segment`; a formal activity offers its authored
+completion control; a completed lecture renders `Lecture complete` without an
+inert or direct-advance button. This keeps the visible UI aligned with the
+authoritative runtime state.
+
+### Capability-driven surfaces
+
+The Academy shell exposes only surfaces declared by the selected package:
+
+| Capability | Runtime surface |
+| --- | --- |
+| `lecture-delivery` | Authored Lecture sequence and formal-activity bridge |
+| `instructor` | Bounded provider-neutral instructor fallback |
+| `readings` | Authored reading catalog and academic display |
+| `assignments`, `assessments` | Academic record derived from CourseProgress |
+| `remediation` | Authored retry and review flow |
+| `deterministic-labs` | Local lab state machine with authored checks |
+
+Capability presence does not grant behavior by itself: the corresponding
+authored catalog must also validate. Built-in certification projections and
+imported packages therefore use the same contract, while each course opts into
+only the surfaces it actually authors.
+
+### Import, export, and local distribution
+
+From the Academy screen, choose **Import Course Package** and select a local
+`.skillforge-course` file. The app validates the complete package before it is
+installed, shows the resulting capability set, and stores its identity in the
+local registry. Export produces the same declarative package boundary for local
+backup or transfer. Learner progress is not embedded in a course package and
+remains in the platform learner envelope.
+
+The local flow is intentionally the first proof of the future distribution
+boundary. A later catalog may add signed downloads, trusted publishers,
+updates, and revocation without coupling the host to course internals. See
+[Course Distribution](docs/COURSE-DISTRIBUTION.md).
+
 ## Certification Tracks
 
 SkillForge Academy ships three CompTIA tracks. Every published exam objective in each track has a dedicated lesson and a mapped practice set, and each track keeps its own progress, streaks, and analytics. Objective currency is tracked in [docs/objective-drift-watch.md](docs/objective-drift-watch.md).
@@ -144,19 +240,36 @@ All practice material across every track is original educational content. It doe
 ```text
 SkillForgeAcademy/
 |-- src/                       React and TypeScript application
-|   |-- App.tsx                Navigation and product workflows
-|   |-- data.ts                Original domains, questions, and cards
-|   |-- styles.css             Responsive dark and light themes
-|   `-- types.ts               Learner and assessment data contracts
+|   |-- App.tsx                Legacy study workspace and top-level shell
+|   |-- platform/              Package registry, persistence, and platform hub
+|   |   |-- PlatformHub.tsx    Academy, Classroom, Lecture, Academic, Labs
+|   |   |-- registry.ts        Declarative install/update/export boundary
+|   |   |-- runtime.ts         CourseProgress and authored activity authority
+|   |   `-- lectureActivityBridge.ts  Exact formal-activity resolution
+|   |-- course/                Canonical course model and progress derivation
+|   |-- classroom/             Session planning and resume-point planning
+|   |-- lecture/               Authored sequence cursor and completion rules
+|   |-- academic/              Syllabus, readings, assignments, assessments
+|   |-- labs/                  Bounded deterministic local lab runtime
+|   |-- instructor/             Provider-neutral authored fallback
+|   |-- content/               Certification manifests and validated banks
+|   |-- state/                 Desktop/localStorage learner persistence
+|   `-- styles.css             Responsive dark and light themes
 |-- src-tauri/                 Native desktop layer
 |   |-- src/lib.rs             Rust persistence commands
 |   |-- capabilities/          Tauri security permissions
 |   `-- tauri.conf.json        Window and NSIS bundle configuration
-|-- app-icon.svg               Source application artwork
+|-- schemas/                   Versioned package and governance schemas
+|-- evidence/                  Audits, public fixtures, and validation records
+|-- docs/                      Architecture, authoring, release, and support docs
 `-- package.json               Frontend and desktop build commands
 ```
 
-Learner state is written atomically to the operating system's application-data directory. Browser development mode falls back to `localStorage`, allowing frontend work without launching the desktop shell.
+The desktop path writes learner state atomically through the Tauri persistence
+commands. Browser development uses the same versioned platform envelope with
+local storage as its fallback. The legacy `apex-state` key and `.apexbackup`
+format remain compatible so the platform migration does not strand existing A+
+learners.
 
 ## Install and Run
 
@@ -260,13 +373,22 @@ npm run mobile:ios:build
 ### Validation
 
 ```powershell
+npm ci
 npm run validate:content   # schema-checks the question and flashcard banks
 npm run validate:a11y      # checks required keyboard/accessibility affordances
-npm test                   # unit tests for scoring, streaks, scheduling, mastery
+npm test                   # full unit suite, including platform and lecture runtime
 npm run build
 cargo fmt --check --manifest-path src-tauri/Cargo.toml
 cargo check --manifest-path src-tauri/Cargo.toml
+python -m repopact_cli validate # governance, evidence, and tracking records
+git diff --check
 ```
+
+For changes to the platform runtime, add focused evidence for package
+validation, CourseProgress authority, formal lecture activity resolution,
+remediation sequencing, completion UI, keyboard access, and the public-safe
+browser fixture. Release and installer validation additionally use
+`npm run desktop:build`.
 
 ### Certification Authoring
 
@@ -292,13 +414,24 @@ The rename to SkillForge Academy **does not move or reset existing learner data*
 
 ## Project status
 
-SkillForge Academy is an active desktop MVP. Three CompTIA tracks — A+, Network+, and Security+ — are usable today with full objective coverage, while content depth, accessibility testing, installer trust, and additional certification tracks remain ongoing work.
+SkillForge Academy is an active desktop MVP with a reusable course platform.
+Three CompTIA tracks — A+, Network+, and Security+ — are usable today with full
+objective coverage. The declarative package boundary, namespaced learner
+state, classroom runtime, authored lecture delivery, academic model, and
+bounded labs are implemented as reusable platform surfaces; package authoring,
+accessibility depth, installer trust, and additional certification tracks
+remain ongoing work.
 
 ## Roadmap
 
 Shipped:
 
 - Multi-certification platform: a content factory, per-track content directories, and a sidebar track switcher with per-track progress, streaks, and analytics
+- Declarative `.skillforge-course` package format with strict validation, local registry install/update/export, capability gating, and versioned package metadata
+- Generic Academy, Classroom, Lecture, Academic, Labs, and bounded Instructor runtime surfaces over one namespaced CourseProgress authority
+- Formal lecture activity bridge for guided practice, independent practice, assessments, and exact remediation retry flows
+- Lecture completion UI that distinguishes incomplete authored segments from a completed lecture and removes the direct-advance control at completion
+- Public-safe package, runtime, browser acceptance, and RepoPact evidence under `evidence/`
 - Three CompTIA tracks — A+ (V15), Network+ (N10-009), and Security+ (SY0-701) — each objective-complete with a lesson and a mapped practice set for every published exam objective
 - Per-track mock-exam pass thresholds derived from each exam's official scaled score
 - Objective/command search with a `Ctrl K` command palette

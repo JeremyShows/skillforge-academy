@@ -47,9 +47,25 @@ export function segmentIsCompleted(segment: LectureSegment, run: LectureRunState
   return progress.lessonProgress[segment.sourceLocation.lessonId]?.completedActivityIds.includes(segment.sourceActivityId) ?? false;
 }
 
+function isActiveRemediationSegment(segment: LectureSegment, progress: CourseProgress): boolean {
+  return segment.type === "REMEDIATION" && segment.sourceActivityId === progress.current.activityId && sameLocation(segment.sourceLocation, progress.current);
+}
+
+function remediationForProgress(lecture: LectureDefinition, progress: CourseProgress): LectureSegment | undefined {
+  return lecture.segments.find(segment => isActiveRemediationSegment(segment, progress));
+}
+
+function eligibleSuccessPathSegment(segment: LectureSegment, progress: CourseProgress): boolean {
+  return segment.type !== "REMEDIATION" || isActiveRemediationSegment(segment, progress);
+}
+
+function requiredLectureSegments(lecture: LectureDefinition, progress: CourseProgress): LectureSegment[] {
+  return lecture.segments.filter(segment => segment.required && eligibleSuccessPathSegment(segment, progress));
+}
+
 export function nextUnvisitedSegment(lecture: LectureDefinition, run: LectureRunState, progress: CourseProgress): LectureSegment | undefined {
   const currentIndex = Math.max(0, lecture.segments.findIndex(segment => segment.id === run.currentSegmentId));
-  return lecture.segments.slice(currentIndex + 1).find(segment => !segmentIsCompleted(segment, run, progress));
+  return lecture.segments.slice(currentIndex + 1).find(segment => !segmentIsCompleted(segment, run, progress) && eligibleSuccessPathSegment(segment, progress));
 }
 
 export function reconcileLectureRun(lecture: LectureDefinition, run: LectureRunState, progress: CourseProgress): LectureRunState {
@@ -77,7 +93,7 @@ export function recordLectureResponse(run: LectureRunState, segmentId: string, r
 export function advanceAfterFormalActivity(lecture: LectureDefinition, run: LectureRunState, progress: CourseProgress, location: CourseLocation, passed: boolean, now = new Date().toISOString()): LectureRunState {
   const current = segmentForLocation(lecture, location) ?? currentLectureSegment(lecture, run);
   if (!passed) {
-    const remediation = lecture.segments.find(segment => segment.type === "REMEDIATION" && segment.sourceLocation?.lessonId === location.lessonId);
+    const remediation = remediationForProgress(lecture, progress);
     return remediation ? { ...run, currentSegmentId: remediation.id } : run;
   }
   const visitedSegmentIds = run.visitedSegmentIds.includes(current.id) ? run.visitedSegmentIds : [...run.visitedSegmentIds, current.id];
@@ -125,13 +141,14 @@ export function formalAssistanceLocation(course: Course, segment: LectureSegment
 }
 
 export function lectureCanClose(lecture: LectureDefinition, run: LectureRunState, progress: CourseProgress): boolean {
-  return lecture.segments.filter(segment => segment.required).every(segment => segmentIsCompleted(segment, run, progress));
+  return requiredLectureSegments(lecture, progress).every(segment => segmentIsCompleted(segment, run, progress));
 }
 
 export function lectureCompletionLabel(lecture: LectureDefinition, run: LectureRunState, progress: CourseProgress): string {
   if (lectureCanClose(lecture, run, progress)) return "Lecture complete";
-  const completed = lecture.segments.filter(segment => segment.required && segmentIsCompleted(segment, run, progress)).length;
-  const total = lecture.segments.filter(segment => segment.required).length;
+  const required = requiredLectureSegments(lecture, progress);
+  const completed = required.filter(segment => segmentIsCompleted(segment, run, progress)).length;
+  const total = required.length;
   return `${completed} of ${total} required segments complete`;
 }
 
@@ -141,5 +158,3 @@ export function segmentPresentationKind(segment: LectureSegment): "teaching" | "
   if (isInformationalLectureSegment(segment)) return "teaching";
   return "teaching";
 }
-
-

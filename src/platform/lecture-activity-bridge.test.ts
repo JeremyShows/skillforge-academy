@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyAuthoredActivityResponse, completeAuthoredActivity, createCourseProgress, createCourseRuntimeContext, isFormalActivity } from "./runtime";
 import type { CourseActivity, CourseLocation } from "../course/types";
-import { advanceLectureSegment, createLectureRunState, lectureCompletionLabel, segmentPresentationKind } from "../lecture/runtime";
+import { advanceLectureSegment, createLectureRunState, lectureCanClose, lectureCompletionLabel, segmentPresentationKind } from "../lecture/runtime";
 import type { LectureDefinition, LectureSegment } from "../lecture/types";
 import type { CoursePackageDocument } from "./packageTypes";
 import { applyLectureActivityResponse, LECTURE_ACTIVITY_RESOLUTION_ERROR, resolveLectureActivity } from "./lectureActivityBridge";
@@ -60,6 +60,21 @@ const context = createCourseRuntimeContext(bridgePackage);
 
 function runAt(segmentId: string) {
   return { ...createLectureRunState(lecture, "2026-10-05T00:00:00.000Z"), currentSegmentId: segmentId };
+}
+
+const remediationOrderLecture: LectureDefinition = {
+  ...lecture,
+  id: "lecture-remediation-order",
+  segments: [
+    { ...lecture.segments[0], id: "short-opening" },
+    { ...lecture.segments[3], id: "short-assessment" },
+    { ...lecture.segments[4], id: "short-remediation", required: false },
+    { ...lecture.segments[8], id: "short-closing" }
+  ]
+};
+
+function runAtLecture(target: LectureDefinition, segmentId: string) {
+  return { ...createLectureRunState(target, "2026-10-05T00:00:00.000Z"), currentSegmentId: segmentId };
 }
 
 function completeBefore(progress: ReturnType<typeof createCourseProgress>, ids: string[]) {
@@ -175,6 +190,50 @@ describe("lecture formal activity UI bridge", () => {
     expect(applied?.progress.lessonProgress["lesson-bridge"].completedActivityIds).toContain("assessment");
   });
 
+  it("skips an unactivated remediation segment after a first-attempt assessment pass", () => {
+    const progress = completeBefore(createCourseProgress(context), ["intro", "guided", "independent"]);
+    const applied = applyLectureActivityResponse(context, progress, remediationOrderLecture, runAtLecture(remediationOrderLecture, "short-assessment"), remediationOrderLecture.segments[1], "The signal is verified.");
+    expect(applied?.outcome.passed).toBe(true);
+    expect(applied?.progress.lessonProgress["lesson-bridge"].completedActivityIds).toContain("assessment");
+    expect(applied?.progress.current.activityId).not.toBe("repair");
+    expect(applied?.run.currentSegmentId).toBe("short-closing");
+    expect(applied?.run.currentSegmentId).not.toBe("short-remediation");
+  });
+
+  it("enters exact remediation on assessment failure, returns to retry, and skips it after retry pass", () => {
+    const progress = completeBefore(createCourseProgress(context), ["intro", "guided", "independent"]);
+    const failed = applyLectureActivityResponse(context, progress, remediationOrderLecture, runAtLecture(remediationOrderLecture, "short-assessment"), remediationOrderLecture.segments[1], "not enough");
+    expect(failed?.outcome.passed).toBe(false);
+    expect(failed?.progress.lessonProgress["lesson-bridge"].completedActivityIds).not.toContain("assessment");
+    expect(failed?.progress.current).toEqual(location("repair"));
+    expect(failed?.run.currentSegmentId).toBe("short-remediation");
+
+    const remediated = failed && applyLectureActivityResponse(context, failed.progress, remediationOrderLecture, failed.run, remediationOrderLecture.segments[2], "I can explain the signal now.");
+    expect(remediated?.progress.current).toEqual(location("assessment"));
+    expect(remediated?.run.currentSegmentId).toBe("short-assessment");
+
+    const retried = remediated && applyLectureActivityResponse(context, remediated.progress, remediationOrderLecture, remediated.run, remediationOrderLecture.segments[1], "The signal is verified.");
+    expect(retried?.outcome.passed).toBe(true);
+    expect(retried?.run.currentSegmentId).toBe("short-closing");
+    expect(retried?.run.currentSegmentId).not.toBe("short-remediation");
+  });
+
+  it("does not use optional inactive remediation as a normal success-path destination", () => {
+    expect(remediationOrderLecture.segments[2].required).toBe(false);
+    const progress = completeBefore(createCourseProgress(context), ["intro", "guided", "independent"]);
+    const applied = applyLectureActivityResponse(context, progress, remediationOrderLecture, runAtLecture(remediationOrderLecture, "short-assessment"), remediationOrderLecture.segments[1], "The signal is verified.");
+    expect(applied?.run.currentSegmentId).toBe("short-closing");
+  });
+
+  it("closes after a first-pass success without requiring inactive remediation", () => {
+    const progress = completeBefore(createCourseProgress(context), ["intro", "guided", "independent"]);
+    const run = { ...runAtLecture(remediationOrderLecture, "short-assessment"), visitedSegmentIds: ["short-opening"] };
+    const applied = applyLectureActivityResponse(context, progress, remediationOrderLecture, run, remediationOrderLecture.segments[1], "The signal is verified.");
+    const completedRun = applied && advanceLectureSegment(remediationOrderLecture, applied.run, applied.progress);
+    expect(completedRun?.currentSegmentId).toBe("short-closing");
+    expect(completedRun && lectureCanClose(remediationOrderLecture, completedRun, applied.progress)).toBe(true);
+  });
+
   it("uses completeRemediation retry semantics for remediation", () => {
     const failed = applyLectureActivityResponse(context, completeBefore(createCourseProgress(context), ["intro", "guided", "independent"]), lecture, runAt("assessment-segment"), lecture.segments[3], "not enough");
     const retried = failed && applyLectureActivityResponse(context, failed.progress, lecture, failed.run, lecture.segments[4], "I can now explain the signal.");
@@ -219,10 +278,10 @@ describe("lecture formal activity UI bridge", () => {
   });
 
   it("reports incomplete lecture completion state", () => {
-    expect(lectureCompletionLabel(lecture, { ...runAt("guided-segment"), visitedSegmentIds: ["opening"] }, createCourseProgress(context))).toBe("1 of 9 required segments complete");
+    expect(lectureCompletionLabel(lecture, { ...runAt("guided-segment"), visitedSegmentIds: ["opening"] }, createCourseProgress(context))).toBe("1 of 8 required segments complete");
   });
 
-  it("reports complete lecture state from visited segments and CourseProgress", () => {
+  it("reports complete lecture state for the completion UI", () => {
     const progress = completeBefore(createCourseProgress(context), ["intro", "guided", "independent", "assessment", "repair", "module-assessment", "capstone"]);
     const run = { ...runAt("closing"), visitedSegmentIds: lecture.segments.map(segment => segment.id) };
     expect(lectureCompletionLabel(lecture, run, progress)).toBe("Lecture complete");

@@ -36,7 +36,56 @@ Pick the certification you're studying for first. Everything else in the app —
 lessons, practice, mock exams, flashcards, analytics — follows the track you have
 selected. Switching tracks never mixes or resets another track's progress.
 
-## 3. The daily study loop
+## 3. Use the Academy course runtime
+
+The **Academy** view is the course library and launcher. Built-in certification
+tracks and locally imported courses use the same declarative runtime. A course
+card shows its version, capabilities, and local enrollment state; opening a
+course creates or resumes its namespaced `CourseProgress` record.
+
+To install a local course package:
+
+1. Choose **Import Course Package** in the Academy header.
+2. Select a `.skillforge-course` file.
+3. Review the validation result and declared capabilities.
+4. Select the new course in the installed-course list.
+
+The package is validated before installation. It is data, not a plugin, and
+cannot execute commands, network calls, or native code. Course packages do not
+contain learner history; your progress remains in the local platform envelope.
+The full contract is documented in [Course Package Format](COURSE-PACKAGE-FORMAT.md)
+and [Course Distribution](COURSE-DISTRIBUTION.md).
+
+### Classroom
+
+Open **Classroom** to see the current authored resume point and lesson
+activities. Activity completion and mastery are recorded by `CourseProgress`,
+so the same evidence remains available when you leave and return to the course.
+The interface distinguishes ordinary teaching activities from formal authored
+activities and uses the appropriate response surface for each.
+
+### Lecture
+
+If a package declares **Lecture Delivery**, the Lecture tab presents its
+authored sequence. Guided practice, independent practice, assessments, and
+remediation open through the shared authored activity surface. A failed
+assessment enters only the exact authored remediation for the current activity,
+then returns to the assessment for retry. A passing first attempt skips
+remediation.
+
+When all active required segments are complete, the view says **Lecture
+complete** and no longer offers an advance button. Informational and interactive
+segments retain their advance or response controls while the lecture is still
+incomplete.
+
+### Academic record and Labs
+
+Packages may also declare an academic record or a deterministic lab. Those tabs
+appear only when the corresponding authored catalogs validate. Academic status
+is derived from CourseProgress; lab actions stay inside the bounded local lab
+state machine.
+
+## 4. The daily study loop
 
 A good session moves through four stages. You don't need all four every day, but
 over a week you want to touch each one. In the sidebar, these sit under the
@@ -94,7 +143,7 @@ material returns sooner and easy material spreads out.
 
 ![Recall Deck](screenshots/05-recall-deck.png)
 
-## 4. Track your readiness
+## 5. Track your readiness
 
 The **Command Center** and **Performance** views turn your activity into signal:
 overall readiness, streaks, score trends, domain mastery, and an objective-level
@@ -107,7 +156,7 @@ spot weak spots — red and amber cells are objectives that still need work.
 
 ![Performance analytics](screenshots/06-performance.png)
 
-## 5. Back up your progress
+## 6. Back up your progress
 
 Because your data is local, **export a backup** before reinstalling or moving to
 another computer. Open **Preferences → backup** and create a passphrase-protected
