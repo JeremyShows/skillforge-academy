@@ -15,14 +15,14 @@
 | Audit findings | 5 |
 | Decision records | 10 |
 | Policy records | 1 |
-| Evidence runs | 58 |
+| Evidence runs | 59 |
 
 ## Work
 
 | Status | Count |
 | --- | ---: |
 | proposed | 3 |
-| active | 2 |
+| active | 3 |
 | blocked | 2 |
 | deferred | 1 |
 | completed | 49 |
@@ -35,5 +35,6 @@ All audit scopes are within their review cadence.
 
 - 310: Pre-beta candidate refresh and operational readiness gate (active)
 - 311: CompTIA legal, trademark, and content-IP hardening (active)
+- 322: Lecture Formal Activity UI Bridge (active)
 - 212: Add installer code signing when a trusted certificate is available (blocked)
 - 218: Add Tauri iOS mobile support foundation (blocked)

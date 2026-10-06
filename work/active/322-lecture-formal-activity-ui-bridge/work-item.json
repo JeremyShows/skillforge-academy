@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "322",
+  "title": "Lecture Formal Activity UI Bridge",
+  "status": "active",
+  "owner_scope": "implementation",
+  "affected_scopes": ["implementation", "accessibility", "release", "content", "governance"],
+  "depends_on": ["319", "321"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-05T00:00:00-05:00",
+    "note": "Created on an isolated public worktree at exact public base 062fa286005aa9f22a87303f310515ef4beaa83f before implementation. The shared public checkout and private authored course are out of scope."
+  },
+  "acceptance_criteria": [
+    {"id":"AC-1","text":"Lecture formal segments resolve sourceActivityId and sourceLocation to the exact authored CourseActivity and render through the shared generic authored-activity surface.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-2","text":"Guided practice and independent practice complete through the authoritative CourseProgress runtime without becoming mastery gates or using a fake success path.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-3","text":"Assessment and remediation segments use the existing CourseProgress evaluation, remediation, retry, module-assessment, and capstone semantics.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-4","text":"Missing, mismatched, or invalid formal activity sources fail closed with the bounded learner-facing message This lecture activity could not be resolved. and do not mutate progress.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-5","text":"Lecture formal activities have no direct segment-advance bypass; informational and interactive lecture segments retain their existing behavior and completion UI.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-6","text":"Neutral public-safe fixtures and focused tests cover guided practice, independent practice, assessment, remediation, module assessment, capstone, source failures, direct-bypass prevention, informational/interactive regressions, and completion UI state.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-7","text":"Public validation gates, browser acceptance, privacy scan, and evidence packet pass on the public branch without Course Studio or private-course content changes.","state":"pending","evidence":["20261005-322-lecture-formal-activity-bridge"]},
+    {"id":"AC-8","text":"The reviewed public branch is pushed for independent review and is not merged, packaged, or installed by the implementing agent before approval.","state":"pending","evidence":[]}
+  ],
+  "created": "2026-10-05",
+  "updated": "2026-10-05",
+  "source": "Lecture Formal-Activity UI Bridge Fix + Installed Acceptance Rerun request."
+}

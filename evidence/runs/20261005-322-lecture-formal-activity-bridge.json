@@ -1,0 +1,42 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261005-322-lecture-formal-activity-bridge",
+  "timestamp": "2026-10-05T21:10:00-05:00",
+  "work_item": "322",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {"command":"npm ci","exit_code":0,"summary":"Lockfile dependencies installed."},
+    {"command":"npm test -- --run","exit_code":0,"summary":"12 test files and 159 tests passed, including 30 focused Lecture bridge tests."},
+    {"command":"npm run validate:content","exit_code":0,"summary":"Public certification content validation passed."},
+    {"command":"npm run validate:a11y","exit_code":0,"summary":"20 accessibility checks passed."},
+    {"command":"npm run build","exit_code":0,"summary":"TypeScript and Vite production build passed."},
+    {"command":"cargo fmt --check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Rust formatting check passed."},
+    {"command":"cargo check --manifest-path src-tauri/Cargo.toml","exit_code":0,"summary":"Tauri backend check passed."},
+    {"command":"python -m repopact.cli validate","exit_code":0,"summary":"Repository governance validation passed."},
+    {"command":"git diff --check","exit_code":0,"summary":"Diff whitespace check passed."},
+    {"command":"compiled Vite preview Playwright browser acceptance","exit_code":0,"summary":"Imported neutral fixture, exercised formal Lecture activity flow, persisted CourseProgress, and verified package persistence after reload."},
+    {"command":"exact public marker scan","exit_code":0,"summary":"No exact private marker candidates found in changed public source, work item, fixture, or evidence."}
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/defect.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/runtime-authority.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/ui-bridge.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/guided-practice-regression.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/assessment-regression.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/browser-acceptance.json",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/validation.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/privacy-scan.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/residual-gaps.md",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/neutral-lecture-activity-fixture.skillforge-course",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/browser-guided.png",
+    "evidence/platform/2026-10-05-lecture-formal-activity-bridge/browser-complete.png"
+  ],
+  "environment": {
+    "repository": "public skillforge-academy repository",
+    "base_commit": "062fa286005aa9f22a87303f310515ef4beaa83f",
+    "branch": "codex/lecture-formal-activity-ui-bridge",
+    "platform": "Windows",
+    "review_boundary": "Public branch is ready for independent review; merge, installer build, and installed private acceptance remain deferred."
+  }
+}

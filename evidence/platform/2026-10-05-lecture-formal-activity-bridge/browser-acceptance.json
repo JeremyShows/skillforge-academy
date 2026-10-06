@@ -1,0 +1,27 @@
+{
+  "runId": "20261005-322-lecture-formal-activity-bridge-browser",
+  "surface": "compiled Vite preview",
+  "url": "http://127.0.0.1:1421/",
+  "viewport": "1440x950",
+  "fixture": {
+    "path": "evidence/platform/2026-10-05-lecture-formal-activity-bridge/neutral-lecture-activity-fixture.skillforge-course",
+    "sha256": "E77E2E17D726B2BA40E7C4B443107CA8D6FB3275332FD34005C009E45CC1F926"
+  },
+  "checks": [
+    {"id":"package-import","passed":true},
+    {"id":"formal-guided-renders","passed":true,"detail":"No direct Advance authored segment button; empty response is gated."},
+    {"id":"guided-completion-advances","passed":true},
+    {"id":"independent-completion-advances","passed":true},
+    {"id":"assessment-failure-routes-remediation","passed":true},
+    {"id":"remediation-retry-returns-to-assessment","passed":true},
+    {"id":"assessment-pass-advances","passed":true},
+    {"id":"courseprogress-persisted","passed":true,"storageKey":"skillforge-platform-learner-v1"},
+    {"id":"package-survives-reload","passed":true},
+    {"id":"reloaded-package-selects","passed":true}
+  ],
+  "screenshots": [
+    "browser-guided.png",
+    "browser-complete.png"
+  ],
+  "privateContentPresent": false
+}

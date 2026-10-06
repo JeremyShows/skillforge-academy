@@ -1,0 +1,95 @@
+{
+  "manifest": {
+    "format": "skillforge-course",
+    "formatVersion": 1,
+    "packageId": "fixture.lecture.activity.bridge",
+    "packageVersion": "1.0.0",
+    "courseId": "fixture-lecture-activity-bridge",
+    "courseVersion": "1.0.0",
+    "contentVersion": "neutral-bridge-1",
+    "title": "Neutral Lecture Activity Bridge",
+    "description": "Public-safe acceptance fixture for formal lecture activities.",
+    "publisher": "SkillForge",
+    "authors": ["SkillForge contributors"],
+    "license": "Apache-2.0",
+    "capabilities": ["lecture-delivery", "remediation"],
+    "visibilityMetadata": {"audience": "public", "builtIn": false},
+    "provenance": {"source": "local-import", "signatureStatus": "unsigned"}
+  },
+  "course": {
+    "id": "fixture-lecture-activity-bridge",
+    "version": "1.0.0",
+    "contentVersion": "neutral-bridge-1",
+    "title": "Neutral Lecture Activity Bridge",
+    "subtitle": "Public acceptance fixture",
+    "description": "A neutral course used to verify that Lecture formal activities open and complete through CourseProgress.",
+    "subject": "Systems",
+    "level": "foundational",
+    "audience": "Learners",
+    "prerequisites": [],
+    "outcomes": ["Trace an authored response through a lecture."],
+    "estimatedTotalMinutes": 12,
+    "modules": [{
+      "id": "unit-bridge",
+      "title": "Bridge Unit",
+      "summary": "Neutral authored unit.",
+      "learningOutcomes": ["Trace authored evidence."],
+      "prerequisiteModuleIds": [],
+      "lessons": [{
+        "id": "lesson-bridge",
+        "title": "Bridge Lesson",
+        "summary": "Neutral authored lesson.",
+        "objectives": ["Trace authored evidence."],
+        "estimatedMinutes": 12,
+        "conceptIds": ["signal"],
+        "activities": [
+          {"id":"intro","type":"instruction","title":"Read the authored explanation","estimatedMinutes":1,"required":true,"body":"An authored explanation establishes the signal.","keyPoints":["signal"]},
+          {"id":"guided","type":"guided_practice","title":"Guided practice","estimatedMinutes":2,"required":true,"prompt":"Explain the authored signal.","expectedReasoning":["signal"],"responseRequired":true,"responseType":"text","responsePrompt":"What signal would you verify?","pedagogicalRole":"guided"},
+          {"id":"independent","type":"scenario","title":"Independent practice","estimatedMinutes":2,"required":true,"prompt":"Apply the authored signal.","expectedReasoning":["signal"],"responseRequired":true,"responseType":"text","responsePrompt":"What would you verify independently?","pedagogicalRole":"transfer"},
+          {"id":"repair","type":"remediation","title":"Review the signal","estimatedMinutes":2,"required":false,"body":"Review the authored signal before retrying.","practicePrompt":"Explain the signal before returning to the assessment.","returnToActivityId":"assessment","successSignal":"A response is present."},
+          {"id":"assessment","type":"mastery_check","title":"Authored assessment","estimatedMinutes":3,"required":true,"prompt":"Explain the authored signal.","expectedAnswer":"signal","passScore":1,"explanation":"Use the authored signal.","rubric":{"requiredConcepts":[{"id":"signal","label":"Signal","keywords":["signal"]}]},"conceptIds":["signal"]}
+        ],
+        "masteryRule":{"gateActivityId":"assessment","passScore":1,"requiredActivityIds":["intro","guided","independent","assessment"],"retryPolicy":"remediate-then-retry"},
+        "remediationActivityId":"repair",
+        "references":[],
+        "tags":["fixture"]
+      }],
+      "estimatedMinutes":12,
+      "masteryRequirements":["assessment"]
+    }],
+    "optionalResources":[],
+    "capstone":{"id":"capstone","title":"Capstone","activityIds":[],"passScore":1,"description":"No capstone in this fixture.","finalIntegration":false},
+    "finalAssessment":{"id":"final","title":"Final","activityIds":[],"passScore":1,"description":"No final assessment in this fixture.","finalIntegration":false},
+    "metadata":{"author":"SkillForge contributors","source":"acceptance-fixture","tags":["fixture"]},
+    "visibility":"public",
+    "type":"course"
+  },
+  "lectures": {
+    "courseId":"fixture-lecture-activity-bridge",
+    "version":"1.0.0",
+    "explicitLectureIds":["lecture-bridge"],
+    "lectures":[{
+      "id":"lecture-bridge",
+      "version":"1.0.0",
+      "courseId":"fixture-lecture-activity-bridge",
+      "moduleId":"unit-bridge",
+      "lessonIds":["lesson-bridge"],
+      "title":"Neutral Lecture Activity Bridge",
+      "abstract":"A public-safe lecture acceptance fixture.",
+      "objectives":["Trace authored evidence."],
+      "prerequisiteConceptIds":[],
+      "estimatedMinutes":12,
+      "references":[],
+      "tags":["fixture"],
+      "explicit":true,
+      "segments":[
+        {"id":"opening","type":"OPENING","title":"Opening","conceptIds":[],"authoredContent":{"kind":"prose","paragraphs":["Begin with the authored explanation."]},"estimatedMinutes":1,"required":true},
+        {"id":"guided-segment","type":"GUIDED_PRACTICE","title":"Guided practice","conceptIds":["signal"],"sourceActivityId":"guided","sourceLocation":{"moduleId":"unit-bridge","lessonId":"lesson-bridge","activityId":"guided"},"estimatedMinutes":2,"required":true},
+        {"id":"independent-segment","type":"INDEPENDENT_PRACTICE","title":"Independent practice","conceptIds":["signal"],"sourceActivityId":"independent","sourceLocation":{"moduleId":"unit-bridge","lessonId":"lesson-bridge","activityId":"independent"},"estimatedMinutes":2,"required":true},
+        {"id":"assessment-segment","type":"ASSESSMENT","title":"Authored assessment","conceptIds":["signal"],"sourceActivityId":"assessment","sourceLocation":{"moduleId":"unit-bridge","lessonId":"lesson-bridge","activityId":"assessment"},"estimatedMinutes":3,"required":true},
+        {"id":"remediation-segment","type":"REMEDIATION","title":"Review the signal","conceptIds":["signal"],"sourceActivityId":"repair","sourceLocation":{"moduleId":"unit-bridge","lessonId":"lesson-bridge","activityId":"repair"},"estimatedMinutes":2,"required":true},
+        {"id":"closing","type":"CLOSING","title":"Closing","conceptIds":[],"authoredContent":{"kind":"prose","paragraphs":["Close the lecture after the authored activity is complete."]},"estimatedMinutes":1,"required":true}
+      ]
+    }]
+  }
+}
