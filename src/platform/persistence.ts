@@ -618,12 +618,25 @@ function isLegacyLearnerStatePayload(value: unknown): value is Record<string, un
   const recognized = ["schemaVersion", "name", "activeCertId", "progress", "answered", "attempts", "bookmarks", "lessonsRead", "notes", "cardRatings", "theme"];
   const matches = recognized.filter(key => Object.prototype.hasOwnProperty.call(value, key));
   if (matches.length < 2) return false;
+  const isAttempt = (attempt: unknown): boolean => {
+    if (!isRecord(attempt) || typeof attempt.id !== "string" || typeof attempt.date !== "string" || typeof attempt.exam !== "string" ||
+      typeof attempt.score !== "number" || !Number.isFinite(attempt.score) ||
+      typeof attempt.total !== "number" || !Number.isFinite(attempt.total) ||
+      typeof attempt.durationSec !== "number" || !Number.isFinite(attempt.durationSec) ||
+      (attempt.certId !== undefined && typeof attempt.certId !== "string") ||
+      (attempt.kind !== undefined && attempt.kind !== "practice" && attempt.kind !== "mock") ||
+      (attempt.passed !== undefined && typeof attempt.passed !== "boolean")) return false;
+    if (attempt.domainScores === undefined) return true;
+    return isRecordMap(attempt.domainScores) && Object.values(attempt.domainScores).every(score =>
+      typeof score.correct === "number" && Number.isFinite(score.correct) &&
+      typeof score.total === "number" && Number.isFinite(score.total));
+  };
   return (value.schemaVersion === undefined || (typeof value.schemaVersion === "number" && Number.isSafeInteger(value.schemaVersion) && value.schemaVersion >= 0 && value.schemaVersion <= SCHEMA_VERSION)) &&
     (value.name === undefined || typeof value.name === "string") &&
     (value.activeCertId === undefined || typeof value.activeCertId === "string") &&
     (value.progress === undefined || isRecordMap(value.progress)) &&
     (value.answered === undefined || isRecordMap(value.answered)) &&
-    (value.attempts === undefined || (Array.isArray(value.attempts) && value.attempts.every(isRecord))) &&
+    (value.attempts === undefined || (Array.isArray(value.attempts) && value.attempts.every(isAttempt))) &&
     (value.bookmarks === undefined || (Array.isArray(value.bookmarks) && value.bookmarks.every(item => typeof item === "string"))) &&
     (value.lessonsRead === undefined || (Array.isArray(value.lessonsRead) && value.lessonsRead.every(item => typeof item === "string"))) &&
     (value.notes === undefined || (Array.isArray(value.notes) && value.notes.every(note =>

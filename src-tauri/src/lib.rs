@@ -400,9 +400,34 @@ fn valid_legacy_learner_state(value: &Value) -> bool {
             })
         })
         && state.get("attempts").is_none_or(|value| {
-            value
-                .as_array()
-                .is_some_and(|items| items.iter().all(Value::is_object))
+            value.as_array().is_some_and(|items| {
+                items.iter().all(|attempt| {
+                    attempt.as_object().is_some_and(|attempt| {
+                        ["id", "date", "exam"]
+                            .iter()
+                            .all(|key| attempt.get(*key).is_some_and(Value::is_string))
+                            && ["score", "total", "durationSec"]
+                                .iter()
+                                .all(|key| attempt.get(*key).is_some_and(Value::is_number))
+                            && attempt.get("certId").is_none_or(Value::is_string)
+                            && attempt.get("kind").is_none_or(|kind| {
+                                matches!(kind.as_str(), Some("practice" | "mock"))
+                            })
+                            && attempt.get("passed").is_none_or(Value::is_boolean)
+                            && attempt.get("domainScores").is_none_or(|scores| {
+                                scores.as_object().is_some_and(|scores| {
+                                    scores.values().all(|score| {
+                                        score.as_object().is_some_and(|score| {
+                                            ["correct", "total"].iter().all(|key| {
+                                                score.get(*key).is_some_and(Value::is_number)
+                                            })
+                                        })
+                                    })
+                                })
+                            })
+                    })
+                })
+            })
         })
         && ["bookmarks", "lessonsRead"].iter().all(|key| {
             state.get(*key).is_none_or(|value| {
@@ -922,6 +947,16 @@ mod tests {
         malformed_legacy["payload"]["legacyState"] = json!({
             "name": "Valid note",
             "notes": [{ "id": "n1", "title": "Title", "body": "Body", "updatedAt": "2026-10-09T00:00:00Z" }]
+        });
+        assert!(valid_platform_backup_wrapper(&malformed_legacy));
+        malformed_legacy["payload"]["legacyState"] = json!({
+            "name": "Broken attempt",
+            "attempts": [{ "id": "a", "date": "2026-10-09", "exam": {}, "score": 1, "total": 1, "durationSec": 1 }]
+        });
+        assert!(!valid_platform_backup_wrapper(&malformed_legacy));
+        malformed_legacy["payload"]["legacyState"] = json!({
+            "name": "Valid attempt",
+            "attempts": [{ "id": "a", "date": "2026-10-09", "exam": "N10-009", "score": 1, "total": 1, "durationSec": 1, "domainScores": {} }]
         });
         assert!(valid_platform_backup_wrapper(&malformed_legacy));
     }

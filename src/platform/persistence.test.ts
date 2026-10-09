@@ -318,7 +318,8 @@ describe("unified platform learner persistence", () => {
     const futureFormat = { ...emptyPlatformLearnerEnvelope({ name: "Replacement" }), format: "skillforge-platform-learner-v2", schemaVersion: 2 };
     const malformedLegacy = { ...emptyPlatformLearnerEnvelope({ name: "Replacement", answered: "invalid" }) };
     const malformedNotes = emptyPlatformLearnerEnvelope({ name: "Replacement", answered: {}, notes: [null] });
-    const malformedBackups = [malformed, unsupported, futureFormat, malformedLegacy, malformedNotes];
+    const malformedAttempt = emptyPlatformLearnerEnvelope({ name: "Replacement", answered: {}, attempts: [{ id: "a", date: "2026-10-09", exam: {}, score: 1, total: 1, durationSec: 1 }] });
+    const malformedBackups = [malformed, unsupported, futureFormat, malformedLegacy, malformedNotes, malformedAttempt];
     for (const backup of malformedBackups) {
       await expect(importPlatformBackup(JSON.stringify(backup), "")).rejects.toThrow();
       expect(values.getItem("apex-state")).toBe(currentLegacy);
@@ -327,6 +328,7 @@ describe("unified platform learner persistence", () => {
     }
     await expect(importPlatformBackup("not-json", "")).rejects.toThrow("not valid JSON");
     await expect(importPlatformBackup(JSON.stringify({ name: "Malformed legacy", notes: [null] }), "")).rejects.toThrow("supported SkillForge learner format");
+    await expect(importPlatformBackup(JSON.stringify({ name: "Malformed attempt", attempts: [{ id: "a", date: "2026-10-09", exam: {}, score: 1, total: 1, durationSec: 1 }] }), "")).rejects.toThrow("supported SkillForge learner format");
     expect(values.getItem("apex-state")).toBe(currentLegacy);
     expect(values.getItem(PLATFORM_LEARNER_KEY)).toBe(currentPlatform);
   });
