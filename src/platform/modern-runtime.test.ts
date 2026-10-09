@@ -11,6 +11,7 @@ import type { LectureDefinition } from "../lecture/types";
 import { applyLabAction, completeLabRun, createLabRun, evaluateLabChecks, pauseLabRun, recordLabObservation, recordLabPrediction, recordLabReflection, resumeLabRun, visitLabStep } from "../labs/runtime";
 import type { LabDefinition } from "../labs/types";
 import { courseProgressMapFromEnvelope, emptyPlatformLearnerEnvelope } from "./persistence";
+import type { CourseRuntimeContext } from "./runtime";
 
 const location = (activityId: string): CourseLocation => ({ moduleId: "unit-1", lessonId: "lesson-1", activityId });
 
@@ -30,6 +31,15 @@ function makeCourse(options: { moduleAssessment?: boolean; capstone?: boolean } 
   const lesson = { id: "lesson-1", title: "Lesson", summary: "Summary", objectives: ["Objective"], estimatedMinutes: 30, activities, masteryRule: { gateActivityId: options.moduleAssessment ? "module-assessment" : "gate", passScore: 1, requiredActivityIds: activities.filter(item => item.required !== false && item.type !== "module_assessment" && item.type !== "capstone_activity").map(item => item.id), retryPolicy: "remediate-then-retry" as const }, remediationActivityId: "remediation", conceptIds: ["concept-1"], tags: [] };
   const module = { id: "unit-1", title: "Unit", summary: "Summary", learningOutcomes: ["Outcome"], prerequisiteModuleIds: [], lessons: [lesson], estimatedMinutes: 30, masteryRequirements: [], moduleAssessment: options.moduleAssessment ? { id: "assessment", title: "Assessment", activityIds: ["module-assessment"], passScore: 1, description: "Unfamiliar integrated scenario", conceptIds: ["concept-1", "concept-2"], rubric: { requiredConcepts: [{ id: "concept-1", label: "Concept", keywords: [] }, { id: "concept-2", label: "Second concept", keywords: [] }] } } : undefined };
   return { id: "fixture-course", version: "1.0.0", contentVersion: "fixture-1", title: "Fixture Course", subtitle: "Fixture", description: "Neutral authored fixture", subject: "Systems", level: "foundational", audience: "learners", prerequisites: [], outcomes: ["Outcome"], estimatedTotalMinutes: 30, modules: [module], optionalResources: [], capstone: { id: "capstone", title: "Capstone", activityIds: options.capstone ? ["capstone"] : [], passScore: 1, description: "Capstone" , stages: options.capstone ? [1, 2, 3].map(number => ({ number, title: `Stage ${number}`, prompt: "Respond", rubric: { requiredConcepts: [] } })) : [], finalIntegration: Boolean(options.capstone) }, finalAssessment: { id: "final", title: "Final", activityIds: [], passScore: 1, description: "Final", finalIntegration: Boolean(options.capstone) }, metadata: { tags: [] }, visibility: "public", type: "course" };
+}
+
+function makeRuntimeContext(course: Course, packageId: string): CourseRuntimeContext {
+  return {
+    package: { manifest: { packageId } } as unknown as CourseRuntimeContext["package"],
+    course,
+    capabilities: [],
+    progressNamespace: `${packageId}@${course.version}`
+  };
 }
 
 function finishRequiredWork(course: Course, progress = createCourseProgress(course)) {
@@ -162,23 +172,113 @@ describe("public modern runtime authority", () => {
 
   it("derives academic reading, assignment, and assessment status from progress", () => {
     const course = makeCourse();
+    const context = makeRuntimeContext(course, "fixture.package");
     const source = location("gate");
     const catalog = { version: "fixture-academic-1", programs: [], courses: [{ id: "academic-course", courseId: course.id, academicCatalogVersion: "fixture-academic-1", syllabus: {} as never, units: [{ id: "academic-unit", courseId: course.id, moduleId: "unit-1", number: 1, title: "Unit", description: "Unit", learningOutcomes: [], lectureIds: [], readingIds: ["reading"], assignmentIds: ["assignment"], assessmentIds: ["assessment"], labIds: [], prerequisiteUnitIds: [] }], readings: [{ id: "reading", courseId: course.id, unitId: "academic-unit", title: "Reading", description: "Reading", kind: "internal-course-text", required: true, estimatedMinutes: 5, source: { type: "lesson-authored-content", lessonId: "lesson-1" }, lessonIds: ["lesson-1"], lectureIds: [], learningObjectives: [] }], assignments: [{ id: "assignment", courseId: course.id, unitId: "academic-unit", title: "Assignment", description: "Assignment", objectives: [], sourceActivityIds: ["gate"], sourceLocations: [source], required: true, kind: "practice", completionPolicy: "all-source-activities-complete", assistancePolicy: "existing-course-activity-policy", estimatedMinutes: 5 }], assessments: [{ id: "assessment", courseId: course.id, unitId: "academic-unit", title: "Assessment", description: "Assessment", kind: "mastery-gate", sourceActivityIds: ["gate"], sourceLocations: [source], coverageConceptIds: ["concept-1"], required: true, assistancePolicy: "formal-gate-marks-assisted", completionPolicy: "derived-from-CourseProgress", estimatedMinutes: 5 }] }] } as AcademicCatalog;
     let progress = finishRequiredWork(course);
-    const namespace = "fixture.package@1.0.0";
+    const namespace = context.progressNamespace;
     const hydratedEnvelope = emptyPlatformLearnerEnvelope();
     hydratedEnvelope.courses[namespace] = { progress };
-    let authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope)[namespace];
-    expect(authoritativeProgress).toBe(progress);
+    let authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope, [context])[namespace];
+    expect(authoritativeProgress).not.toBe(progress);
+    expect(authoritativeProgress.courseId).toBe(course.id);
+    expect(authoritativeProgress.courseVersion).toBe(course.version);
+    expect(authoritativeProgress.contentVersion).toBe(course.contentVersion);
+    expect(authoritativeProgress.current).toEqual(progress.current);
+    expect(authoritativeProgress.lessonProgress["lesson-1"].completedActivityIds).toEqual(["intro", "practice"]);
     let engagement = markSyllabusViewed(markReadingComplete({ academicCatalogVersion: "fixture-academic-1", readingCompletions: {} }, "reading", "2026-10-04T00:00:00.000Z"), "2026-10-04T00:00:00.000Z");
     expect(readingIsComplete(engagement, "reading")).toBe(true);
     expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, authoritativeProgress).status).toBe("not-started");
     progress = completeActivity(course, progress, source, { passed: true, masteryEvidence: "verified" });
     hydratedEnvelope.courses[namespace] = { ...hydratedEnvelope.courses[namespace], progress };
-    authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope)[namespace];
+    authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope, [context])[namespace];
     expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, authoritativeProgress).status).toBe("complete");
     expect(deriveAcademicAssessmentStatus(catalog.courses[0].assessments[0], course, authoritativeProgress).status).toBe("rubric-verified");
     expect(academicRecordSummary(catalog, course, authoritativeProgress, engagement).readingEngagementCount).toBe(1);
+  });
+
+  it("sanitizes progress per package namespace without writing it back", () => {
+    const course = makeCourse();
+    const first = makeRuntimeContext(course, "fixture.one");
+    const second = makeRuntimeContext(course, "fixture.two");
+    const firstProgress = finishRequiredWork(course);
+    const secondProgress = createCourseProgress(course);
+    const envelope = emptyPlatformLearnerEnvelope();
+    envelope.courses[first.progressNamespace] = { progress: { ...firstProgress, packageId: "fixture.one", assessmentAttempts: 3, notes: ["first"] } };
+    envelope.courses[second.progressNamespace] = { progress: { ...secondProgress, packageId: "fixture.two", assessmentAttempts: 1, notes: ["second"] } };
+    const beforeProjection = structuredClone(envelope);
+
+    const progress = courseProgressMapFromEnvelope(envelope, [first, second]);
+
+    expect(progress[first.progressNamespace].packageId).toBe("fixture.one");
+    expect(progress[first.progressNamespace].assessmentAttempts).toBe(3);
+    expect(progress[first.progressNamespace].notes).toEqual(["first"]);
+    expect(progress[first.progressNamespace].lessonProgress["lesson-1"].completedActivityIds).toEqual(["intro", "practice"]);
+    expect(progress[second.progressNamespace].packageId).toBe("fixture.two");
+    expect(progress[second.progressNamespace].lessonProgress["lesson-1"].completedActivityIds).toEqual([]);
+    expect(envelope).toEqual(beforeProjection);
+  });
+
+  it("never exposes an object-shaped malformed progress slot to runtime consumers", () => {
+    const course = makeCourse();
+    const context = makeRuntimeContext(course, "fixture.malformed");
+    const envelope = emptyPlatformLearnerEnvelope();
+    envelope.courses[context.progressNamespace] = { progress: {} };
+
+    const progress = courseProgressMapFromEnvelope(envelope, [context])[context.progressNamespace];
+
+    expect(progress.courseId).toBe(course.id);
+    expect(progress.courseVersion).toBe(course.version);
+    expect(progress.contentVersion).toBe(course.contentVersion);
+    expect(progress.current).toEqual(location("intro"));
+    expect(progress.lessonProgress["lesson-1"].completedActivityIds).toEqual([]);
+    expect(progress.moduleProgress["unit-1"]).toBeDefined();
+  });
+
+  it("reconciles the same package and course-version namespace against changed authored content", () => {
+    const originalCourse = makeCourse();
+    const packageId = "fixture.updated-content";
+    const saved = finishRequiredWork(originalCourse);
+    saved.current = { moduleId: "removed-module", lessonId: "removed-lesson", activityId: "removed-activity" };
+    saved.lessonProgress["lesson-1"] = { completedActivityIds: ["intro", "practice", "removed-activity"] } as typeof saved.lessonProgress["lesson-1"];
+    saved.moduleProgress["unit-1"] = {} as typeof saved.moduleProgress["unit-1"];
+    const envelope = emptyPlatformLearnerEnvelope();
+    const priorContext = makeRuntimeContext(originalCourse, packageId);
+    envelope.installedPackages = [{
+      packageId,
+      courseId: originalCourse.id,
+      courseVersion: originalCourse.version,
+      contentVersion: originalCourse.contentVersion
+    }];
+    envelope.courses[priorContext.progressNamespace] = { progress: { ...saved, packageId, assessmentAttempts: 4, notes: ["kept"] } };
+    const beforeProjection = structuredClone(envelope);
+    const updatedCourse: Course = {
+      ...originalCourse,
+      contentVersion: "fixture-2",
+      modules: originalCourse.modules.map(module => ({
+        ...module,
+        lessons: module.lessons.map(lesson => ({
+          ...lesson,
+          activities: [...lesson.activities, makeActivity("new-content", "short_answer")],
+          masteryRule: { ...lesson.masteryRule, requiredActivityIds: [...lesson.masteryRule.requiredActivityIds, "new-content"] }
+        }))
+      }))
+    };
+    const currentContext = makeRuntimeContext(updatedCourse, packageId);
+
+    expect(currentContext.progressNamespace).toBe(priorContext.progressNamespace);
+    const reconciled = courseProgressMapFromEnvelope(envelope, [currentContext])[currentContext.progressNamespace];
+
+    expect(reconciled.contentVersion).toBe("fixture-2");
+    expect(reconciled.current).toEqual({ moduleId: "unit-1", lessonId: "lesson-1", activityId: "intro" });
+    expect(reconciled.lessonProgress["lesson-1"].completedActivityIds).toEqual(["intro", "practice"]);
+    expect(reconciled.lessonProgress["lesson-1"].completionState).toBe("in-progress");
+    expect(reconciled.lessonProgress["lesson-1"].mastery).toBe("needs-review");
+    expect(reconciled.packageId).toBe(packageId);
+    expect(reconciled.completedLessonIds).toEqual([]);
+    expect(reconciled.assessmentAttempts).toBe(4);
+    expect(reconciled.notes).toEqual(["kept"]);
+    expect(envelope).toEqual(beforeProjection);
   });
 
   it("runs the full deterministic Labs flow with append effects and no mastery grant", () => {

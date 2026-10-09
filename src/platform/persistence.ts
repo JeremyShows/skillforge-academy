@@ -1,6 +1,6 @@
 import { decryptBackup, encryptBackup } from "../backup";
 import { learnerStateStore } from "../state/learnerState";
-import type { CourseProgressMap } from "./runtime";
+import { sanitizeCourseProgressForContext, type CourseProgressMap, type CourseRuntimeContext } from "./runtime";
 
 export const PLATFORM_LEARNER_FORMAT = "skillforge-platform-learner" as const;
 export const PLATFORM_LEARNER_SCHEMA_VERSION = 1 as const;
@@ -47,6 +47,39 @@ export type PlatformLearnerMutator = (current: PlatformLearnerEnvelope) => Platf
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+function isRecordMap(value: unknown): value is Record<string, Record<string, unknown>> {
+  return isRecord(value) && Object.values(value).every(isRecord);
+}
+function hasStructurallyValidCourseProgress(value: unknown): boolean {
+  if (!isRecord(value) ||
+    !isNonEmptyString(value.courseId) ||
+    !isNonEmptyString(value.courseVersion) ||
+    !isNonEmptyString(value.contentVersion) ||
+    !isNonEmptyString(value.updatedAt) ||
+    !isRecord(value.current) ||
+    !isNonEmptyString(value.current.moduleId) ||
+    !isNonEmptyString(value.current.lessonId) ||
+    !isNonEmptyString(value.current.activityId) ||
+    !isRecordMap(value.lessonProgress) ||
+    !isRecordMap(value.moduleProgress) ||
+    !Array.isArray(value.reviewQueue) ||
+    !Array.isArray(value.sessions) ||
+    !Array.isArray(value.weaknessTags) ||
+    !Array.isArray(value.assistedActivityIds)) {
+    return false;
+  }
+  if (value.packageId !== undefined && typeof value.packageId !== "string") return false;
+  if (value.assessmentAttempts !== undefined && (typeof value.assessmentAttempts !== "number" || !Number.isSafeInteger(value.assessmentAttempts) || value.assessmentAttempts < 0)) return false;
+  if (value.notes !== undefined && (!Array.isArray(value.notes) || !value.notes.every(item => typeof item === "string"))) return false;
+  if (value.activeSessionId !== undefined && typeof value.activeSessionId !== "string") return false;
+  if (value.sessionStartedAt !== undefined && typeof value.sessionStartedAt !== "string") return false;
+  if (value.completedAt !== undefined && typeof value.completedAt !== "string") return false;
+  if (value.capstone !== undefined && !isRecord(value.capstone)) return false;
+  return true;
 }
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -99,6 +132,9 @@ export function sanitizePlatformLearnerEnvelope(value: unknown): PlatformLearner
       if (Object.prototype.hasOwnProperty.call(state, slot) && !isRecord(state[slot])) {
         throw new Error("Saved platform learner data contains an invalid " + slot + " slot for " + namespace + ".");
       }
+    }
+    if (state.progress !== undefined && !hasStructurallyValidCourseProgress(state.progress)) {
+      throw new Error("Saved platform learner data contains structurally invalid CourseProgress for " + namespace + ".");
     }
     courses[namespace] = { ...state };
   }
@@ -277,10 +313,16 @@ export function resetPlatformLearnerEnvelopeStoreForTests(): void {
   canonicalStore = undefined;
 }
 
-export function courseProgressMapFromEnvelope(envelope: PlatformLearnerEnvelope): CourseProgressMap {
+export function courseProgressForContext(envelope: PlatformLearnerEnvelope, context: CourseRuntimeContext): CourseProgressMap[string] | undefined {
+  const saved = envelope.courses[context.progressNamespace]?.progress;
+  return saved === undefined ? undefined : sanitizeCourseProgressForContext(saved, context);
+}
+
+export function courseProgressMapFromEnvelope(envelope: PlatformLearnerEnvelope, contexts: readonly CourseRuntimeContext[]): CourseProgressMap {
   const progress: CourseProgressMap = {};
-  for (const [namespace, state] of Object.entries(envelope.courses)) {
-    if (state.progress !== undefined) progress[namespace] = state.progress as CourseProgressMap[string];
+  for (const context of contexts) {
+    const sanitized = courseProgressForContext(envelope, context);
+    if (sanitized) progress[context.progressNamespace] = sanitized;
   }
   return progress;
 }

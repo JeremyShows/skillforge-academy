@@ -10,6 +10,7 @@ import {
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { loadContent, bundledContent, type ContentBundle } from "./content";
 import PlatformHub from "./platform/PlatformHub";
+import { createLearnerStateCloseHandler } from "./platform/windowShutdown";
 import { ContentProvider, useContent } from "./ContentContext";
 import { exportPlatformBackup, getPlatformLearnerEnvelopeStore, importPlatformBackup } from "./platform/persistence";
 import { APP_BUILD, APP_VERSION, buildDiagnosticBundle, downloadDiagnosticBundle, recordDiagnosticError } from "./diagnostics";
@@ -174,28 +175,16 @@ export default function App() {
   useEffect(() => {
     if (!isTauri()) return;
     let active = true;
-    let closing = false;
     let unlisten: (() => void) | undefined;
     const currentWindow = getCurrentWindow();
-    const registration = currentWindow.onCloseRequested(async event => {
-      if (closing) return;
-      closing = true;
-      event.preventDefault();
-      const flushed = await getPlatformLearnerEnvelopeStore().flush(5000);
-      if (flushed.status === "pending" || flushed.status === "failed") {
-        const error = new Error(flushed.error ?? "Platform learner state was not durably saved before shutdown.");
-        recordDiagnosticError("platform_learner_shutdown_flush", error);
-        console.error("SkillForge platform learner state flush failed.", error);
+    const registration = currentWindow.onCloseRequested(createLearnerStateCloseHandler({
+      flush: () => getPlatformLearnerEnvelopeStore().flush(5000),
+      destroy: () => currentWindow.destroy(),
+      reportFailure: (stage, error) => {
+        recordDiagnosticError(`platform_learner_shutdown_${stage}`, error);
+        console.error(`SkillForge learner-state shutdown ${stage} failed.`, error);
       }
-      try {
-        await currentWindow.destroy();
-      } catch (error) {
-        recordDiagnosticError("platform_learner_shutdown_close", error);
-        closing = false;
-        try { await currentWindow.close(); }
-        catch (closeError) { recordDiagnosticError("platform_learner_shutdown_close", closeError); }
-      }
-    });
+    }));
     void registration.then(dispose => {
       if (active) unlisten = dispose;
       else dispose();

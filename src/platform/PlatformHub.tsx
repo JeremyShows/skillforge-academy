@@ -50,9 +50,10 @@ export default function PlatformHub({ content, onOpenCertificationWorkspace }: P
   void registryVersion;
 
   useEffect(() => { void envelopeStore.hydrate().catch(() => undefined); }, [envelopeStore]);
-  const progressMap = envelopeSnapshot.envelope ? courseProgressMapFromEnvelope(envelopeSnapshot.envelope) : {};
-  const selected = registry.packageById(selectedPackageId) ?? registry.packages()[0];
-  const context = selected ? createCourseRuntimeContext(selected) : undefined;
+  const packageContexts = registry.packages().map(createCourseRuntimeContext);
+  const context = packageContexts.find(item => item.package.manifest.packageId === selectedPackageId) ?? packageContexts[0];
+  const selected = context?.package;
+  const progressMap = envelopeSnapshot.envelope ? courseProgressMapFromEnvelope(envelopeSnapshot.envelope, packageContexts) : {};
   const progress = context ? progressFor(progressMap, context) : undefined;
   const plan = context && progress ? planClassSession(context.course, progress, emptyClassroomState()) : undefined;
   const activeSegment = context && progress && plan ? activeSegmentForProgress(context.course, plan, progress) : undefined;
@@ -67,7 +68,7 @@ export default function PlatformHub({ content, onOpenCertificationWorkspace }: P
     if (!context) return undefined;
     const namespace = context.progressNamespace;
     const result = await envelopeStore.mutate(envelope => {
-      const current = courseProgressMapFromEnvelope(envelope)[namespace] ?? createCourseProgress(context);
+      const current = courseProgressMapFromEnvelope(envelope, [context])[namespace] ?? createCourseProgress(context);
       const next = update(current);
       return {
         ...envelope,

@@ -21,6 +21,29 @@ function loadResult(envelope = emptyPlatformLearnerEnvelope(), persisted = true)
   return { envelope, persisted, recovered: false };
 }
 
+// Envelope-shape fixture only; course-aware validity is tested with authored courses below.
+function progressFixture(extra: Record<string, unknown> = {}) {
+  return {
+    courseId: "fixture-course",
+    courseVersion: "1.0.0",
+    contentVersion: "fixture-content-1",
+    current: { moduleId: "fixture-module", lessonId: "fixture-lesson", activityId: "fixture-activity" },
+    lessonProgress: {},
+    moduleProgress: {},
+    reviewQueue: [],
+    sessions: [],
+    weaknessTags: [],
+    assistedActivityIds: [],
+    updatedAt: "2026-10-09T00:00:00.000Z",
+    packageId: "fixture.package",
+    completedLessonIds: [],
+    completedUnitIds: [],
+    assessmentAttempts: 0,
+    notes: [],
+    ...extra
+  };
+}
+
 describe("canonical platform learner envelope owner", () => {
   it("waits for hydration before applying a mutation, preserving persisted progress against defaults", async () => {
     const load = deferred<PlatformLearnerLoad>();
@@ -38,7 +61,7 @@ describe("canonical platform learner envelope owner", () => {
         ...current,
         courses: {
           ...current.courses,
-          "new.course@1.0.0": { progress: { resume: "new" } }
+          "new.course@1.0.0": { progress: progressFixture({ resume: "new" }) }
         }
       };
     });
@@ -47,14 +70,14 @@ describe("canonical platform learner envelope owner", () => {
     expect(saves).toHaveLength(0);
 
     const persisted = emptyPlatformLearnerEnvelope();
-    persisted.courses["existing.course@2.0.0"] = { progress: { resume: "persisted", completed: ["a"] } };
+    persisted.courses["existing.course@2.0.0"] = { progress: progressFixture({ resume: "persisted", completed: ["a"] }) };
     load.resolve(loadResult(persisted));
     const acknowledgement = await mutation;
 
     expect(acknowledgement.status).toBe("persisted");
     expect(saves).toHaveLength(1);
-    expect(saves[0].courses["existing.course@2.0.0"].progress).toEqual({ resume: "persisted", completed: ["a"] });
-    expect(saves[0].courses["new.course@1.0.0"].progress).toEqual({ resume: "new" });
+    expect(saves[0].courses["existing.course@2.0.0"].progress).toMatchObject({ resume: "persisted", completed: ["a"] });
+    expect(saves[0].courses["new.course@1.0.0"].progress).toMatchObject({ resume: "new" });
   });
 
   it("hydrates once for overlapping callers and serializes mutation order", async () => {
@@ -75,7 +98,7 @@ describe("canonical platform learner envelope owner", () => {
 
     const first = store.mutate(current => {
       mutationOrder.push("first");
-      return { ...current, courses: { ...current.courses, "one@1": { progress: { first: true } } } };
+      return { ...current, courses: { ...current.courses, "one@1": { progress: progressFixture({ first: true }) } } };
     });
     const second = store.mutate(current => {
       mutationOrder.push("second");
@@ -83,7 +106,7 @@ describe("canonical platform learner envelope owner", () => {
         ...current,
         courses: {
           ...current.courses,
-          "two@1": { progress: { second: true } }
+          "two@1": { progress: progressFixture({ second: true }) }
         }
       };
     });
@@ -98,13 +121,13 @@ describe("canonical platform learner envelope owner", () => {
 
     expect(mutationOrder).toEqual(["first", "second"]);
     expect(saved).toHaveLength(2);
-    expect(saved[1].courses["one@1"].progress).toEqual({ first: true });
-    expect(saved[1].courses["two@1"].progress).toEqual({ second: true });
+    expect(saved[1].courses["one@1"].progress).toMatchObject({ first: true });
+    expect(saved[1].courses["two@1"].progress).toMatchObject({ second: true });
   });
 
   it("surfaces a failed save and distinguishes memory state from durable state", async () => {
     const original = emptyPlatformLearnerEnvelope();
-    original.courses["course@1"] = { progress: { saved: true } };
+    original.courses["course@1"] = { progress: progressFixture({ saved: true }) };
     let durable = original;
     let fail = true;
     const adapter: PlatformLearnerEnvelopeAdapter = {
@@ -119,17 +142,17 @@ describe("canonical platform learner envelope owner", () => {
 
     const failed = await store.mutate(current => ({
       ...current,
-      courses: { ...current.courses, "course@1": { progress: { session: true } } }
+      courses: { ...current.courses, "course@1": { progress: progressFixture({ session: true }) } }
     }));
     expect(failed).toMatchObject({ status: "failed", error: "simulated disk failure" });
-    expect(store.getSnapshot().envelope?.courses["course@1"].progress).toEqual({ session: true });
+    expect(store.getSnapshot().envelope?.courses["course@1"].progress).toMatchObject({ session: true });
     expect(store.getSnapshot().durability).toBe("failed");
-    expect(durable.courses["course@1"].progress).toEqual({ saved: true });
+    expect(durable.courses["course@1"].progress).toMatchObject({ saved: true });
 
     fail = false;
     expect((await store.retryPending()).status).toBe("persisted");
     expect(store.getSnapshot().durability).toBe("persisted");
-    expect(durable.courses["course@1"].progress).toEqual({ session: true });
+    expect(durable.courses["course@1"].progress).toMatchObject({ session: true });
   });
 
   it("loads schema-1 data, preserves multiple course namespaces and compatible unknown fields", async () => {
@@ -144,13 +167,13 @@ describe("canonical platform learner envelope owner", () => {
       unknownIdentityField: "preserved"
     }];
     legacy.courses["package.one@1.0.0"] = {
-      progress: { completed: ["activity"] },
+      progress: progressFixture({ completed: ["activity"] }),
       classroom: { session: "paused" },
       lecture: { cursor: "segment-2" },
       labs: { run: "active" },
       unknownCourseField: { value: "preserved" }
     };
-    legacy.courses["package.two@4.0.0"] = { progress: { current: "lesson-2" } };
+    legacy.courses["package.two@4.0.0"] = { progress: progressFixture({ resumeMarker: "lesson-2" }) };
     let durable = legacy;
     const store = new PlatformLearnerEnvelopeStore({
       load: async () => loadResult(legacy),
@@ -160,7 +183,7 @@ describe("canonical platform learner envelope owner", () => {
     await store.hydrate();
     const acknowledgement = await store.mutate(current => ({
       ...current,
-      courses: { ...current.courses, "package.three@1.0.0": { progress: { current: "lesson-3" } } }
+      courses: { ...current.courses, "package.three@1.0.0": { progress: progressFixture({ resumeMarker: "lesson-3" }) } }
     }));
 
     expect(acknowledgement.status).toBe("persisted");
@@ -171,8 +194,8 @@ describe("canonical platform learner envelope owner", () => {
     expect(durable.courses["package.one@1.0.0"].lecture).toEqual({ cursor: "segment-2" });
     expect(durable.courses["package.one@1.0.0"].labs).toEqual({ run: "active" });
     expect(durable.courses["package.one@1.0.0"].unknownCourseField).toEqual({ value: "preserved" });
-    expect(durable.courses["package.two@4.0.0"].progress).toEqual({ current: "lesson-2" });
-    expect(durable.courses["package.three@1.0.0"].progress).toEqual({ current: "lesson-3" });
+    expect(durable.courses["package.two@4.0.0"].progress).toMatchObject({ resumeMarker: "lesson-2" });
+    expect(durable.courses["package.three@1.0.0"].progress).toMatchObject({ resumeMarker: "lesson-3" });
   });
 
   it("fails hydration on conflicting package identities without saving defaults", async () => {
@@ -202,7 +225,7 @@ describe("canonical platform learner envelope owner", () => {
     });
     const mutation = store.mutate(current => ({
       ...current,
-      courses: { ...current.courses, "course@1": { progress: { saved: true } } }
+      courses: { ...current.courses, "course@1": { progress: progressFixture({ saved: true }) } }
     }));
     await vi.waitFor(() => expect(store.getSnapshot().durability).toBe("pending"));
 
@@ -224,7 +247,7 @@ describe("canonical platform learner envelope owner", () => {
     });
     const mutation = store.mutate(current => ({
       ...current,
-      courses: { ...current.courses, "course@1": { progress: { saved: true } } }
+      courses: { ...current.courses, "course@1": { progress: progressFixture({ saved: true }) } }
     }));
     await vi.waitFor(() => expect(store.getSnapshot().durability).toBe("pending"));
 
@@ -242,11 +265,12 @@ describe("canonical platform learner envelope owner", () => {
     expect(source).not.toContain("saveCourseProgressInPlatformEnvelope");
     expect(source).not.toMatch(/void\s+save[A-Za-z]+InPlatformEnvelope/);
   });
-  it("flushes the canonical owner on a bounded native window close", () => {
+  it("wires native close to the tested bounded canonical shutdown handler", () => {
     const appSource = import.meta.glob("../App.tsx", { query: "?raw", import: "default", eager: true })["../App.tsx"] as string;
-    expect(appSource).toContain("onCloseRequested");
-    expect(appSource).toContain("event.preventDefault()");
-    expect(appSource).toContain(".flush(5000)");
+    expect(appSource).toContain("onCloseRequested(createLearnerStateCloseHandler");
+    expect(appSource).toContain("getPlatformLearnerEnvelopeStore().flush(5000)");
     expect(appSource).toContain("currentWindow.destroy()");
+    expect(appSource).toContain("recordDiagnosticError(`platform_learner_shutdown_${stage}`, error)");
+    expect(appSource).toContain("console.error(`SkillForge learner-state shutdown ${stage} failed.`, error)");
   });
 });

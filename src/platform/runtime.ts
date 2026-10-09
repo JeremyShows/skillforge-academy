@@ -56,6 +56,23 @@ function withCompatibility(progress: ModernCourseProgress, context: CourseRuntim
   };
 }
 export function createCourseProgress(context: CourseRuntimeContext, now = new Date().toISOString()): CourseProgress { void now; return withCompatibility(createModernCourseProgress(context.course), context); }
+/** Project persisted data through the authored course before any runtime consumer receives it. */
+export function sanitizeCourseProgressForContext(raw: unknown, context: CourseRuntimeContext): CourseProgress {
+  const candidate = raw !== null && typeof raw === "object" && !Array.isArray(raw) ? raw as Partial<CourseProgress> : undefined;
+  const identityMatches = candidate?.courseId === context.course.id &&
+    candidate.courseVersion === context.course.version &&
+    (candidate.packageId === undefined || candidate.packageId === context.package.manifest.packageId);
+  const source = identityMatches ? raw : undefined;
+  const sanitized = sanitizeCourseProgress(source, context.course);
+  const savedAssessmentAttempts = candidate?.assessmentAttempts;
+  const assessmentAttempts = identityMatches && typeof savedAssessmentAttempts === "number" && Number.isSafeInteger(savedAssessmentAttempts) && savedAssessmentAttempts >= 0
+    ? savedAssessmentAttempts
+    : 0;
+  const notes = identityMatches && Array.isArray(candidate?.notes)
+    ? candidate.notes.filter((note): note is string => typeof note === "string")
+    : [];
+  return withCompatibility(sanitized, context, { assessmentAttempts, notes });
+}
 export type CourseProgressMap = Record<string, CourseProgress>;
 const PROGRESS_STORAGE_KEY = "skillforge-course-progress-v1";
 export function loadCourseProgress(storage: Storage | undefined = typeof localStorage === "undefined" ? undefined : localStorage): CourseProgressMap {
