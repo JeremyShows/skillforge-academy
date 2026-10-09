@@ -70,7 +70,8 @@
     },
     {
       "evidence": [
-        "20261009-324-canonical-envelope-persistence"
+        "20261009-324-canonical-envelope-persistence",
+        "20261009-324-independent-review-fixes"
       ],
       "state": "satisfied",
       "text": "Existing schema-1 envelopes and multiple course namespaces load and save compatibly; valid course progress, package identity, lecture slots, lab slots, and compatible unknown fields are preserved, while malformed/conflicting state fails recoverably without destroying the prior valid state.",
@@ -78,7 +79,8 @@
     },
     {
       "evidence": [
-        "20261009-324-canonical-envelope-persistence"
+        "20261009-324-canonical-envelope-persistence",
+        "20261009-324-independent-review-fixes"
       ],
       "state": "satisfied",
       "text": "A bounded flush waits for pending canonical mutations during supported normal shutdown; failure is observable and shutdown cannot hang indefinitely. Any native lifecycle limit is documented with the strongest supported boundary implemented.",
@@ -102,7 +104,8 @@
     },
     {
       "evidence": [
-        "20261009-324-canonical-envelope-persistence"
+        "20261009-324-canonical-envelope-persistence",
+        "20261009-324-independent-review-fixes"
       ],
       "state": "satisfied",
       "text": "Neutral public tests cover hydration-before-mutation, stale-default protection, overlapping mutation retention and order, surfaced save failure and durability state, schema-1 and multiple namespaces, preservation after failure, flush ordering, native write safety where testable, and absence of PlatformHub read/merge/write.",
@@ -118,7 +121,8 @@
     },
     {
       "evidence": [
-        "20261009-324-canonical-envelope-persistence"
+        "20261009-324-canonical-envelope-persistence",
+        "20261009-324-independent-review-fixes"
       ],
       "state": "satisfied",
       "text": "Public validation, evidence, and privacy scans pass; WI325-WI329 are registered as proposed follow-ups; implementation stops for independent review without merging, release packaging, installation, private-course changes, installed acceptance, or learner-backup changes.",

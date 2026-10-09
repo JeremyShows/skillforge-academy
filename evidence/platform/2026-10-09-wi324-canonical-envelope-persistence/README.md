@@ -45,3 +45,66 @@ No private package, private fixture, learner backup, installed application, or r
 - WI323: learner UX candidate in its separate worktree.
 
 WI322 was not edited. Course Studio remains blocked and was not started.
+
+## Independent review follow-up (2026-10-09)
+
+The independent review on PR #12 identified two blockers. Both fixes and their
+regression tests are included in implementation commit
+`dcc530b07964149b0eb0c4f3d1a59aaf4fb205b`.
+
+### Finding 1: repeated close events could bypass the flush
+
+The prior `closing` guard returned before calling `preventDefault()`. A repeated
+native close request could therefore close the window while the first bounded
+learner-state flush was still pending.
+
+`createLearnerStateCloseHandler()` now consumes every close event before
+checking its shared in-flight shutdown promise. Repeated events reuse the same
+bounded `flush(5000)` and do not start parallel flushes. A successful or
+failed/timed-out flush proceeds to one native `destroy()` attempt; pending and
+failed results are reported through diagnostics and the console. A destroy
+failure is reported and leaves later close requests able to retry. The
+behavioral tests block persistence, issue a second close request, and prove
+both events are prevented while flush and destroy each run once.
+
+### Finding 2: object-shaped progress bypassed course validation
+
+The envelope sanitizer accepted any object in the progress slot, and
+`courseProgressMapFromEnvelope()` cast it directly to `CourseProgress`.
+
+Envelope hydration now rejects progress slots that lack structural identity,
+location, progress maps, review/session arrays, or correctly shaped optional
+runtime compatibility fields. This check remains course-independent.
+Before runtime use, the projection calls the existing
+`sanitizeCourseProgress()` with each current package context. It verifies
+course/package identity and course version, validates locations against the
+active authored course, filters stale activity/lesson/module state, rebuilds
+runtime compatibility fields, and derives the returned `contentVersion` from
+the active authored course. A changed content version therefore keeps the
+existing `packageId@courseVersion` namespace and reconciles progress against
+the new content. Projection does not mutate or persist its sanitized result;
+only an intentional envelope mutation writes through the canonical store.
+
+Coverage now includes rejection of `{}` and incomplete progress during
+hydration without saving defaults, safe handling of a malformed object at the
+runtime projection boundary, preservation of valid progress, isolation across
+namespaces, sanitization of missing nested runtime fields, and changed content
+under the same package/course-version namespace. The existing failed-save and
+retry test remains green. Envelope-only tests use an explicitly named
+structural fixture and are not presented as proof of course-aware validity.
+
+### Follow-up validation
+
+- Focused envelope, persistence, modern runtime, and close-lifecycle tests: 35
+  passed across 4 files.
+- Full Vitest suite: 180 passed across 14 files.
+- Production build passed; content validation covered 3 tracks and 150
+  lessons; all 20 accessibility checks passed.
+- Rust formatting and check passed; 4 Rust library tests passed.
+- RepoPact validation, generated dashboard validation, whitespace check, and
+  public privacy leakage check passed.
+
+Both independent-review threads were replied to with the fixes and test
+results, then resolved after commit `dcc530b07964149b0eb0c4f3d1a59aaf4fb205b`
+was pushed. PR #12 remains open and draft. WI324 remains active until fresh
+independent review accepts these corrections; WI325-WI329 remain proposed.

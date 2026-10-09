@@ -1,0 +1,102 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-324-independent-review-fixes",
+  "timestamp": "2026-10-09T20:59:47Z",
+  "work_item": "324",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm test -- --run src/platform/windowShutdown.test.ts src/platform/envelopeStore.test.ts src/platform/persistence.test.ts src/platform/modern-runtime.test.ts",
+      "exit_code": 0,
+      "summary": "35 tests passed across 4 files, including both independent-review regression cases."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "180 tests passed across 14 Vitest files."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "3 certification tracks and 150 lessons validated."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "Production build passed."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting gate passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Tauri backend check passed."
+    },
+    {
+      "command": "cargo test --lib --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "All 4 Rust library tests passed."
+    },
+    {
+      "command": "python -m repopact.cli dashboard --root .; normalize generated dashboard to LF",
+      "exit_code": 0,
+      "summary": "Generated governance dashboard after adding this evidence run and normalized it to LF."
+    },
+    {
+      "command": "python -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "RepoPact governance and evidence validation passed."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "public privacy leakage scan over changed files",
+      "exit_code": 0,
+      "summary": "No private course identity, source path, or repository marker appeared in changed public files."
+    },
+    {
+      "command": "GitHub PR #12 state and review-thread query",
+      "exit_code": 0,
+      "summary": "PR remains open and draft at implementation commit dcc530b07964149b0eb0c4f3d1a59aaf4fb205b; both independent-review threads are resolved."
+    }
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md",
+    "src/platform/windowShutdown.ts",
+    "src/platform/windowShutdown.test.ts",
+    "src/platform/persistence.ts",
+    "src/platform/runtime.ts",
+    "src/platform/PlatformHub.tsx",
+    "src/platform/envelopeStore.test.ts",
+    "src/platform/persistence.test.ts",
+    "src/platform/modern-runtime.test.ts",
+    "work/active/324-canonical-learner-envelope-serialized-persistence/work-item.json",
+    "https://github.com/JeremyShows/skillforge-academy/pull/12"
+  ],
+  "environment": {
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "implementation_commit": "dcc530b07964149b0eb0c4f3d1a59aaf4fb205b",
+    "pull_request": {
+      "number": 12,
+      "state": "OPEN",
+      "draft": true,
+      "head": "dcc530b07964149b0eb0c4f3d1a59aaf4fb205b",
+      "resolved_review_threads": 2,
+      "total_review_threads": 2
+    },
+    "scope": "Public WI324 independent-review fixes only; no packaging, installation, private-course, learner-backup, WI322, WI323, or WI325-WI329 implementation."
+  }
+}
