@@ -29,4 +29,4 @@ Make `PlatformLearnerEnvelope` the single hydrated, serialized, durability-aware
 No private course or private fixture, installed application, release installer, or preserved learner-state backup is in scope.
 ## Progress
 
-All WI324 implementation criteria are satisfied by the public-safe evidence packet at evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md. The work item remains active and stops for independent review; it is not merged or installed.
+The public-safe evidence packet at evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md records the implementation and fresh independent approval recommendation for commit e2758360a2b3723c78099f87ca60dd5ba88a10f8. WI324 remains active and PR #12 remains draft pending a non-author GitHub reviewer and remaining repository governance; no merge or installation was performed.

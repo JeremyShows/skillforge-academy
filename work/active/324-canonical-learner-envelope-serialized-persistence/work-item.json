@@ -72,7 +72,8 @@
       "evidence": [
         "20261009-324-canonical-envelope-persistence",
         "20261009-324-independent-review-fixes",
-        "20261009-324-independent-review-remediation"
+        "20261009-324-independent-review-remediation",
+        "20261009-324-post-fix-independent-review"
       ],
       "state": "satisfied",
       "text": "Existing schema-1 envelopes and multiple course namespaces load and save compatibly; valid course progress, package identity, lecture slots, lab slots, and compatible unknown fields are preserved. Structurally invalid or installed-identity-mismatched individual course progress is quarantined with raw data retained while valid records remain available; envelope-level corruption and unsupported schemas fail explicitly.",
@@ -82,7 +83,8 @@
       "evidence": [
         "20261009-324-canonical-envelope-persistence",
         "20261009-324-independent-review-fixes",
-        "20261009-324-independent-review-remediation"
+        "20261009-324-independent-review-remediation",
+        "20261009-324-post-fix-independent-review"
       ],
       "state": "satisfied",
       "text": "Normal shutdown atomically quiesces new mutations before a bounded final barrier, drains all already accepted mutations in serialized order, acknowledges only successfully saved revisions, records undurable state on timeout or failure, and reuses one shutdown attempt for repeated close requests.",
@@ -108,10 +110,11 @@
       "evidence": [
         "20261009-324-canonical-envelope-persistence",
         "20261009-324-independent-review-fixes",
-        "20261009-324-independent-review-remediation"
+        "20261009-324-independent-review-remediation",
+        "20261009-324-post-fix-independent-review"
       ],
       "state": "satisfied",
-      "text": "Neutral public tests cover hydration-before-mutation, stale-default protection, mutation order, quiescent shutdown and durable revision acknowledgments, failure/timeout/repeated close handling, strict platform-versus-legacy backup classification, atomic import rollback, malformed progress quarantine and recovery, content-version reconciliation, native transaction safety where testable, and absence of PlatformHub read/merge/write.",
+      "text": "Neutral public tests cover hydration-before-mutation, stale-default protection, mutation order, quiescent shutdown and durable revision acknowledgments, failure/timeout/repeated close handling, strict platform-versus-legacy backup classification and learner-record validation, atomic import rollback and hydration ordering, malformed progress quarantine and recovery, content-version reconciliation, native transaction safety where testable, and absence of PlatformHub read/merge/write.",
       "id": "AC-11"
     },
     {
@@ -126,10 +129,11 @@
       "evidence": [
         "20261009-324-canonical-envelope-persistence",
         "20261009-324-independent-review-fixes",
-        "20261009-324-independent-review-remediation"
+        "20261009-324-independent-review-remediation",
+        "20261009-324-post-fix-independent-review"
       ],
       "state": "satisfied",
-      "text": "Public validation, evidence, and privacy scans pass; WI325-WI329 are registered as proposed follow-ups; implementation stops for independent review without merging, release packaging, installation, private-course changes, installed acceptance, or expanding into the deferred WI328 backup/restore workflow.",
+      "text": "Public validation, evidence, and privacy scans pass; a separate read-only independent review recommends approval with no P1/P2 release blockers; WI325-WI329 remain proposed follow-ups; implementation stops pending repository governance without merging, release packaging, installation, private-course changes, installed acceptance, or expanding into the deferred WI328 backup/restore workflow.",
       "id": "AC-13"
     }
   ],

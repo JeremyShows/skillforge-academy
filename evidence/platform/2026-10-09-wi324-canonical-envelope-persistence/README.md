@@ -66,9 +66,10 @@ checking its shared in-flight shutdown promise. Repeated events reuse the same
 bounded `flush(5000)` and do not start parallel flushes. A successful or
 failed/timed-out flush proceeds to one native `destroy()` attempt; pending and
 failed results are reported through diagnostics and the console. A destroy
-failure is reported and leaves later close requests able to retry. The
-behavioral tests block persistence, issue a second close request, and prove
-both events are prevented while flush and destroy each run once.
+failure is reported; the completed attempt remains memoized, so later duplicate
+close events do not start another flush or destroy attempt. The behavioral tests
+block persistence, issue a second close request, and prove both events are
+prevented while flush and destroy each run once, including after destroy fails.
 
 ### Finding 2: object-shaped progress bypassed course validation
 
@@ -145,8 +146,50 @@ Verification on the remediation implementation:
   RepoPact validation, whitespace check, and changed-file privacy marker scan
   passed.
 
-The implementation has not been independently re-reviewed. PR #12 stays draft
-and WI324 stays active until an independent reviewer clears all three blockers.
+At the time this remediation report was first recorded, the implementation had
+not yet received its post-fix independent review. The later review result is
+recorded below.
+
+### Independent reproduction follow-up (2026-10-09)
+
+The independent reviewer reproduced two import-validation defects against the
+remediation commit: an already-running hydration could publish stale in-memory
+state after a successful platform import, and a legacy `notes` array containing
+`null` was accepted and later crashed the Notes view. The import now waits for
+hydration when it reaches the serialized write head, blocks new hydration until
+the atomic replacement finishes, and allows earlier admitted mutations to
+finish first. Tests cover both the in-flight hydration race and an accepted
+mutation queued ahead of import. Legacy notes are validated as records with
+string `id`, `title`, `body`, and `updatedAt` fields; attempt records are
+validated for display-safe string identity/exam fields, numeric scores and
+duration, and valid optional fields and domain scores. TypeScript import
+classification and native platform-backup validation apply the same checks.
+Invalid platform and legacy notes or attempt imports leave both learner stores
+unchanged.
+
+Final post-fix verification is recorded in
+`evidence/runs/20261009-324-post-fix-independent-review.json`. The focused suite
+passes 49 tests across 4 files; the full Vitest suite passes 194 tests across
+14 files; all 7 Rust library tests pass. Production build, content validation,
+all 20 accessibility checks, RepoPact validation, whitespace validation, and
+the changed-file exact private-marker scan pass.
+
+### Final independent review (2026-10-09)
+
+A separate read-only reviewer examined exact implementation commit
+`e2758360a2b3723c78099f87ca60dd5ba88a10f8`, including fresh repros for the
+prior import races and malformed learner records. Recommendation: **approve**;
+no P1/P2 release blockers remain. The review confirmed shutdown quiescence and
+one-attempt reuse, queue-head import ordering, stale hydration protection,
+TypeScript/Rust notes and attempt validation, atomic import behavior, and
+course-level quarantine/recovery. It also confirmed the evidence correction
+for destroy-failure behavior agrees with WI324 AC-8 and decision 0011.
+
+Optional hardening only: attempt numeric fields are type- and finiteness-checked
+but not range-checked against totals. The reviewer did not classify that as a
+release blocker. No non-author GitHub reviewer username is currently available;
+PR #12 remains open and draft, and WI324 remains active pending that governance
+step. No merge, package, or installation was performed.
 
 ### Initial follow-up validation (historical)
 
