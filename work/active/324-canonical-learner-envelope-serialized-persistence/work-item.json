@@ -1,0 +1,131 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "324",
+  "title": "Canonical Learner Envelope and Serialized Persistence",
+  "status": "active",
+  "owner_scope": "implementation",
+  "affected_scopes": [
+    "implementation",
+    "accessibility",
+    "release",
+    "governance"
+  ],
+  "depends_on": [
+    "320"
+  ],
+  "provenance": "concrete",
+  "preflight": {
+    "created_at": "2026-10-09T14:56:05-05:00",
+    "created_before_work_started": true,
+    "note": "Registered before implementation in a clean isolated public worktree at exact base 927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af after verifying WI324-WI329 were free. The shared dirty checkout, WI323 worktree, private repository, installed application, and preserved learner backup are out of scope."
+  },
+  "acceptance_criteria": [
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "One canonical PlatformLearnerEnvelope owner hydrates and sanitizes the persisted envelope once, exposes readiness and snapshots, and is the sole in-memory authority for platform course state.",
+      "id": "AC-1"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "PlatformHub cannot mutate learner state before hydration; a bounded initialization state prevents defaults from replacing persisted state, while unrelated shell functionality remains usable.",
+      "id": "AC-2"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "All envelope mutations use one serialized pipeline, so overlapping progress changes observe prior committed changes and retain all updates.",
+      "id": "AC-3"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Callers can distinguish pending, durably persisted, and failed mutations; persistence failures are observable and in-memory updates are not represented as durable success.",
+      "id": "AC-4"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "PlatformHub consumes the hydrated owner and requests mutations through it; no independent envelope load, read/merge/write, or discarded save promise remains there.",
+      "id": "AC-5"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Native platform-state writes are serialized within the app process, use protected temporary writes, complete writes before replacement, use atomic replacement where supported, and propagate bounded errors.",
+      "id": "AC-6"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Existing schema-1 envelopes and multiple course namespaces load and save compatibly; valid course progress, package identity, lecture slots, lab slots, and compatible unknown fields are preserved, while malformed/conflicting state fails recoverably without destroying the prior valid state.",
+      "id": "AC-7"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "A bounded flush waits for pending canonical mutations during supported normal shutdown; failure is observable and shutdown cannot hang indefinitely. Any native lifecycle limit is documented with the strongest supported boundary implemented.",
+      "id": "AC-8"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Academic Record remains a derived projection of authored catalog data and the authoritative hydrated CourseProgress snapshot; no separate Academic Record persistence authority is introduced.",
+      "id": "AC-9"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "A deterministic future migration boundary is documented without moving legacy learner progress, changing the namespace, or altering apex-state, legacy course-progress keys, or the course registry.",
+      "id": "AC-10"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Neutral public tests cover hydration-before-mutation, stale-default protection, overlapping mutation retention and order, surfaced save failure and durability state, schema-1 and multiple namespaces, preservation after failure, flush ordering, native write safety where testable, and absence of PlatformHub read/merge/write.",
+      "id": "AC-11"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Guided-practice, assessment success, remediation/retry, and module-assessment regression tests remain green using public-safe fixtures only.",
+      "id": "AC-12"
+    },
+    {
+      "evidence": [
+        "20261009-324-canonical-envelope-persistence"
+      ],
+      "state": "satisfied",
+      "text": "Public validation, evidence, and privacy scans pass; WI325-WI329 are registered as proposed follow-ups; implementation stops for independent review without merging, release packaging, installation, private-course changes, installed acceptance, or learner-backup changes.",
+      "id": "AC-13"
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "User-authorized WI324 Canonical Learner Envelope Persistence Foundation implementation request and accepted persistence/state-authority discovery."
+}

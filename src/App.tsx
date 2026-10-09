@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Activity, BarChart3, Bell, BookOpen, Bookmark, Brain, CalendarDays, Check,
   ChevronDown, ChevronLeft, ChevronRight, ChevronUp, CircleHelp, ClipboardCheck, Clock3, Download, Flame, Gauge, GraduationCap, Home,
@@ -10,7 +11,7 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import { loadContent, bundledContent, type ContentBundle } from "./content";
 import PlatformHub from "./platform/PlatformHub";
 import { ContentProvider, useContent } from "./ContentContext";
-import { exportPlatformBackup, importPlatformBackup } from "./platform/persistence";
+import { exportPlatformBackup, getPlatformLearnerEnvelopeStore, importPlatformBackup } from "./platform/persistence";
 import { APP_BUILD, APP_VERSION, buildDiagnosticBundle, downloadDiagnosticBundle, recordDiagnosticError } from "./diagnostics";
 import type { Attempt, CertId, Certification, LearnerState, Lesson, Pbq, Question, View } from "./types";
 import {
@@ -170,6 +171,40 @@ export default function App() {
     try { if (fresh && !localStorage.getItem(ONBOARDED_KEY)) setOnboarding(true); } catch { /* storage unavailable */ }
   }, [ready]);
   useEffect(() => { if (ready) writeState(state); }, [state, ready]);
+  useEffect(() => {
+    if (!isTauri()) return;
+    let active = true;
+    let closing = false;
+    let unlisten: (() => void) | undefined;
+    const currentWindow = getCurrentWindow();
+    const registration = currentWindow.onCloseRequested(async event => {
+      if (closing) return;
+      closing = true;
+      event.preventDefault();
+      const flushed = await getPlatformLearnerEnvelopeStore().flush(5000);
+      if (flushed.status === "pending" || flushed.status === "failed") {
+        const error = new Error(flushed.error ?? "Platform learner state was not durably saved before shutdown.");
+        recordDiagnosticError("platform_learner_shutdown_flush", error);
+        console.error("SkillForge platform learner state flush failed.", error);
+      }
+      try {
+        await currentWindow.destroy();
+      } catch (error) {
+        recordDiagnosticError("platform_learner_shutdown_close", error);
+        closing = false;
+        try { await currentWindow.close(); }
+        catch (closeError) { recordDiagnosticError("platform_learner_shutdown_close", closeError); }
+      }
+    });
+    void registration.then(dispose => {
+      if (active) unlisten = dispose;
+      else dispose();
+    }).catch(error => recordDiagnosticError("platform_learner_shutdown_listener", error));
+    return () => {
+      active = false;
+      unlisten?.();
+    };
+  }, []);
   const dismissOnboarding = () => { try { localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* ignore */ } setOnboarding(false); };
   // Keep focus on a real, available track: if a saved activeCertId points at a
   // track that was removed or flipped to coming-soon, fall back deterministically.

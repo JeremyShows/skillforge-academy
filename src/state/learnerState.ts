@@ -14,6 +14,7 @@ export interface LearnerStateEnvelope<T> {
 export interface LearnerStateLoad<T = unknown> {
   payload: T | null;
   recovered: boolean;
+  error?: string;
   envelope?: Omit<LearnerStateEnvelope<T>, "payload">;
 }
 
@@ -67,22 +68,26 @@ class BrowserLearnerStateStore implements LearnerStateStore {
   private backupKey(key: string): string { return `${key}:backup`; }
 
   async load<T>(key: string): Promise<LearnerStateLoad<T>> {
+    let invalidCopyFound = false;
     try {
       const current = localStorage.getItem(key);
-      if (current) {
+      if (current !== null) {
         const parsed = parseEnvelope<T>(current);
         if (parsed) return parsed;
+        invalidCopyFound = true;
       }
       const backup = localStorage.getItem(this.backupKey(key));
-      if (backup) {
+      if (backup !== null) {
         const parsed = parseEnvelope<T>(backup);
         if (parsed) return { ...parsed, recovered: true };
+        invalidCopyFound = true;
       }
     } catch {
-      // The caller surfaces a learner-safe recovery state; never discard the
-      // in-memory course state merely because storage is unavailable.
+      return { payload: null, recovered: false, error: "Browser learner storage could not be read." };
     }
-    return { payload: null, recovered: false };
+    return invalidCopyFound
+      ? { payload: null, recovered: false, error: "Saved learner data is unreadable and no valid backup copy could be recovered." }
+      : { payload: null, recovered: false };
   }
 
   async save<T>(key: string, metadata: Pick<LearnerStateEnvelope<T>, "courseId" | "courseVersion" | "contentVersion">, payload: T): Promise<void> {
@@ -100,8 +105,13 @@ class BrowserLearnerStateStore implements LearnerStateStore {
 
 class TauriLearnerStateStore implements LearnerStateStore {
   async load<T>(key: string): Promise<LearnerStateLoad<T>> {
-    const result = await invoke<{ payload: T | null; recovered: boolean }>("load_course_state", { key });
-    return result ?? { payload: null, recovered: false };
+    const result = await invoke<{ payload?: T | null; recovered?: boolean; error?: string }>("load_course_state", { key });
+    if (!result) return { payload: null, recovered: false };
+    return {
+      payload: result.payload ?? null,
+      recovered: result.recovered === true,
+      error: typeof result.error === "string" ? result.error : undefined
+    };
   }
 
   async save<T>(key: string, metadata: Pick<LearnerStateEnvelope<T>, "courseId" | "courseVersion" | "contentVersion">, payload: T): Promise<void> {
@@ -123,5 +133,4 @@ export function learnerStateStore(): LearnerStateStore {
 export function resetLearnerStateStoreForTests(): void {
   cachedStore = undefined;
 }
-
 

@@ -10,6 +10,7 @@ import { addLectureNote, advanceLectureSegment, createLectureRunState, recordLec
 import type { LectureDefinition } from "../lecture/types";
 import { applyLabAction, completeLabRun, createLabRun, evaluateLabChecks, pauseLabRun, recordLabObservation, recordLabPrediction, recordLabReflection, resumeLabRun, visitLabStep } from "../labs/runtime";
 import type { LabDefinition } from "../labs/types";
+import { courseProgressMapFromEnvelope, emptyPlatformLearnerEnvelope } from "./persistence";
 
 const location = (activityId: string): CourseLocation => ({ moduleId: "unit-1", lessonId: "lesson-1", activityId });
 
@@ -66,6 +67,19 @@ describe("public modern runtime authority", () => {
     expect(progress.lessonProgress["lesson-1"].mastery).toBe("needs-review");
   });
 
+  it("keeps the first-pass and remediation-retry CourseProgress paths intact", () => {
+    const course = makeCourse();
+    let progress = finishRequiredWork(course);
+    expect(progress.lessonProgress["lesson-1"].completedActivityIds).toContain("practice");
+    progress = completeActivity(course, progress, location("gate"), { passed: false, weaknessTags: ["concept-gap"] });
+    expect(progress.current.activityId).toBe("remediation");
+    progress = completeRemediation(course, progress, location("remediation"));
+    expect(progress.current.activityId).toBe("gate");
+    progress = completeActivity(course, progress, location("gate"), { passed: true, masteryEvidence: "verified" });
+    expect(progress.lessonProgress["lesson-1"].mastery).toBe("mastered");
+    expect(progress.lessonProgress["lesson-1"].remediationCount).toBe(1);
+    expect(progress.lessonProgress["lesson-1"].completedActivityIds).toContain("gate");
+  });
   it("records assisted attempts without granting fresh mastery", () => {
     const course = makeCourse();
     let progress = finishRequiredWork(course);
@@ -151,13 +165,20 @@ describe("public modern runtime authority", () => {
     const source = location("gate");
     const catalog = { version: "fixture-academic-1", programs: [], courses: [{ id: "academic-course", courseId: course.id, academicCatalogVersion: "fixture-academic-1", syllabus: {} as never, units: [{ id: "academic-unit", courseId: course.id, moduleId: "unit-1", number: 1, title: "Unit", description: "Unit", learningOutcomes: [], lectureIds: [], readingIds: ["reading"], assignmentIds: ["assignment"], assessmentIds: ["assessment"], labIds: [], prerequisiteUnitIds: [] }], readings: [{ id: "reading", courseId: course.id, unitId: "academic-unit", title: "Reading", description: "Reading", kind: "internal-course-text", required: true, estimatedMinutes: 5, source: { type: "lesson-authored-content", lessonId: "lesson-1" }, lessonIds: ["lesson-1"], lectureIds: [], learningObjectives: [] }], assignments: [{ id: "assignment", courseId: course.id, unitId: "academic-unit", title: "Assignment", description: "Assignment", objectives: [], sourceActivityIds: ["gate"], sourceLocations: [source], required: true, kind: "practice", completionPolicy: "all-source-activities-complete", assistancePolicy: "existing-course-activity-policy", estimatedMinutes: 5 }], assessments: [{ id: "assessment", courseId: course.id, unitId: "academic-unit", title: "Assessment", description: "Assessment", kind: "mastery-gate", sourceActivityIds: ["gate"], sourceLocations: [source], coverageConceptIds: ["concept-1"], required: true, assistancePolicy: "formal-gate-marks-assisted", completionPolicy: "derived-from-CourseProgress", estimatedMinutes: 5 }] }] } as AcademicCatalog;
     let progress = finishRequiredWork(course);
+    const namespace = "fixture.package@1.0.0";
+    const hydratedEnvelope = emptyPlatformLearnerEnvelope();
+    hydratedEnvelope.courses[namespace] = { progress };
+    let authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope)[namespace];
+    expect(authoritativeProgress).toBe(progress);
     let engagement = markSyllabusViewed(markReadingComplete({ academicCatalogVersion: "fixture-academic-1", readingCompletions: {} }, "reading", "2026-10-04T00:00:00.000Z"), "2026-10-04T00:00:00.000Z");
     expect(readingIsComplete(engagement, "reading")).toBe(true);
-    expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, progress).status).toBe("not-started");
+    expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, authoritativeProgress).status).toBe("not-started");
     progress = completeActivity(course, progress, source, { passed: true, masteryEvidence: "verified" });
-    expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, progress).status).toBe("complete");
-    expect(deriveAcademicAssessmentStatus(catalog.courses[0].assessments[0], course, progress).status).toBe("rubric-verified");
-    expect(academicRecordSummary(catalog, course, progress, engagement).readingEngagementCount).toBe(1);
+    hydratedEnvelope.courses[namespace] = { ...hydratedEnvelope.courses[namespace], progress };
+    authoritativeProgress = courseProgressMapFromEnvelope(hydratedEnvelope)[namespace];
+    expect(deriveAcademicAssignmentStatus(catalog.courses[0].assignments[0], course, authoritativeProgress).status).toBe("complete");
+    expect(deriveAcademicAssessmentStatus(catalog.courses[0].assessments[0], course, authoritativeProgress).status).toBe("rubric-verified");
+    expect(academicRecordSummary(catalog, course, authoritativeProgress, engagement).readingEngagementCount).toBe(1);
   });
 
   it("runs the full deterministic Labs flow with append effects and no mastery grant", () => {

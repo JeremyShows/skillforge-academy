@@ -1,6 +1,16 @@
 use chrono::Utc;
 use serde_json::{json, Value};
-use std::{fs, path::PathBuf};
+#[cfg(windows)]
+use std::os::windows::ffi::OsStrExt;
+use std::{
+    fs::{self, OpenOptions},
+    io::{self, Write},
+    path::{Path, PathBuf},
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Mutex,
+    },
+};
 use tauri::{AppHandle, Manager};
 
 /// Soft ceiling for persisted learner-state / imported backup JSON (5 MiB).
@@ -18,16 +28,18 @@ fn platform_state_path(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(dir.join("platform-state.json"))
 }
 
-fn platform_state_map(app: &AppHandle) -> Result<serde_json::Map<String, Value>, String> {
-    let path = platform_state_path(app)?;
+fn read_platform_state_map(path: &Path) -> Result<serde_json::Map<String, Value>, String> {
     if !path.exists() {
         return Ok(serde_json::Map::new());
     }
-    let raw = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    let raw =
+        fs::read_to_string(path).map_err(|e| format!("Could not read platform state: {e}"))?;
     assert_state_size(&raw, "Saved platform state")?;
-    match serde_json::from_str::<Value>(&raw).map_err(|e| e.to_string())? {
+    match serde_json::from_str::<Value>(&raw)
+        .map_err(|e| format!("Saved platform state is invalid: {e}"))?
+    {
         Value::Object(map) => Ok(map),
-        _ => Ok(serde_json::Map::new()),
+        _ => Err("Saved platform state must be a JSON object.".to_string()),
     }
 }
 
@@ -39,12 +51,116 @@ fn valid_platform_key(key: &str) -> bool {
             .all(|byte| byte.is_ascii_alphanumeric() || b"._:@-".contains(&byte))
 }
 
+static PLATFORM_STATE_WRITE_LOCK: Mutex<()> = Mutex::new(());
+static PLATFORM_STATE_TEMP_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+
+fn write_platform_state_file(path: &Path, raw: &str) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| "Platform state path has no parent directory.".to_string())?;
+    let filename = path
+        .file_name()
+        .ok_or_else(|| "Platform state path has no file name.".to_string())?
+        .to_string_lossy();
+
+    for _ in 0..16 {
+        let sequence = PLATFORM_STATE_TEMP_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+        let temp = parent.join(format!("{filename}.tmp-{}-{sequence}", std::process::id()));
+        let mut file = match OpenOptions::new().write(true).create_new(true).open(&temp) {
+            Ok(file) => file,
+            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
+            Err(error) => {
+                return Err(format!(
+                    "Could not create platform-state temporary file: {error}"
+                ))
+            }
+        };
+
+        let write_result = file
+            .write_all(raw.as_bytes())
+            .and_then(|()| file.sync_all());
+        drop(file);
+        if let Err(error) = write_result {
+            let _ = fs::remove_file(&temp);
+            return Err(format!(
+                "Could not complete platform-state temporary write: {error}"
+            ));
+        }
+
+        if let Err(error) = replace_platform_state_file(&temp, path) {
+            let _ = fs::remove_file(&temp);
+            return Err(format!("Could not replace saved platform state: {error}"));
+        }
+        return Ok(());
+    }
+
+    Err("Could not allocate a unique platform-state temporary file.".to_string())
+}
+
+#[cfg(windows)]
+fn replace_platform_state_file(temp: &Path, target: &Path) -> io::Result<()> {
+    let source: Vec<u16> = temp
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect();
+    let destination: Vec<u16> = target
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect();
+
+    #[link(name = "Kernel32")]
+    extern "system" {
+        fn MoveFileExW(
+            existing_file_name: *const u16,
+            new_file_name: *const u16,
+            flags: u32,
+        ) -> i32;
+    }
+
+    const MOVEFILE_REPLACE_EXISTING: u32 = 0x1;
+    const MOVEFILE_WRITE_THROUGH: u32 = 0x8;
+    let replaced = unsafe {
+        MoveFileExW(
+            source.as_ptr(),
+            destination.as_ptr(),
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+        )
+    };
+    if replaced == 0 {
+        Err(io::Error::last_os_error())
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(not(windows))]
+fn replace_platform_state_file(temp: &Path, target: &Path) -> io::Result<()> {
+    fs::rename(temp, target)
+}
+
+fn mutate_platform_state_file(
+    path: &Path,
+    update: impl FnOnce(&mut serde_json::Map<String, Value>) -> Result<(), String>,
+) -> Result<(), String> {
+    let _guard = PLATFORM_STATE_WRITE_LOCK
+        .lock()
+        .map_err(|_| "Platform state writer lock is unavailable.".to_string())?;
+    let mut map = read_platform_state_map(path)?;
+    update(&mut map)?;
+    let raw = serde_json::to_string_pretty(&Value::Object(map)).map_err(|e| e.to_string())?;
+    assert_state_size(&raw, "Platform state")?;
+    write_platform_state_file(path, &raw)
+}
+
 #[tauri::command]
 fn load_course_state(app: AppHandle, key: String) -> Result<Value, String> {
     if !valid_platform_key(&key) {
         return Err("Invalid platform state key.".to_string());
     }
-    let map = platform_state_map(&app)?;
+    let path = platform_state_path(&app)?;
+    let map = read_platform_state_map(&path)?;
     Ok(map
         .get(&key)
         .cloned()
@@ -56,14 +172,11 @@ fn save_course_state(app: AppHandle, key: String, envelope: Value) -> Result<Val
     if !valid_platform_key(&key) {
         return Err("Invalid platform state key.".to_string());
     }
-    let mut map = platform_state_map(&app)?;
-    map.insert(key, envelope);
     let path = platform_state_path(&app)?;
-    let temp = path.with_extension("tmp");
-    let raw = serde_json::to_string_pretty(&Value::Object(map)).map_err(|e| e.to_string())?;
-    assert_state_size(&raw, "Platform state")?;
-    fs::write(&temp, raw).map_err(|e| e.to_string())?;
-    fs::rename(temp, path).map_err(|e| e.to_string())?;
+    mutate_platform_state_file(&path, |map| {
+        map.insert(key, envelope);
+        Ok(())
+    })?;
     Ok(json!({ "savedAt": Utc::now().to_rfc3339() }))
 }
 
@@ -72,17 +185,12 @@ fn reset_course_state(app: AppHandle, key: String) -> Result<(), String> {
     if !valid_platform_key(&key) {
         return Err("Invalid platform state key.".to_string());
     }
-    let mut map = platform_state_map(&app)?;
-    map.remove(&key);
     let path = platform_state_path(&app)?;
-    let temp = path.with_extension("tmp");
-    let raw = serde_json::to_string_pretty(&Value::Object(map)).map_err(|e| e.to_string())?;
-    assert_state_size(&raw, "Platform state")?;
-    fs::write(&temp, raw).map_err(|e| e.to_string())?;
-    fs::rename(temp, path).map_err(|e| e.to_string())?;
-    Ok(())
+    mutate_platform_state_file(&path, |map| {
+        map.remove(&key);
+        Ok(())
+    })
 }
-
 fn assert_state_size(raw: &str, label: &str) -> Result<(), String> {
     if raw.len() > MAX_STATE_CHARS {
         return Err(format!("{label} is too large to handle safely."));
@@ -249,6 +357,74 @@ pub fn run() {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+    fn test_platform_state_path(label: &str) -> (PathBuf, PathBuf) {
+        let sequence = PLATFORM_STATE_TEMP_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+        let directory = std::env::temp_dir().join(format!(
+            "skillforge-platform-state-{label}-{}-{sequence}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&directory).expect("test directory should be created");
+        let path = directory.join("platform-state.json");
+        (directory, path)
+    }
+
+    #[test]
+    fn platform_state_replaces_existing_file_with_complete_json() {
+        let (directory, path) = test_platform_state_path("replace");
+        write_platform_state_file(&path, r#"{"first":true}"#)
+            .expect("initial write should succeed");
+        write_platform_state_file(&path, r#"{"second":{"complete":true}}"#)
+            .expect("replacement should succeed");
+
+        let saved: Value =
+            serde_json::from_slice(&fs::read(&path).expect("replacement should exist"))
+                .expect("replacement should contain complete JSON");
+        assert_eq!(saved["second"]["complete"], true);
+        assert!(saved.get("first").is_none());
+        assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn overlapping_platform_state_updates_preserve_both_keys() {
+        let (directory, path) = test_platform_state_path("overlap");
+        let first_path = path.clone();
+        let first = std::thread::spawn(move || {
+            mutate_platform_state_file(&first_path, |map| {
+                map.insert("first".to_string(), json!({"value": 1}));
+                Ok(())
+            })
+        });
+        let second_path = path.clone();
+        let second = std::thread::spawn(move || {
+            mutate_platform_state_file(&second_path, |map| {
+                map.insert("second".to_string(), json!({"value": 2}));
+                Ok(())
+            })
+        });
+        first.join().unwrap().expect("first update should succeed");
+        second
+            .join()
+            .unwrap()
+            .expect("second update should succeed");
+
+        let saved = read_platform_state_map(&path).expect("saved map should load");
+        assert_eq!(saved["first"]["value"], 1);
+        assert_eq!(saved["second"]["value"], 2);
+        fs::remove_dir_all(directory).unwrap();
+    }
+
+    #[test]
+    fn failed_platform_state_mutation_preserves_previous_file() {
+        let (directory, path) = test_platform_state_path("failure");
+        let original = r#"{"saved":{"valid":true}}"#;
+        write_platform_state_file(&path, original).expect("initial write should succeed");
+        let result = mutate_platform_state_file(&path, |_map| Err("simulated failure".to_string()));
+        assert_eq!(result.unwrap_err(), "simulated failure");
+        assert_eq!(fs::read_to_string(&path).unwrap(), original);
+        assert_eq!(fs::read_dir(&directory).unwrap().count(), 1);
+        fs::remove_dir_all(directory).unwrap();
+    }
 
     #[test]
     fn assemble_content_includes_objectives_array() {
