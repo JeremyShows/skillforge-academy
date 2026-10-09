@@ -268,6 +268,9 @@ export class PlatformLearnerEnvelopeStore {
     recovered: false
   };
   private hydration?: Promise<PlatformLearnerEnvelopeSnapshot>;
+  private backupImportsPending = 0;
+  private backupImportsBarrier?: Promise<void>;
+  private releaseBackupImports?: () => void;
   private writes: Promise<void> = Promise.resolve();
   private acceptedRevision = 0;
   private shutdown?: Promise<{ status: PlatformLearnerDurability; revision: number; durableRevision: number; targetRevision: number; error?: string }>;
@@ -298,6 +301,9 @@ export class PlatformLearnerEnvelopeStore {
   }
 
   hydrate(): Promise<PlatformLearnerEnvelopeSnapshot> {
+    // A load started during an atomic import could otherwise publish stale state
+    // after the imported replacement has committed.
+    if (this.backupImportsBarrier) return this.backupImportsBarrier.then(() => this.hydrate());
     if (this.current.phase === "ready") return Promise.resolve(this.current);
     if (this.hydration) return this.hydration;
 
@@ -400,10 +406,30 @@ export class PlatformLearnerEnvelopeStore {
       return Promise.resolve({ status: "rejected", revision: this.current.revision, error: "Platform learner mutations are quiesced for shutdown." });
     }
     const ticket = ++this.acceptedRevision;
+    this.backupImportsPending++;
+    let barrierReleased = false;
+    const releaseBarrier = () => {
+      if (barrierReleased) return;
+      barrierReleased = true;
+      if (--this.backupImportsPending === 0) {
+        const release = this.releaseBackupImports;
+        this.backupImportsBarrier = undefined;
+        this.releaseBackupImports = undefined;
+        release?.();
+      }
+    };
     const operation = this.writes.then(async (): Promise<PlatformMutationAcknowledgement> => {
-      const revision = Math.max(this.current.revision + 1, ticket);
-      const previous = this.current;
+      // Activate only once this import reaches the head of the write queue. An
+      // earlier admitted mutation must still be able to hydrate and finish.
+      if (!this.backupImportsBarrier) {
+        this.backupImportsBarrier = new Promise<void>(resolve => { this.releaseBackupImports = resolve; });
+      }
       try {
+        // Drain any load/recovery already in progress before replacing the stores.
+        // A failed load does not prevent a validated backup from repairing the state.
+        if (this.hydration) await this.hydration.catch(() => undefined);
+        const revision = Math.max(this.current.revision + 1, ticket);
+        const previous = this.current;
         if (!this.adapter.importBackup) throw new Error("This learner-state adapter cannot atomically import platform backups.");
         const durableEnvelope = { ...sanitizePlatformLearnerEnvelope(envelope), savedAt: this.now() };
         await this.adapter.importBackup(legacyState, durableEnvelope);
@@ -421,8 +447,11 @@ export class PlatformLearnerEnvelopeStore {
         return { status: "persisted", revision };
       } catch (error) {
         const message = errorMessage(error);
-        this.publish({ ...previous, revision, durability: "failed", error: message });
+        const revision = Math.max(this.current.revision + 1, ticket);
+        this.publish({ ...this.current, revision, durability: "failed", error: message });
         return { status: "failed", revision, error: message };
+      } finally {
+        releaseBarrier();
       }
     });
     this.writes = operation.then(() => undefined, () => undefined);
@@ -597,7 +626,9 @@ function isLegacyLearnerStatePayload(value: unknown): value is Record<string, un
     (value.attempts === undefined || (Array.isArray(value.attempts) && value.attempts.every(isRecord))) &&
     (value.bookmarks === undefined || (Array.isArray(value.bookmarks) && value.bookmarks.every(item => typeof item === "string"))) &&
     (value.lessonsRead === undefined || (Array.isArray(value.lessonsRead) && value.lessonsRead.every(item => typeof item === "string"))) &&
-    (value.notes === undefined || Array.isArray(value.notes)) &&
+    (value.notes === undefined || (Array.isArray(value.notes) && value.notes.every(note =>
+      isRecord(note) && typeof note.id === "string" && typeof note.title === "string" &&
+      typeof note.body === "string" && typeof note.updatedAt === "string"))) &&
     (value.cardRatings === undefined || isRecordMap(value.cardRatings)) &&
     (value.theme === undefined || value.theme === "dark" || value.theme === "light");
 }

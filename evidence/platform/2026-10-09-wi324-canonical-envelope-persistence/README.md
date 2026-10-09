@@ -14,7 +14,7 @@ The user-facing platform region remains in an initialization state until hydrati
 
 Pending writes are visible as pending; successful writes become persisted; failed writes remain visibly failed and can be retried. Completion controls say “Evidence in session” until persistence succeeds.
 
-Tauri normal window close now prevents immediate close, waits up to five seconds for the canonical owner’s write queue, records a failure in diagnostics and the console if the bounded flush fails, and then closes. The flush timeout and queue ordering are unit tested. Process termination that bypasses the normal Tauri window close event is outside this close hook.
+Tauri normal window close synchronously stops new platform mutations before taking the final write-queue barrier. Mutations already admitted finish in order; later submissions are explicitly rejected. The close handler waits up to five seconds, records any undurable revision in diagnostics and the console, and then applies the destroy policy. Process termination that bypasses the normal Tauri window close event is outside this close hook.
 
 ## Native file protection
 
@@ -22,11 +22,14 @@ Platform-state read/modify/write commands share one process-local mutex. Each wr
 
 ## Compatibility and migration boundary
 
-Schema version remains 1. Existing installed package identities and course namespaces, CourseProgress, classroom/lecture/lab slots, and unknown compatible envelope fields are retained. Conflicting package identities and malformed known slots produce a bounded load failure without writing defaults. The namespace remains packageId@courseVersion.
+Schema version remains 1. Existing installed package identities and course namespaces, CourseProgress, classroom/lecture/lab slots, and unknown compatible envelope fields are retained. Conflicting package identities, envelope-level corruption, and malformed non-progress known slots fail closed without writing defaults. Individual CourseProgress corruption is isolated in the remediation section below. The namespace remains packageId@courseVersion.
 
-Legacy apex-state, skillforge-course-progress-v1, the course registry, and PlatformLearnerEnvelope remain separate. WI324 does not migrate legacy progress. The existing raw .apexbackup import boundary remains in place; generic envelope backup export/import goes through the canonical owner.
+Legacy apex-state, skillforge-course-progress-v1, the course registry, and PlatformLearnerEnvelope remain separate. WI324 does not migrate legacy progress. Existing raw .apexbackup imports are accepted only when their legacy learner shape is positively identified. A declared platform backup is validated strictly and commits both learner stores through the canonical import transaction. This does not add the deferred WI328 backup/restore workflow.
 
-## Test evidence
+## Initial implementation test evidence
+
+These baseline counts are retained for the initial implementation and are
+superseded by the post-review-remediation counts below.
 
 - Focused envelope/persistence/runtime suite: 28 tests passed across 3 files.
 - Full Vitest suite: 173 tests passed across 13 files.
@@ -93,7 +96,59 @@ under the same package/course-version namespace. The existing failed-save and
 retry test remains green. Envelope-only tests use an explicitly named
 structural fixture and are not presented as proof of course-aware validity.
 
-### Follow-up validation
+### Initial validation at the first review-fix implementation (historical)
+
+## Second review blockers: implementation and reproduction (2026-10-09)
+
+Implemented in commit bae7940b53515d1a3bfc211a3a65cfbf803df7f2 from review
+base 34b1fd2a10fb97d38be4211d9fb4231e327dd3c6.
+
+The shutdown store now closes mutation admission synchronously before taking
+the final serialized-write barrier. Calls already admitted finish in order;
+later calls receive an explicit rejected acknowledgment. The terminal
+shutdown promise is memoized, and the window close handler reuses one bounded
+attempt. Snapshots track revision and durableRevision; a revision is only
+acknowledged as persisted after its save returns successfully. Timeout, load,
+or save failures retain an error diagnostic before the normal destroy policy
+runs. Regressions cover delayed concurrent writes, post-quiescence rejection,
+failed saves, timeout, repeated close requests, and destroy failure.
+
+Backup format identification now happens before payload validation. Any
+platform learner format declaration, including an unsupported version suffix,
+is handled as a platform backup and cannot fall through to legacy import.
+Platform course slots, schema, metadata, and embedded learner state are
+validated before writes. Platform imports replace apex-state and the platform
+envelope through one transaction: browser storage rolls all keys back on
+failure; the native command stages both files and restores the first file if
+the second replacement fails. Regressions prove malformed progress,
+unsupported platform schema/format, malformed embedded legacy state, decode
+failure, and persistence failure leave both learner stores unchanged. A
+positively identified legacy payload remains importable.
+
+Hydration now isolates malformed per-course CourseProgress and mismatches
+against installed package/course identity. It retains the raw slot in a
+quarantine record, makes other valid course records available, and persists
+the repaired envelope. A failed quarantine save remains visible and retryable.
+Ordinary course mutations preserve the quarantine record even when a mutator
+attempts to change or remove it. Envelope-level corruption and unsupported
+schemas still fail closed. Content-version changes remain in the established
+packageId@courseVersion namespace and use authored-course reconciliation.
+
+Verification on the remediation implementation:
+
+- Focused envelope, persistence, runtime, and close-lifecycle suite: 47 tests
+  passed across 4 files.
+- Full Vitest suite: 192 tests passed across 14 files.
+- Rust formatting and check passed; 7 Rust library tests passed, including
+  second-file rollback and strict native backup-payload validation.
+- Production build, all content checks, all 20 accessibility checks,
+  RepoPact validation, whitespace check, and changed-file privacy marker scan
+  passed.
+
+The implementation has not been independently re-reviewed. PR #12 stays draft
+and WI324 stays active until an independent reviewer clears all three blockers.
+
+### Initial follow-up validation (historical)
 
 - Focused envelope, persistence, modern runtime, and close-lifecycle tests: 35
   passed across 4 files.
@@ -103,6 +158,8 @@ structural fixture and are not presented as proof of course-aware validity.
 - Rust formatting and check passed; 4 Rust library tests passed.
 - RepoPact validation, generated dashboard validation, whitespace check, and
   public privacy leakage check passed.
+
+### Prior PR state (historical at dcc530b)
 
 Both independent-review threads were replied to with the fixes and test
 results, then resolved after commit `dcc530b07964149b0eb0c4f3d1a59aaf4fb205b`

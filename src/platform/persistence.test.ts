@@ -64,6 +64,71 @@ describe("unified platform learner persistence", () => {
     expect((await loadPlatformLearnerEnvelope()).envelope.courses["package-a@1.0.0"].progress).toEqual(savedProgress);
   });
 
+  it("waits for in-flight hydration before atomic import and blocks stale hydration during replacement", async () => {
+    let resolveLoad!: (value: { envelope: unknown; recovered: boolean; persisted: boolean }) => void;
+    const loadPending = new Promise<{ envelope: unknown; recovered: boolean; persisted: boolean }>(resolve => { resolveLoad = resolve; });
+    let resolveImport!: () => void;
+    const importPending = new Promise<void>(resolve => { resolveImport = resolve; });
+    let signalImportStarted!: () => void;
+    const importStarted = new Promise<void>(resolve => { signalImportStarted = resolve; });
+    const oldEnvelope = emptyPlatformLearnerEnvelope({ name: "Before import" });
+    const importedEnvelope = emptyPlatformLearnerEnvelope({ name: "Imported learner", answered: {} });
+    importedEnvelope.courses["imported@1"] = { lecture: { cursor: "imported-cursor" } };
+    let loads = 0;
+    let durable = oldEnvelope;
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => { loads++; return loadPending; },
+      save: async envelope => { durable = envelope; },
+      importBackup: async () => { signalImportStarted(); await importPending; durable = importedEnvelope; }
+    });
+
+    const initialHydration = store.hydrate();
+    const importing = store.importBackup({ name: "Imported learner", answered: {} } as never, importedEnvelope);
+    resolveLoad({ envelope: oldEnvelope, recovered: false, persisted: true });
+    await initialHydration;
+    await importStarted;
+    const hydrationDuringImport = store.hydrate();
+    expect(store.getSnapshot().envelope?.legacyState).toEqual({ name: "Before import" });
+
+    resolveImport();
+    expect((await importing).status).toBe("persisted");
+    await hydrationDuringImport;
+    expect(store.getSnapshot().envelope?.legacyState).toEqual({ name: "Imported learner", answered: {} });
+    expect(loads).toBe(1);
+
+    const mutation = await store.mutate(current => ({
+      ...current,
+      courses: { ...current.courses, "imported@1": { ...current.courses["imported@1"], lecture: { cursor: "after-import" } } }
+    }));
+    expect(mutation.status).toBe("persisted");
+    expect(durable.legacyState).toEqual({ name: "Imported learner", answered: {} });
+    expect(durable.courses["imported@1"].lecture).toEqual({ cursor: "after-import" });
+    expect(loads).toBe(1);
+  });
+
+  it("lets mutations admitted before an import finish before the import barrier", async () => {
+    let signalLoadStarted!: () => void;
+    const loadStarted = new Promise<void>(resolve => { signalLoadStarted = resolve; });
+    const original = emptyPlatformLearnerEnvelope({ name: "Before import" });
+    const replacement = emptyPlatformLearnerEnvelope({ name: "Replacement learner", answered: {} });
+    const order: string[] = [];
+    let durable = original;
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => { signalLoadStarted(); return { envelope: original, recovered: false, persisted: true }; },
+      save: async envelope => { order.push("mutation-save"); durable = envelope; },
+      importBackup: async (_legacyState, envelope) => { order.push("import"); durable = envelope; }
+    });
+
+    const acceptedMutation = store.mutate(current => ({ ...current, legacyState: { name: "Mutation completed" } }));
+    const importing = store.importBackup({ name: "Replacement learner", answered: {} } as never, replacement);
+    await loadStarted;
+
+    expect((await acceptedMutation).status).toBe("persisted");
+    expect((await importing).status).toBe("persisted");
+    expect(order).toEqual(["mutation-save", "import"]);
+    expect(durable.legacyState).toEqual({ name: "Replacement learner", answered: {} });
+  });
+
   it("keeps legacy raw apex backups importable without replacing the platform envelope contract", async () => {
     const imported = await importPlatformBackup('{"name":"Legacy learner","answered":{}}', "");
     expect(imported.legacyState).toMatchObject({ name: "Legacy learner", answered: {} });
@@ -252,7 +317,8 @@ describe("unified platform learner persistence", () => {
     const unsupported = { ...emptyPlatformLearnerEnvelope({ name: "Replacement" }), schemaVersion: 7 };
     const futureFormat = { ...emptyPlatformLearnerEnvelope({ name: "Replacement" }), format: "skillforge-platform-learner-v2", schemaVersion: 2 };
     const malformedLegacy = { ...emptyPlatformLearnerEnvelope({ name: "Replacement", answered: "invalid" }) };
-    const malformedBackups = [malformed, unsupported, futureFormat, malformedLegacy];
+    const malformedNotes = emptyPlatformLearnerEnvelope({ name: "Replacement", answered: {}, notes: [null] });
+    const malformedBackups = [malformed, unsupported, futureFormat, malformedLegacy, malformedNotes];
     for (const backup of malformedBackups) {
       await expect(importPlatformBackup(JSON.stringify(backup), "")).rejects.toThrow();
       expect(values.getItem("apex-state")).toBe(currentLegacy);
@@ -260,6 +326,7 @@ describe("unified platform learner persistence", () => {
       expect(values.getItem(PLATFORM_LEARNER_KEY + ":backup")).toBeNull();
     }
     await expect(importPlatformBackup("not-json", "")).rejects.toThrow("not valid JSON");
+    await expect(importPlatformBackup(JSON.stringify({ name: "Malformed legacy", notes: [null] }), "")).rejects.toThrow("supported SkillForge learner format");
     expect(values.getItem("apex-state")).toBe(currentLegacy);
     expect(values.getItem(PLATFORM_LEARNER_KEY)).toBe(currentPlatform);
   });

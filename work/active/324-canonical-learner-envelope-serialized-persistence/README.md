@@ -14,6 +14,7 @@ Make `PlatformLearnerEnvelope` the single hydrated, serialized, durability-aware
 - Route PlatformHub state through that owner and prevent learner mutation before hydration.
 - Serialize and protect native platform-state file writes.
 - Preserve schema-1 course entries and data; define a migration boundary without migrating legacy certification state.
+- Validate supported legacy/platform backup imports before replacement and commit platform imports atomically, without introducing the deferred WI328 backup/restore workflow.
 - Test ownership, ordering, failure, compatibility, and CourseProgress regressions with neutral public fixtures.
 
 ## Explicitly deferred

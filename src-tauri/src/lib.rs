@@ -411,7 +411,17 @@ fn valid_legacy_learner_state(value: &Value) -> bool {
                     .is_some_and(|items| items.iter().all(Value::is_string))
             })
         })
-        && state.get("notes").is_none_or(Value::is_array)
+        && state.get("notes").is_none_or(|value| {
+            value.as_array().is_some_and(|notes| {
+                notes.iter().all(|note| {
+                    note.as_object().is_some_and(|note| {
+                        ["id", "title", "body", "updatedAt"]
+                            .iter()
+                            .all(|key| note.get(*key).is_some_and(Value::is_string))
+                    })
+                })
+            })
+        })
 }
 
 fn valid_platform_backup_wrapper(value: &Value) -> bool {
@@ -907,6 +917,13 @@ mod tests {
         malformed_legacy["payload"]["legacyState"] =
             json!({ "name": "Broken", "answered": "not-a-map" });
         assert!(!valid_platform_backup_wrapper(&malformed_legacy));
+        malformed_legacy["payload"]["legacyState"] = json!({ "name": "Broken", "notes": [null] });
+        assert!(!valid_platform_backup_wrapper(&malformed_legacy));
+        malformed_legacy["payload"]["legacyState"] = json!({
+            "name": "Valid note",
+            "notes": [{ "id": "n1", "title": "Title", "body": "Body", "updatedAt": "2026-10-09T00:00:00Z" }]
+        });
+        assert!(valid_platform_backup_wrapper(&malformed_legacy));
     }
 
     #[test]
