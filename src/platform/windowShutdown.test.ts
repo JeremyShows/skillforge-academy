@@ -28,8 +28,10 @@ describe("learner-state window shutdown", () => {
 
     flushGate.resolve({ status: "persisted" });
     await Promise.all([firstClose, repeatedClose]);
+    await close({ preventDefault: vi.fn() });
 
     expect(destroy).toHaveBeenCalledOnce();
+    expect(flush).toHaveBeenCalledOnce();
     expect(reportFailure).not.toHaveBeenCalled();
   });
 
@@ -43,5 +45,32 @@ describe("learner-state window shutdown", () => {
 
     expect(reportFailure).toHaveBeenCalledWith("flush", expect.objectContaining({ message: "flush did not complete durably" }));
     expect(destroy).toHaveBeenCalledOnce();
+  });
+
+  it("reports undurable state before applying the destroy policy", async () => {
+    const events: string[] = [];
+    const close = createLearnerStateCloseHandler({
+      flush: async () => ({ status: "failed", error: "final revision 3 is undurable" }),
+      destroy: async () => { events.push("destroy"); },
+      reportFailure: stage => { events.push("diagnostic:" + stage); }
+    });
+
+    await close({ preventDefault: vi.fn() });
+
+    expect(events).toEqual(["diagnostic:flush", "destroy"]);
+  });
+
+  it("does not start a second attempt after a destroy failure", async () => {
+    const flush = vi.fn(async () => ({ status: "persisted" as const }));
+    const destroy = vi.fn(async () => { throw new Error("destroy failed"); });
+    const reportFailure = vi.fn();
+    const close = createLearnerStateCloseHandler({ flush, destroy, reportFailure });
+
+    await close({ preventDefault: vi.fn() });
+    await close({ preventDefault: vi.fn() });
+
+    expect(flush).toHaveBeenCalledOnce();
+    expect(destroy).toHaveBeenCalledOnce();
+    expect(reportFailure).toHaveBeenCalledWith("destroy", expect.objectContaining({ message: "destroy failed" }));
   });
 });

@@ -148,10 +148,11 @@ describe("canonical platform learner envelope owner", () => {
     expect(store.getSnapshot().envelope?.courses["course@1"].progress).toMatchObject({ session: true });
     expect(store.getSnapshot().durability).toBe("failed");
     expect(durable.courses["course@1"].progress).toMatchObject({ saved: true });
+    expect(store.getSnapshot()).toMatchObject({ revision: 1, durableRevision: 0 });
 
     fail = false;
-    expect((await store.retryPending()).status).toBe("persisted");
-    expect(store.getSnapshot().durability).toBe("persisted");
+    expect(await store.retryPending()).toMatchObject({ status: "persisted", revision: 2 });
+    expect(store.getSnapshot()).toMatchObject({ durability: "persisted", revision: 2, durableRevision: 2 });
     expect(durable.courses["course@1"].progress).toMatchObject({ session: true });
   });
 
@@ -253,8 +254,84 @@ describe("canonical platform learner envelope owner", () => {
 
     await expect(store.flush(10)).resolves.toMatchObject({
       status: "pending",
-      error: "Platform learner-state flush timed out."
+      error: "Platform learner-state flush timed out before revision 1 became durable (durable revision 0)."
     });
+    saveGate.resolve();
+    await mutation;
+  });
+  it("quiesces admission before the final barrier and drains all already accepted mutations in order", async () => {
+    const firstSave = deferred<void>();
+    const saved: PlatformLearnerEnvelope[] = [];
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => loadResult(emptyPlatformLearnerEnvelope(), false),
+      save: async envelope => {
+        saved.push(envelope);
+        if (saved.length === 1) await firstSave.promise;
+      }
+    });
+    const first = store.mutate(current => ({ ...current, courses: { ...current.courses, "first@1": { progress: progressFixture({ order: 1 }) } } }));
+    await vi.waitFor(() => expect(store.getSnapshot().durability).toBe("pending"));
+    const second = store.mutate(current => ({ ...current, courses: { ...current.courses, "second@1": { progress: progressFixture({ order: 2 }) } } }));
+    const shutdown = store.quiesceAndFlush(2000);
+    expect(store.getSnapshot().mutationAdmission).toBe("quiesced");
+    const rejected = await store.mutate(current => ({ ...current, legacyState: { mustNotRun: true } }));
+    expect(rejected.status).toBe("rejected");
+    expect(saved).toHaveLength(1);
+
+    firstSave.resolve();
+    const [firstResult, secondResult, shutdownResult] = await Promise.all([first, second, shutdown]);
+
+    expect(firstResult.status).toBe("persisted");
+    expect(secondResult.status).toBe("persisted");
+    expect(saved).toHaveLength(2);
+    expect(saved[1].courses["first@1"].progress).toMatchObject({ order: 1 });
+    expect(saved[1].courses["second@1"].progress).toMatchObject({ order: 2 });
+    expect(shutdownResult).toMatchObject({ status: "persisted", targetRevision: 2, durableRevision: 2 });
+  });
+  it("reports failed final durability and does not claim a failed save persisted", async () => {
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => loadResult(emptyPlatformLearnerEnvelope(), false),
+      save: async () => { throw new Error("disk is read-only"); }
+    });
+    const mutation = store.mutate(current => ({ ...current, legacyState: { updated: true } }));
+    expect((await mutation).status).toBe("failed");
+
+    const result = await store.quiesceAndFlush(100);
+
+    expect(result).toMatchObject({ status: "failed", targetRevision: 1, durableRevision: 0, error: "disk is read-only" });
+    expect(store.getSnapshot()).toMatchObject({ mutationAdmission: "quiesced", durability: "failed", durableRevision: 0 });
+  });
+  it("does not invent a persisted revision when there was no learner state to save", async () => {
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => loadResult(emptyPlatformLearnerEnvelope(), false),
+      save: vi.fn(async () => undefined)
+    });
+
+    await expect(store.quiesceAndFlush(100)).resolves.toMatchObject({
+      status: "idle",
+      targetRevision: 0,
+      durableRevision: 0
+    });
+  });
+  it("times out once, exposes the undurable final revision, and rejects later writes", async () => {
+    const saveGate = deferred<void>();
+    const save = vi.fn(async () => { await saveGate.promise; });
+    const store = new PlatformLearnerEnvelopeStore({
+      load: async () => loadResult(emptyPlatformLearnerEnvelope(), false),
+      save
+    });
+    const mutation = store.mutate(current => ({ ...current, legacyState: { updated: true } }));
+    await vi.waitFor(() => expect(store.getSnapshot().durability).toBe("pending"));
+    const firstClose = store.quiesceAndFlush(10);
+    const secondClose = store.quiesceAndFlush(1000);
+    expect(firstClose).toBe(secondClose);
+
+    const result = await firstClose;
+    expect(result).toMatchObject({ status: "pending", targetRevision: 1, durableRevision: 0 });
+    expect(store.getSnapshot()).toMatchObject({ durability: "failed", mutationAdmission: "quiesced", durableRevision: 0 });
+    expect((await store.mutate(current => current)).status).toBe("rejected");
+    expect(save).toHaveBeenCalledOnce();
+
     saveGate.resolve();
     await mutation;
   });
@@ -268,7 +345,7 @@ describe("canonical platform learner envelope owner", () => {
   it("wires native close to the tested bounded canonical shutdown handler", () => {
     const appSource = import.meta.glob("../App.tsx", { query: "?raw", import: "default", eager: true })["../App.tsx"] as string;
     expect(appSource).toContain("onCloseRequested(createLearnerStateCloseHandler");
-    expect(appSource).toContain("getPlatformLearnerEnvelopeStore().flush(5000)");
+    expect(appSource).toContain("getPlatformLearnerEnvelopeStore().quiesceAndFlush(5000)");
     expect(appSource).toContain("currentWindow.destroy()");
     expect(appSource).toContain("recordDiagnosticError(`platform_learner_shutdown_${stage}`, error)");
     expect(appSource).toContain("console.error(`SkillForge learner-state shutdown ${stage} failed.`, error)");

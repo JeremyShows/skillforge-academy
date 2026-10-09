@@ -178,7 +178,7 @@ export default function App() {
     let unlisten: (() => void) | undefined;
     const currentWindow = getCurrentWindow();
     const registration = currentWindow.onCloseRequested(createLearnerStateCloseHandler({
-      flush: () => getPlatformLearnerEnvelopeStore().flush(5000),
+      flush: () => getPlatformLearnerEnvelopeStore().quiesceAndFlush(5000),
       destroy: () => currentWindow.destroy(),
       reportFailure: (stage, error) => {
         recordDiagnosticError(`platform_learner_shutdown_${stage}`, error);
@@ -891,7 +891,6 @@ function Preferences({ state, update, setState, onReplayTour }: { state:LearnerS
       }
       const text = await file.text();
       const parsed = await importPlatformBackup(text, passphrase);
-      if (isTauri()) await invoke("import_state", { raw: JSON.stringify(parsed.legacyState) });
       setState(migrateState(parsed.legacyState));
       setPassphrase("");
       setBackupNotice("Backup imported. Your progress has been restored on this device.");

@@ -130,7 +130,58 @@ export function learnerStateStore(): LearnerStateStore {
   return cachedStore;
 }
 
+/** Replace legacy and platform backup state as one learner-data transaction. */
+export async function importLearnerBackupAtomically<T>(
+  legacyState: unknown,
+  platformKey: string,
+  metadata: Pick<LearnerStateEnvelope<T>, "courseId" | "courseVersion" | "contentVersion">,
+  platformPayload: T
+): Promise<void> {
+  const legacyRaw = JSON.stringify(legacyState);
+  const platformRaw = JSON.stringify(envelope(metadata, platformPayload));
+  if (legacyRaw === undefined || platformRaw === undefined) throw new Error("Backup data could not be serialized.");
+
+  if (isNativeLearnerStateStore()) {
+    await invoke("import_learner_backup", { legacyState, platformKey, platformEnvelope: JSON.parse(platformRaw) });
+    return;
+  }
+
+  const backupKey = `${platformKey}:backup`;
+  const previousLegacy = localStorage.getItem("apex-state");
+  const previousPlatform = localStorage.getItem(platformKey);
+  const previousPlatformBackup = localStorage.getItem(backupKey);
+  try {
+    if (previousPlatform !== null) localStorage.setItem(backupKey, previousPlatform);
+    localStorage.setItem(platformKey, platformRaw);
+    localStorage.setItem("apex-state", legacyRaw);
+  } catch (error) {
+    const rollbackErrors: unknown[] = [];
+    for (const [key, previous] of [["apex-state", previousLegacy], [platformKey, previousPlatform], [backupKey, previousPlatformBackup]] as const) {
+      try {
+        if (previous === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, previous);
+      } catch (rollbackError) {
+        rollbackErrors.push(rollbackError);
+      }
+    }
+    if (rollbackErrors.length) {
+      throw new AggregateError([error, ...rollbackErrors], "Backup persistence failed and browser learner state rollback was incomplete.");
+    }
+    throw error;
+  }
+}
+
+/** Persist a positively identified legacy backup before publishing it to React state. */
+export async function importLegacyLearnerState(state: unknown): Promise<void> {
+  const raw = JSON.stringify(state);
+  if (raw === undefined) throw new Error("Legacy backup data could not be serialized.");
+  if (isNativeLearnerStateStore()) {
+    await invoke("import_state", { raw });
+    return;
+  }
+  localStorage.setItem("apex-state", raw);
+}
+
 export function resetLearnerStateStoreForTests(): void {
   cachedStore = undefined;
 }
-

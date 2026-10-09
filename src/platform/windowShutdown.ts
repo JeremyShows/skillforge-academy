@@ -52,9 +52,9 @@ export function createLearnerStateCloseHandler(dependencies: LearnerStateShutdow
       }
     })();
 
-    shutdown = attempt.finally(() => {
-      shutdown = undefined;
-    });
+    // Keep the completed attempt memoized too: late duplicate close events must
+    // never start a second flush against an already quiesced learner store.
+    shutdown = attempt;
     return shutdown;
   };
 }
