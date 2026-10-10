@@ -11,6 +11,8 @@ const machinePathPatterns = [
   // link destinations. External links should use an explicit https:// scheme;
   // a protocol-relative //host/share value is ambiguous and must be reviewed.
   /(^|[\s"'`(<=])\/\/[^/\s`"<>]+\/[^/\s`"<>]+(?:\/[^\s`"<>]*)?/gm,
+  // A file URI with a host identifies a local or network share, not a public URL.
+  /(?<![A-Za-z0-9+.-])file:\/\/[^/\s`"<>]+\/[^/\s`"<>]+(?:\/[^\s`"<>]*)?/gi,
   // Common user- and host-specific POSIX roots. Repository-relative paths and
   // root-relative web assets are intentionally not treated as local paths.
   /(?<![A-Za-z0-9_])\/(?:Users|home|root|mnt|Volumes|private|tmp|var\/tmp|workspace)\/[^\s`"<>]+/g,

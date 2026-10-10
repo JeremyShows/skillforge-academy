@@ -20,7 +20,12 @@ const pathCases = [
   ["[share]: <//build-host/private-share>", true],
   ["<a href=//build-host/private-share>", true],
   [JSON.stringify({ path: String.raw`\\build-host\private-share\repo` }), true],
+  ["file://build-host/private-share", true],
+  ["<file://build-host/private-share>", true],
+  ["[share](file://build-host/private-share)", true],
+  ["file:///C:/Users/example/AppData/Android/Sdk", true],
   ["<https://cdn.example.com/docs>", false],
+  ["https://build-host/private-share", false],
   ["https://cdn.example.com/docs", false],
   ["/assets/course-logo.svg", false],
 ];
