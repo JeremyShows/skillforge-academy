@@ -6,11 +6,11 @@ const machinePathPatterns = [
   // of familiar directory names such as Users, Projects, or Android.
   /(?<![A-Za-z0-9_])[A-Za-z]:[\\/][^\s`"<>|?*]+/g,
   // UNC paths can reveal a workstation or internal host even without a drive.
-  /(?<![\\/])\\\\[^\\/\s`"<>]+\\[^\\/\s`"<>]+(?:\\[^\s`"<>]*)?/g,
+  /(?<![\\/])(?:\\\\[^\\/\s`"<>]+\\[^\\/\s`"<>]+(?:\\[^\s`"<>]*)?|\\\\\\\\[^\\/\s`"<>]+\\\\[^\\/\s`"<>]+(?:\\\\[^\s`"<>]*)?)/g,
   // Treat slash-separated host/share paths as UNC-like even inside Markdown
   // link destinations. External links should use an explicit https:// scheme;
   // a protocol-relative //host/share value is ambiguous and must be reviewed.
-  /(^|[\s"'`(])\/\/[^/\s`"<>]+\/[^/\s`"<>]+(?:\/[^\s`"<>]*)?/gm,
+  /(^|[\s"'`(<=])\/\/[^/\s`"<>]+\/[^/\s`"<>]+(?:\/[^\s`"<>]*)?/gm,
   // Common user- and host-specific POSIX roots. Repository-relative paths and
   // root-relative web assets are intentionally not treated as local paths.
   /(?<![A-Za-z0-9_])\/(?:Users|home|root|mnt|Volumes|private|tmp|var\/tmp|workspace)\/[^\s`"<>]+/g,

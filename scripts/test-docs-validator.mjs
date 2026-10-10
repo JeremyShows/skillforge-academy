@@ -16,6 +16,11 @@ const pathCases = [
   ["src-tauri\\Cargo.toml", false],
   ["https://example.com/docs", false],
   ["[share](//build-host/private-share)", true],
+  ["[share](<//build-host/private-share>)", true],
+  ["[share]: <//build-host/private-share>", true],
+  ["<a href=//build-host/private-share>", true],
+  [JSON.stringify({ path: String.raw`\\build-host\private-share\repo` }), true],
+  ["<https://cdn.example.com/docs>", false],
   ["https://cdn.example.com/docs", false],
   ["/assets/course-logo.svg", false],
 ];
@@ -46,6 +51,7 @@ assert.ok(![...governanceJsonPaths].some(file => file.startsWith(".venv/")), "go
 const workflow = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
 const validator = readFileSync(new URL("./validate-docs.mjs", import.meta.url), "utf8");
 const onboarding = readFileSync(new URL("../docs/contributor-onboarding.md", import.meta.url), "utf8");
+const gettingStarted = readFileSync(new URL("../docs/getting-started.md", import.meta.url), "utf8");
 const actionsSection = onboarding.match(/### Current GitHub Actions coverage[\s\S]*?(?=\n### |\n## |$)/)?.[0];
 const closeoutSection = onboarding.match(/### Governance closeout example[\s\S]*?(?=\n## |$)/)?.[0];
 assert.ok(actionsSection, "onboarding must describe the current Actions coverage separately");
@@ -66,6 +72,8 @@ for (const command of [
 assert.ok(!workflow.includes("npm run validate:docs"), "release workflow does not run the documentation validator");
 assert.ok(!workflow.includes("repopact.cli validate"), "release workflow does not run RepoPact validation");
 assert.ok(actionsSection.includes("It does not run `npm run validate:docs` or RepoPact validation."), "onboarding must state that local-only checks are absent from Actions");
+assert.ok(gettingStarted.includes("The published v1.3.2 release includes the CompTIA A+ track only."), "getting-started must distinguish the published A+-only release from newer source tracks");
+assert.ok(gettingStarted.includes("The current source tree also contains Network+ and Security+ tracks; those changes are in unpublished candidates."), "getting-started must identify Network+ and Security+ as unpublished source-tree additions");
 assert.ok(validator.includes("const publicMarkdownFiles = new Set(collectMarkdownFiles(root))"), "privacy checks must use the complete public Markdown file set");
 assert.ok(validator.includes("const publicGovernanceJsonFiles = new Set(collectGovernanceJsonFiles(root))"), "privacy checks must include evidence and work-item JSON records");
 assert.ok(validator.includes("const privacyScanFiles = new Set([...publicMarkdownFiles, ...publicGovernanceJsonFiles])"), "path, credential, and configured-remote scans must cover Markdown and governance JSON");

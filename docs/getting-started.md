@@ -12,7 +12,7 @@ The source repository also has an unpublished 1.4.1-beta.1 candidate. It is not 
 
 ## Choose a learning path
 
-The public release includes CompTIA A+, Network+, and Security+ study tracks. Choose a track and use lessons, practice, recall cards, and performance views to plan a study session. Questions and explanations are original educational content, not copied or recalled live exam items.
+The published v1.3.2 release includes the CompTIA A+ track only. The current source tree also contains Network+ and Security+ tracks; those changes are in unpublished candidates. Choose a track in a build that includes it and use lessons, practice, recall cards, and performance views to plan a study session. Questions and explanations are original educational content, not copied or recalled live exam items.
 
 The current source branch adds a shared Academy course runtime. It can open built-in course projections and import a local `.skillforge-course` package. The package must pass validation before installation; it is data, not executable code. No remote course catalog is available.
 
