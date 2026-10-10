@@ -27,3 +27,9 @@ Bring public product, architecture, contributor, governance, roadmap, and releas
 ## Acceptance
 
 See `work-item.json`. Close this item only after the documentation validation and RepoPact gates pass, the PR has independent technical review and merges, and the separate governance-closeout procedure records accepted evidence.
+
+## Handoff
+
+- Implementation PR: [#14](https://github.com/JeremyShows/skillforge-academy/pull/14), open against `main` and ready for independent technical review.
+- Submission evidence: `20261009-330-pr-submission`.
+- After review and merge, complete the separate RepoPact governance-closeout PR.

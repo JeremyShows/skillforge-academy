@@ -89,6 +89,7 @@ Recommendation:
 
 - See [documentation discrepancy report](../docs/documentation-audit-2026-10-09.md), [feature maturity matrix](../docs/feature-maturity.md), and [v2.0 beta readiness](../docs/v2.0-beta-readiness.md).
 - See [WI330 evidence run `20261009-330-documentation-and-project-gates`](../evidence/runs/20261009-330-documentation-and-project-gates.json) for dependency installation, documentation/content/accessibility validation, tests, frontend build, Rust checks, and whitespace validation.
+- The [implementation PR #14](https://github.com/JeremyShows/skillforge-academy/pull/14) is open; independent technical review, merge, and governance closeout remain pending.
 
 ## Risks
 

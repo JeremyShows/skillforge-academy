@@ -1,0 +1,64 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-pr-submission",
+  "timestamp": "2026-10-09T19:37:23-05:00",
+  "work_item": "330",
+  "result": "partial",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "git push -u origin codex/documentation-modernization",
+      "exit_code": 0,
+      "summary": "Pushed implementation branch codex/documentation-modernization."
+    },
+    {
+      "command": "gh pr create --title \"docs: Modernize SkillForge platform documentation\" --body-file <temporary PR description>",
+      "exit_code": 0,
+      "summary": "Created implementation PR #14 against main."
+    },
+    {
+      "command": "gh pr view 14 --json number,state,title,url,headRefName,baseRefName,isDraft,statusCheckRollup",
+      "exit_code": 0,
+      "summary": "Verified PR #14 is open, ready for review, targets main, and has a passing GitGuardian security check. Independent technical review and merge remain pending."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Documentation validation passed after adding the PR handoff references."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in the PR handoff records."
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m repopact.cli dashboard",
+      "exit_code": 0,
+      "summary": "Regenerated the RepoPact dashboard after adding PR submission evidence."
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "Repository governance validation passed with the PR submission evidence linked to WI330."
+    }
+  ],
+  "artifacts": [
+    "https://github.com/JeremyShows/skillforge-academy/pull/14",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/README.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "base_commit": "17be629702ef57ffd38db35c5d541745f02e73b0",
+    "implementation_commit": "a568750bb1b8a234d04adbf6902a9367f4f97cff",
+    "branch": "codex/documentation-modernization",
+    "pull_request": {
+      "number": 14,
+      "state": "OPEN",
+      "draft": false,
+      "base": "main",
+      "head": "a568750bb1b8a234d04adbf6902a9367f4f97cff"
+    },
+    "review_status": "Independent technical review and merge pending."
+  }
+}
