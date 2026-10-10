@@ -1,6 +1,6 @@
 # Audit Index
 
-Last updated: 2026-07-20 (proposed 310 pre-beta gate; 228 deps reconciled)
+Last updated: 2026-10-09 (documentation and release-state audit; WI330)
 
 | ID | Title | Type | Status | Related Todo | Date |
 | --- | --- | --- | --- | --- | --- |
@@ -26,9 +26,8 @@ Last updated: 2026-07-20 (proposed 310 pre-beta gate; 228 deps reconciled)
 | [AUDIT-2026-07-20-support-troubleshooting-docs](AUDIT-2026-07-20-support-troubleshooting-docs.md) | Support And Troubleshooting Documentation | documentation / release support | passed | [226](../work/completed/226-support-and-troubleshooting-docs/README.md) | 2026-07-20 |
 | [AUDIT-2026-07-20-privacy-security](AUDIT-2026-07-20-privacy-security.md) | Privacy And Security Review | security / privacy | passed-with-notes | [227](../work/completed/227-privacy-security-review-local-state-backups-mobile/README.md) | 2026-07-20 |
 | [AUDIT-2026-07-20-ux-ia](AUDIT-2026-07-20-ux-ia.md) | UX And Information-Architecture Audit | UX / information architecture | passed-with-follow-ups | [308](../work/completed/308-ux-and-information-architecture-audit/README.md) | 2026-07-20 |
+| [AUDIT-2026-10-09-documentation-modernization](AUDIT-2026-10-09-documentation-modernization.md) | Documentation, Architecture, And Release-State Audit | documentation / architecture / release | open | [330](../work/active/330-documentation-modernization-and-contributor-onboarding/README.md) | 2026-10-09 |
 
 ## Next Recommended Audit
 
-Candidate: packaged-app acceptance on frozen `1.4.1-beta.1` installer (`310` AC-4),
-then activate learner beta (`228`). Remote Windows CI remains blocked by GitHub
-billing until unlocked. True NVDA walkthrough remains required before AT recruitment.
+Current open item: independent review and closeout of [WI330 documentation audit](AUDIT-2026-10-09-documentation-modernization.md). Next release audit: packaged-app acceptance on the frozen 1.4.1-beta.1 candidate (WI310 AC-4). Remote Windows CI for that older candidate remains blocked/waived; WI310's first cohort is explicitly not AT-qualified unless a real screen-reader pass is completed.

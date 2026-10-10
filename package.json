@@ -10,6 +10,7 @@
     "scaffold:cert": "node scripts/scaffold-cert.mjs",
     "validate:content": "node scripts/validate-content.mjs",
     "validate:a11y": "node scripts/validate-accessibility.mjs",
+    "validate:docs": "node scripts/validate-docs.mjs",
     "demo:state": "node scripts/demo-state.mjs",
     "screenshots": "node scripts/screenshots.mjs",
     "test": "vitest run",

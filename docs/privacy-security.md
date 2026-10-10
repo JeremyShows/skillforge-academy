@@ -1,92 +1,52 @@
-# Privacy And Security
+# Privacy and security
 
-How SkillForge Academy handles learner data, backups, diagnostics, and platform
-permissions. This complements the vulnerability-reporting policy in
-[SECURITY.md](../SECURITY.md).
-
-Product stance on telemetry: [decision 0009](../decisions/0009-no-telemetry-local-diagnostic-export-only.md).
+This document describes the product's current data, package, and permission boundaries. It complements the vulnerability-reporting process in [SECURITY.md](../SECURITY.md) and the accepted [no-telemetry decision](../decisions/0009-no-telemetry-local-diagnostic-export-only.md).
 
 ## Summary
 
-| Topic | Stance |
+| Topic | Current stance |
 | --- | --- |
-| Accounts / cloud sync | None. Offline-first; no required account. |
-| Telemetry / crash upload | None. |
-| Local learner state | Stored on-device in app-private locations as JSON. Not encrypted at rest by the app; rely on OS user-profile / device encryption. |
-| Portable backups | Optional passphrase-protected `.apexbackup` (PBKDF2-SHA256 + AES-256-GCM). |
-| Diagnostics | Local export only; display name and notes redacted by default. |
-| Network | Desktop builds do not need network for study. Android declares `INTERNET` for the WebView/Tauri stack; the product does not phone home. |
+| Account and cloud sync | No account or cloud sync is required. |
+| Telemetry and crash upload | None. Diagnostics are user-initiated local exports. |
+| Learner state | Stored on the device as JSON. The application does not encrypt state at rest; rely on OS/device profile protection. |
+| Portable backup | Existing `.apexbackup` supports passphrase-protected AES-256-GCM exports and legacy JSON import. Packaged native acceptance for the new course-platform envelope remains in WI328. |
+| Course packages | Declarative data validated before local install; the host does not execute package code or network requests. |
+| External services | Not required for study. The public instructor fallback is deterministic and provider-neutral. |
 
 ## Local learner state
 
-| Platform | Location | Confidentiality expectation |
-| --- | --- | --- |
-| Windows | `%APPDATA%\com.apexlearning.aplusacademy\learner-state.json` | Protected by the Windows user profile. Other local accounts and malware with user rights can read it. |
-| Android | App-private WebView `apex-state` plus best-effort Rust sandbox mirror | Private to the app UID unless the device is rooted or a backup/share intentionally exports data. |
-| iOS | Designed as app-container state via Tauri `app_data_dir` | Private app container once runtime-validated (`218` still blocked). |
+The legacy certification workspace preserves the `apex-state` browser key, existing Tauri application identity `com.apexlearning.aplusacademy`, and `.apexbackup` import compatibility. The shared course runtime stores package identity and CourseProgress in a separate versioned platform envelope. On native desktop, the Tauri command layer persists legacy learner state and platform state under the app-data directory. Browser development uses browser storage.
 
-Atomic save uses a temp file + rename on the Rust path. Reset deletes the state
-file (and clears in-app state). Import failures do not replace current progress.
+Local JSON is not encrypted at rest by SkillForge. Anyone with access to an unlocked user profile or a compromised device may be able to read it. Uninstall, reset, or upgrade behavior must be tested without using real learner data before release.
 
-Compatibility anchors: application id `com.apexlearning.aplusacademy`,
-`apex-state` key, `.apexbackup` extension.
+## Backup cryptography and limits
 
-## Backup cryptography
+The existing encrypted backup format uses:
 
-Encrypted portable backups use:
+- Format id `apex-encrypted-backup`, version 1.
+- PBKDF2-SHA256 with 210,000 export iterations (import accepts 100,000–500,000).
+- A random 16-byte salt and AES-256-GCM with a 12-byte IV.
+- An 8-character minimum passphrase and a 5 MiB soft payload ceiling.
 
-- Format id: `apex-encrypted-backup` version `1`
-- KDF: PBKDF2-SHA256 with **210,000** iterations (import accepts 100,000–500,000)
-- Salt: 16 random bytes
-- Cipher: AES-256-GCM with 12-byte IV
-- Minimum passphrase length: 8 characters
-- Soft size ceiling: **5 MiB** for import/export payloads
+The TypeScript backup path handles encrypted exports/imports and can carry the platform envelope. WI324 added envelope classification and atomic learner-state replacement. Native Windows backup/restore UX and packaged round-trip acceptance for the course platform remain proposed in WI328. Legacy state migration into CourseProgress remains proposed in WI329. Do not claim those acceptance gates are complete.
 
-Authentication failures (wrong passphrase, truncated ciphertext, wrong salt/IV
-length) surface as a generic incorrect/damaged error and do not replace local
-state. Unsupported format versions are rejected before legacy JSON fallback.
+Malformed or unsupported imports are rejected before replacement. Legacy plain JSON backups remain importable for compatibility; treat them as sensitive because they may contain notes and progress. See [backup and restore](backup-restore.md).
 
-Legacy plain JSON backups remain importable for upgrade compatibility; treat
-them as sensitive if they contain notes.
+## Diagnostics
 
-## Diagnostics privacy
+A diagnostic file is created only when the learner requests an export. By default, display name and note text are redacted. The application does not upload diagnostics or send crash reports. See [diagnostics](diagnostics.md).
 
-Diagnostic exports are user-initiated files. By default they omit display name
-and note text. Recent errors are in-memory for the session only. See
-[diagnostics.md](diagnostics.md).
+## Package and permission boundaries
 
-## Tauri capabilities and mobile permissions
+Package JSON is parsed and validated before install. The public host does not execute scripts, native modules, commands, endpoints, or credentials from package content. Imported packages work locally and do not require an external course catalog or instructor provider.
 
-Desktop capability (`src-tauri/capabilities/default.json`) grants
-`core:default` only. The unused `opener` plugin was removed so the WebView
-cannot open arbitrary OS URLs or reveal filesystem paths through that IPC
-surface. Custom commands are limited to load/save/import/reset state and load
-bundled content, with a 5 MiB soft ceiling on state payloads.
-
-CSP is set in `tauri.conf.json` to restrict script/connect/object sources for
-the packaged WebView (IPC allowed for Tauri).
-
-Android:
-
-- `INTERNET` — declared for the WebView/Tauri runtime; not used for SkillForge
-  analytics or account APIs.
-- FileProvider scoped to `cache/backups/` only for encrypted backup share
-  handoff (`exported=false`, grant URI permissions for the share Intent).
-- Share bridge sanitizes filenames and rejects oversized payloads.
-
-iOS runtime permissions will be reviewed when `218` unblocks on macOS/Xcode.
+The desktop Tauri capability set is limited to the needed core commands, with a content-security policy for the packaged WebView. Android declares Internet permission for its WebView/Tauri runtime, not for product analytics or account APIs. iOS runtime permission and storage behavior remain unvalidated because the iOS work item is blocked on host tooling.
 
 ## Residual risks
 
-- Local state JSON is readable to anyone with access to the unlocked user
-  profile or a rooted/jailbroken device.
-- Short passphrases remain user-chosen; 8 characters is a floor, not a strong
-  password policy.
-- Unsigned Windows installers still trigger SmartScreen (`212`).
-- iOS backup/document handoff is not runtime-validated yet (`218`).
-
-## Release recommendation
-
-Accept for continued `1.4.0` RC use after this review’s hardening (CSP, capability
-narrowing, backup/state size and crypto-parameter checks). Do not claim
-end-to-end encrypted local storage or signed installers until those items land.
+- Local state is not encrypted at rest by the application.
+- A passphrase is only as strong as the one the learner chooses.
+- Windows installers are unsigned while no trusted code-signing certificate is available (WI212).
+- New-platform backup/restore acceptance and legacy-state migration remain open (WI328/WI329).
+- iOS runtime, permissions, and backup/document handoff remain unvalidated (WI218).
+- The 1.4.1-beta.1 candidate is not a public release; the v2.0 beta release gates are documented separately in [v2.0 beta readiness](v2.0-beta-readiness.md).

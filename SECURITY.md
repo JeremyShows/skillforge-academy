@@ -12,39 +12,22 @@ Security fixes are applied to the latest published release and the current main 
 
 ## Local data
 
-SkillForge Academy stores learner progress, notes, bookmarks, settings, and
-scheduling data **on the device** under the application identifier
-`com.apexlearning.aplusacademy` (Windows:
-`%APPDATA%\com.apexlearning.aplusacademy\learner-state.json`). Local state is
-**not** encrypted at rest by the application; protect the OS user profile or
-device encryption. Reset from Preferences deletes local progress on that device.
+The legacy certification workspace keeps learner progress, notes, bookmarks, settings, and scheduling data in local application storage under the existing Tauri application identity `com.apexlearning.aplusacademy`. The course platform stores package identity and CourseProgress in a separate versioned local envelope. Native state is held under the operating system's app-data directory; browser development uses browser storage.
+
+Legacy and course-platform state are JSON and are **not encrypted at rest by the application**. Protect the OS user profile and device encryption. Reset from Preferences deletes local progress on that device. Do not assume legacy progress has migrated to the generic course runtime; that migration has not been completed.
 
 ## Backups
 
-Portable `.apexbackup` files may contain the full learner profile. Prefer
-passphrase-protected exports (PBKDF2-SHA256 + AES-256-GCM). Do not share backup
-files or passphrases publicly. Import validates JSON, encrypted envelope
-version, crypto parameters, and a size ceiling; failed imports do not overwrite
-current progress. Details:
-[docs/privacy-security.md](docs/privacy-security.md) and
-[docs/backup-restore.md](docs/backup-restore.md).
+Portable `.apexbackup` files may contain the full learner profile. Prefer passphrase-protected exports (PBKDF2-SHA256 + AES-256-GCM). Do not share backup files or passphrases publicly. Import validates JSON, encrypted-envelope version, crypto parameters, and a size ceiling; failed imports do not overwrite current progress. Native packaged backup/restore acceptance for the course-platform envelope remains tracked as proposed work. Details: [privacy and security](docs/privacy-security.md) and [backup and restore](docs/backup-restore.md).
 
 ## Telemetry and diagnostics
 
-SkillForge Academy does not collect telemetry and does not upload crash reports.
-Support uses an optional **local diagnostic export** from Preferences. By default
-that export redacts display name and note text. See
-[docs/diagnostics.md](docs/diagnostics.md) and
-[decision 0009](decisions/0009-no-telemetry-local-diagnostic-export-only.md).
+SkillForge Academy does not collect telemetry and does not upload crash reports. Support uses an optional local diagnostic export from Preferences. By default, that export redacts display name and note text. See [diagnostics](docs/diagnostics.md) and [decision 0009](decisions/0009-no-telemetry-local-diagnostic-export-only.md).
 
 ## Permissions
 
-- **Desktop (Tauri):** `core:default` capability only; no shell/filesystem/opener
-  plugins. Packaged WebView CSP restricts script and connect sources.
-- **Android:** `INTERNET` for the WebView/Tauri runtime; FileProvider limited to
-  `cache/backups/` for encrypted backup sharing. No broad storage permission for
-  normal study data.
-- **iOS:** Runtime permission review pending macOS/Xcode validation (`218`).
+- **Desktop (Tauri):** core capabilities required by the app; no shell or arbitrary filesystem plugin. Packaged WebView CSP restricts script and connect sources.
+- **Android:** Internet permission is declared for the WebView/Tauri runtime; it is not used for product analytics or account APIs. Android is not a public release commitment.
+- **iOS:** runtime and permission review is pending macOS/Xcode validation (work item 218).
 
-Full review notes: [docs/privacy-security.md](docs/privacy-security.md) and
-[audits/AUDIT-2026-07-20-privacy-security.md](audits/AUDIT-2026-07-20-privacy-security.md).
+See [privacy and security](docs/privacy-security.md) and the [feature maturity matrix](docs/feature-maturity.md) for current implementation status.

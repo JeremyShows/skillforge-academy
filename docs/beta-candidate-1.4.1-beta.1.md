@@ -62,7 +62,7 @@ Run against `ca6d5b6` / working tree built from that tip:
 
 Workflow dispatch of `.github/workflows/release.yml` on `main` @ `ca6d5b6`:
 
-- Run: https://github.com/ForgeWireLabs/skillforge-academy/actions/runs/29799368920
+- Run: no public run URL; the dispatch failed before a public workflow run was created.
 - Result: **failed before start** — GitHub annotation: account locked due to a billing issue
 - Consequence: remote Windows CI evidence is unavailable until billing unlocks
 - Residual risk: private pilot may proceed on local Windows gate evidence; public recruitment should wait for green remote CI

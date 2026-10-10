@@ -1,0 +1,85 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "330",
+  "title": "Documentation modernization and contributor onboarding",
+  "status": "active",
+  "owner_scope": "governance",
+  "affected_scopes": [
+    "docs",
+    "foundation",
+    "release"
+  ],
+  "depends_on": [],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-09T00:00:00Z",
+    "note": "Stamped by `repopact new`; the work item was recorded before implementation began."
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "text": "Audit the public product, contributor, architecture, privacy, roadmap, release, source, test, governance, and work-item records against origin/main; publish a feature-maturity matrix and documentation discrepancy report with source and work-item evidence.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Rewrite README.md as a concise course-first platform overview that accurately describes the legacy certification workspace, current package runtime, maturity limits, local data, installation, documentation, security, licensing, and release status without stale screenshots or unsupported claims.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "Provide a discoverable docs index and authoritative contributor path; document verified setup commands, actual RepoPact work-item/evidence/PR/closeout practice, independent technical review versus GitHub approval, and public-safe integration/content boundaries.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Reconcile AGENTS.md, CONTRIBUTING.md, contributor onboarding, course-package/architecture docs, and related public guidance with the canonical work/, decisions/, audits/, evidence/, and governance/ records and current source behavior.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "Reconcile ROADMAP.md and CHANGELOG.md with source, completed and active work, public releases/tags, and version metadata; state clearly that 1.4.1-beta.1 is unpublished and v2.0.0-beta.1 is only a proposed target.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "Add a repeatable no-dependency documentation validator for relative links, local developer paths, credential-shaped strings, and release metadata consistency; resolve findings within the scoped public docs.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "Run the documentation, RepoPact, content, accessibility, test, frontend build, and Rust validation gates that are available; record exact command results and any unavailable release-only checks.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-330-documentation-and-project-gates"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Submit the documentation milestone through the established implementation pull request and retain the audit/work item for separate governance closeout after independent review and merge.",
+      "state": "pending",
+      "evidence": []
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09"
+}

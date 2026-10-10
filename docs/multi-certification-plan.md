@@ -101,8 +101,7 @@ prefixed/unprefixed split.
 
 **What shipped for this:**
 - A structural transform prefixed the top-level `id` and `domain` fields across
-  [domains.json](../src/content/domains.json), [questions.json](../src/content/questions.json),
-  [flashcards.json](../src/content/flashcards.json), and [pbqs.json](../src/content/pbqs.json).
+  `src/content/<track-id>/domains.json`, `src/content/<track-id>/questions.json`, `src/content/<track-id>/flashcards.json`, and `src/content/<track-id>/pbqs.json`.
   Nested PBQ item/target/step ids (local to each PBQ) were intentionally left untouched.
 - `SCHEMA_VERSION` bumped to **3**; `migrateState` ([logic.ts](../src/logic.ts)) re-keys any
   pre-v3 save — `answered`, `cardRatings`, `bookmarks`, and `attempts[].domainScores` — by
