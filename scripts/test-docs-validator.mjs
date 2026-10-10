@@ -59,6 +59,10 @@ assert.ok(closeoutSection.includes("if (-not (Test-Path -LiteralPath $evidencePa
 assert.ok(closeoutSection.includes("$workItemDirectoryRelative = Resolve-Path -LiteralPath $workItemDirectory -Relative"), "closeout example must use a repository-relative Git source path");
 assert.ok(closeoutSection.includes("git mv -- $workItemDirectoryRelative $completedDirectory"), "closeout example must stage the work-item status-directory move");
 assert.ok(closeoutSection.includes("git add -- $evidencePath audits/reports/dashboard.md audits/index.md"), "closeout example must stage evidence, generated dashboard, and audit index");
+const lastEditor = closeoutSection.lastIndexOf("notepad.exe audits/index.md");
+const saveAndClosePrompt = closeoutSection.indexOf('Read-Host "Save and close all opened editors, then press Enter to continue"');
+const moveWorkItem = closeoutSection.indexOf("git mv -- $workItemDirectoryRelative $completedDirectory");
+assert.ok(lastEditor < saveAndClosePrompt && saveAndClosePrompt < moveWorkItem, "closeout example must wait for edits to be saved before moving the work item");
 assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
 
 process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, workflow and closeout consistency, and canonical SSH remote coverage.\n`);

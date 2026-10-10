@@ -43,6 +43,10 @@ A second fresh read-only review confirmed the original three findings were fixed
 
 Evidence for this follow-up and its validation is recorded in [20261009-330-closeout-example-remediation](../evidence/runs/20261009-330-closeout-example-remediation.json). A new independent review of the resulting commit remains pending; WI330 and this audit stay open.
 
+### Third independent PR review follow-up at `87243be`
+
+A third fresh read-only review found a P2 synchronization defect in the closeout example at `docs/contributor-onboarding.md:176-186`: a PowerShell script could proceed from opening Notepad to moving the work item and running RepoPact before the user had saved edits. That could move an item whose status is still `active` into `work/completed`, which RepoPact rejects. The current example now pauses at a `Read-Host` prompt after opening the files, instructs the contributor to save and close all editors before continuing, and has a regression assertion that the pause precedes the move. New validation evidence is recorded in [20261009-330-closeout-editor-sync-remediation](../evidence/runs/20261009-330-closeout-editor-sync-remediation.json). Another fresh independent review remains pending; WI330 and this audit stay open.
+
 ### P1: Contributor and signing docs referenced a non-public repository location
 
 **Status:** remediated in WI330 branch

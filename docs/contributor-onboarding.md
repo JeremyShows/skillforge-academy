@@ -154,7 +154,7 @@ Push a focused `codex/...` branch and open an implementation PR that names the w
 
 ### Governance closeout example
 
-After the implementation PR merges, open a new PowerShell session from the updated repository checkout. Enter the merged work-item ID and its evidence-run ID; the commands below set all required variables, find the item regardless of its current status directory, move the completed record with `git mv`, regenerate the dashboard, and stage the dashboard, evidence, and audit index explicitly:
+After the implementation PR merges, open a new PowerShell session from the updated repository checkout. Enter the merged work-item ID and its evidence-run ID; the commands below set all required variables, find the item regardless of its current status directory, move the completed record with `git mv`, regenerate the dashboard, and stage the dashboard, evidence, and audit index explicitly. The `Read-Host` prompt keeps the sequence paused until you have saved and closed all opened editor windows:
 
 ```powershell
 $python = ".\.venv\Scripts\python.exe"
@@ -176,6 +176,7 @@ if (-not (Test-Path -LiteralPath $evidencePath)) { throw "Evidence run not found
 notepad.exe $itemPath
 notepad.exe $evidencePath
 notepad.exe audits/index.md
+Read-Host "Save and close all opened editors, then press Enter to continue"
 $workItemDirectory = Split-Path $itemPath -Parent
 $workItemDirectoryRelative = Resolve-Path -LiteralPath $workItemDirectory -Relative
 $completedDirectory = Join-Path "work\completed" (Split-Path $workItemDirectory -Leaf)
