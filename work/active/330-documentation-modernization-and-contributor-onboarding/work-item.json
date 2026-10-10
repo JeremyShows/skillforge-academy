@@ -38,7 +38,8 @@
       "text": "Provide a discoverable docs index and authoritative contributor path; document verified setup commands, actual RepoPact work-item/evidence/PR/closeout practice, independent technical review versus GitHub approval, and public-safe integration/content boundaries.",
       "state": "satisfied",
       "evidence": [
-        "20261009-330-documentation-and-project-gates"
+        "20261009-330-documentation-and-project-gates",
+        "20261009-330-independent-review-remediation"
       ]
     },
     {
@@ -62,7 +63,8 @@
       "text": "Add a repeatable no-dependency documentation validator for relative links, local developer paths, credential-shaped strings, and release metadata consistency; resolve findings within the scoped public docs.",
       "state": "satisfied",
       "evidence": [
-        "20261009-330-documentation-and-project-gates"
+        "20261009-330-documentation-and-project-gates",
+        "20261009-330-independent-review-remediation"
       ]
     },
     {
@@ -70,7 +72,8 @@
       "text": "Run the documentation, RepoPact, content, accessibility, test, frontend build, and Rust validation gates that are available; record exact command results and any unavailable release-only checks.",
       "state": "satisfied",
       "evidence": [
-        "20261009-330-documentation-and-project-gates"
+        "20261009-330-documentation-and-project-gates",
+        "20261009-330-independent-review-remediation"
       ]
     },
     {

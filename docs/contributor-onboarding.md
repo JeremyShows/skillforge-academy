@@ -59,9 +59,10 @@ Treat `.skillforge-course` as validated declarative data, not a plugin system. K
 
 ## 3. Run the relevant checks
 
-Run checks that match the files you changed. The release workflow also runs these project gates on Windows:
+Run the checks that match the files you changed. These commands run locally; they are not all GitHub Actions checks:
 
     npm run validate:docs
+    npm run test:docs-validator  # Run when changing the documentation validator
     npm run validate:content
     npm run validate:a11y
     npm test -- --run
@@ -70,22 +71,33 @@ Run checks that match the files you changed. The release workflow also runs thes
     cargo check --manifest-path src-tauri/Cargo.toml
     .\.venv\Scripts\python.exe -m repopact.cli validate
 
+The documentation validator checks local Markdown links and heading anchors, privacy patterns, and release metadata. It does not request external URLs, so a passing local check does not establish that external links are available.
+
 Use the documentation, content, and accessibility validators for their respective surfaces. TypeScript behavior changes need tests and a frontend build. Rust changes need formatting and compilation checks. Release packaging needs `npm run desktop:build` plus isolated install/upgrade, learner-state recovery, and checksum evidence; a successful production build alone does not qualify an installer for release.
+
+### Current GitHub Actions coverage
+
+`.github/workflows/release.yml` runs on `v*` tag pushes and manual dispatch; it has no pull-request trigger. Its Windows test job runs on either trigger and invokes `npm run validate:content`, `npm run validate:a11y`, `npm test`, `npm run build`, `cargo fmt --check --manifest-path src-tauri/Cargo.toml`, and `cargo check --manifest-path src-tauri/Cargo.toml`. It does not run `npm run validate:docs` or RepoPact validation. The tag-only release job builds a draft installer through `tauri-action`, optionally signs it when signing secrets are configured, and uploads SHA-256 checksums. The workflow does not run `npm run desktop:build` as a command.
 
 Do not include user learner state, actual backups, credentials, signing material, or private course data in tests, fixtures, screenshots, or evidence. Use synthetic public fixtures.
 
 ## 4. Register work and evidence with RepoPact
 
-The durable work-item system is `work/`, not `todos/`. Before substantive work:
+The durable work-item system is `work/`, not `todos/`. RepoPact is pinned in `requirements-repopact.txt`; after the setup in section 1, invoke it through the virtual-environment Python executable:
+
+    .\.venv\Scripts\python.exe -m repopact.cli new work-item "Short outcome-focused title" --status active
+    .\.venv\Scripts\python.exe -m repopact.cli validate
+    .\.venv\Scripts\python.exe -m repopact.cli dashboard
+
+The installed RepoPact CLI supports `new work-item`, `validate`, and `dashboard`. It has no general evidence-registration or work-item-closeout subcommand: evidence runs are JSON files conforming to `schemas/evidence-run.schema.json`, and work-item state and audit/index records are edited according to their schemas and the closeout workflow below. Do not rely on a globally installed `repopact` executable.
+
+Before substantive work:
 
 1. Check `git status --short` and confirm the worktree is clean for your task.
 2. Inspect `work/active/`, `work/proposed/`, and the RepoPact dashboard for an existing item that covers the change.
-3. If none fits, let RepoPact allocate the next identifier and stamp the item before implementation:
-
-       .\.venv\Scripts\python.exe -m repopact.cli new work-item "Short outcome-focused title" --status active
-
+3. If none fits, use the RepoPact command above to allocate the next identifier and stamp the item before implementation.
 4. Write observable acceptance criteria, affected scopes, dependencies, and a short scope boundary. Keep an item `proposed` until it is ready; use the lifecycle values in `schemas/work-item.schema.json`.
-5. Record command results in an evidence run under `evidence/runs/` using `schemas/evidence-run.schema.json`, then cite its ID in the acceptance criterion it proves.
+5. Record exact command results in a JSON evidence run under `evidence/runs/` using `schemas/evidence-run.schema.json`, then cite its ID in the acceptance criterion it proves.
 6. Validate the repository and regenerate the dashboard when work records change:
 
        .\.venv\Scripts\python.exe -m repopact.cli validate
@@ -103,12 +115,62 @@ For work-item closeout that changes governance records on `main`, use the reposi
 
 ### Worked example: a small documentation correction
 
-1. Check for an active documentation item; otherwise create one with `repopact new work-item` and add a criterion for the corrected information and a criterion for link validation.
-2. Edit the source document and navigation index, then run `npm run validate:docs` and RepoPact validation.
-3. Add the exact commands and results to an evidence run and reference it from the work item.
-4. Push a focused `codex/...` branch and open an implementation PR that names the work item and evidence.
-5. Ask a contributor to independently check the claim and the rendered links. Address review findings in the same PR.
-6. After the implementation PR merges, open the governance-closeout PR to mark the acceptance criteria satisfied, update the audit index/dashboard, and preserve the review evidence.
+Run these PowerShell commands from the repository root. RepoPact prints the allocated work-item path; the commands create a schema-shaped evidence draft and open both records for you to fill in before validation:
+
+```powershell
+$python = ".\.venv\Scripts\python.exe"
+$created = & $python -m repopact.cli new work-item "Documentation correction" --status active
+$itemPath = ($created -replace '^Created ', '').Trim()
+$item = Get-Content $itemPath -Raw | ConvertFrom-Json
+$itemId = $item.id
+$evidenceId = "{0}-{1}-docs-{2}" -f (Get-Date -Format yyyyMMdd), $itemId, (Get-Date -Format HHmmss)
+$evidencePath = Join-Path "evidence\runs" "$evidenceId.json"
+$evidence = [ordered]@{
+  '$schema' = '../../schemas/evidence-run.schema.json'
+  id = $evidenceId
+  timestamp = (Get-Date).ToString('o')
+  work_item = $itemId
+  result = 'partial'
+  provenance = 'concrete'
+  commands = @()
+  artifacts = @()
+  environment = @{ platform = 'Windows' }
+}
+$json = $evidence | ConvertTo-Json -Depth 10
+[IO.File]::WriteAllText($evidencePath, "$json`n", [Text.UTF8Encoding]::new($false))
+notepad.exe $itemPath
+notepad.exe $evidencePath
+```
+
+Add acceptance criteria to the work item, replace the evidence draft's empty `commands` with the exact commands and exit codes, set its result to match those results, and reference `$evidenceId` from the criterion it proves. Then run:
+
+```powershell
+npm run validate:docs
+& $python -m repopact.cli dashboard
+& $python -m repopact.cli validate
+```
+
+Push a focused `codex/...` branch and open an implementation PR that names the work item and evidence. The shell commands below use GitHub CLI (`gh`), which must be installed and authenticated; you can also open the PR in GitHub's web UI after pushing. After an independent contributor review and merge, start from updated `main` and use a separate closeout branch. Edit the merged work item and audit/evidence index as required; move the work item into the status directory that matches its new status. Then regenerate and validate the dashboard, stage only the records changed for closeout, and open a governance-closeout PR:
+
+```powershell
+git switch main
+git pull --ff-only
+$closeoutBranch = "codex/closeout-wi-$itemId"
+git switch -c $closeoutBranch
+$itemPath = Get-ChildItem work -Recurse -Filter work-item.json | Where-Object { (Get-Content $_.FullName -Raw | ConvertFrom-Json).id -eq $itemId } | Select-Object -First 1 -ExpandProperty FullName
+$evidencePath = Join-Path "evidence\runs" "$evidenceId.json"
+# Edit the merged work item and audit/evidence index, then stage those exact files.
+notepad.exe $itemPath
+notepad.exe $evidencePath
+& $python -m repopact.cli dashboard
+& $python -m repopact.cli validate
+git add -- $itemPath $evidencePath
+git commit -m "governance: close out WI $itemId"
+git push -u origin $closeoutBranch
+gh pr create --base main --fill
+```
+
+If the closeout also changes an audit or index, include each changed path explicitly in `git add --`; do not stage every file under the governance directories.
 
 ## 6. Keep public contributions safe
 

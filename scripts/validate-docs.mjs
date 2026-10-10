@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entryDocs = ["README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "ROADMAP.md", "CHANGELOG.md"];
@@ -58,7 +59,6 @@ function addIssue(file, line, message) {
   issues.push(`${path.relative(root, file).replaceAll("\\", "/")}:${line}: ${message}`);
 }
 
-const pathPattern = /(?:\b[A-Z]:\\(?:Users|Projects|Temp|home)\\[^\s`"<>]+|\/Users\/[^\s`"<>]+|\/home\/[^\s`"<>]+)/g;
 const credentialPattern = /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|sk-(?:proj-)?[A-Za-z0-9]{20,})\b/g;
 const inlineLinkPattern = /!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))(?:\s+(?:"[^"]*"|'[^']*'))?\)/g;
 const referenceLinkPattern = /^\s*\[[^\]]+\]:\s*(\S+)/gm;
@@ -111,7 +111,7 @@ for (const file of [...markdownFiles].sort()) {
     continue;
   }
   const source = readMarkdown(file);
-  for (const match of source.matchAll(pathPattern)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
+  for (const match of findMachineSpecificPaths(source)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
   for (const match of source.matchAll(credentialPattern)) addIssue(file, lineAt(source, match.index), "credential-shaped value must not be published");
   const linkSource = source
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, block => block.replace(/[^\r\n]/g, " "))
@@ -120,20 +120,22 @@ for (const file of [...markdownFiles].sort()) {
   for (const match of linkSource.matchAll(referenceLinkPattern)) validateLink(file, source, lineAt(source, match.index), match[1]);
 }
 
-// If this checkout has a remote explicitly marked private/internal, ensure its exact
-// location is not copied into public Markdown. Values are never included in errors.
+// Protect locations from every configured remote except this repository's public
+// canonical remote. Remote names are local labels, so they do not determine privacy.
+// Values are never included in errors.
 try {
   const remotes = execFileSync("git", ["config", "--get-regexp", "^remote\\..*\\.url$"], { cwd: root, encoding: "utf8" });
-  const protectedRemotes = remotes.split(/\r?\n/).filter(Boolean).map(line => line.split(/\s+/, 2)).filter(([name]) => /private|internal|confidential/i.test(name));
-  for (const [, remoteUrl] of protectedRemotes) {
+  const configuredRemotes = remotes.split(/\r?\n/).filter(Boolean).map(line => line.split(/\s+/, 2));
+  for (const [, remoteUrl] of configuredRemotes) {
     if (!remoteUrl) continue;
     const normalized = remoteUrl.replace(/\.git$/i, "").replace(/\/$/, "");
+    if (/^(?:https:\/\/github\.com\/JeremyShows\/skillforge-academy|git@github\.com:JeremyShows\/skillforge-academy)$/i.test(normalized)) continue;
     const githubSlug = normalized.match(/github\.com[:/]([^/]+\/[^/]+)$/i)?.[1];
     const protectedLocations = [remoteUrl, normalized, githubSlug].filter(Boolean).map(value => value.toLowerCase());
     for (const file of markdownFiles) {
       const source = readMarkdown(file);
       const offset = protectedLocations.map(value => source.toLowerCase().indexOf(value)).find(value => value >= 0);
-      if (offset !== undefined) addIssue(file, lineAt(source, offset), "location associated with a private/internal Git remote appears in public documentation");
+      if (offset !== undefined) addIssue(file, lineAt(source, offset), "location associated with a non-canonical Git remote appears in public documentation");
     }
   }
 } catch {
@@ -155,5 +157,5 @@ if (issues.length) {
   process.stderr.write(`Documentation validation failed with ${issues.length} issue(s):\n${issues.map(issue => `- ${issue}`).join("\n")}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} Markdown files, local links/anchors, privacy patterns, and release metadata.\n`);
+  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} Markdown files, local links/anchors, privacy patterns, and release metadata. External URL availability is not checked.\n`);
 }

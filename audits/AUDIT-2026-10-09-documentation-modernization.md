@@ -25,6 +25,18 @@ The README and contributor guide predated the extracted course runtime and seria
 
 ## Findings
 
+### Independent PR review follow-up at `f1b990f`
+
+The first independent read-only review of PR #14 at `f1b990f` found three P2 documentation blockers:
+
+1. `docs/contributor-onboarding.md:62` said the release workflow ran the full local gate list, including documentation and RepoPact checks, and did not distinguish tag/manual Actions runs from pull requests.
+2. `docs/contributor-onboarding.md:106` invoked `repopact new work-item` directly, although the documented clean setup installs RepoPact only inside `.venv` and the installed CLI is exposed as `python -m repopact.cli`.
+3. `scripts/validate-docs.mjs:61` only recognized a short list of Windows path directory names, so it missed drive-letter Android SDK/NDK locations in `docs/android-mobile.md:16` and related lines.
+
+The remediation separates local checks from the current release workflow, replaces direct RepoPact executable calls with the virtual-environment module invocation, and adds positive/negative path and workflow-documentation regression checks. The Android guide now uses environment-derived SDK paths and omits the host-specific AVD name. The validator explicitly reports that it does not check external URL availability and scans configured remote URLs without relying on remote names.
+
+Remediation evidence is in [20261009-330-independent-review-remediation](../evidence/runs/20261009-330-independent-review-remediation.json). A fresh independent review of the updated PR commit remains pending; this audit stays open.
+
 ### P1: Contributor and signing docs referenced a non-public repository location
 
 **Status:** remediated in WI330 branch

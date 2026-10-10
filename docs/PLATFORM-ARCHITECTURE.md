@@ -94,6 +94,6 @@ Use the smallest relevant gates, normally:
     npm run build
     cargo fmt --check --manifest-path src-tauri/Cargo.toml
     cargo check --manifest-path src-tauri/Cargo.toml
-    python -m repopact.cli validate
+    .\.venv\Scripts\python.exe -m repopact.cli validate
 
 Package-schema changes need fixture and migration coverage. Persistence changes need tests for compatibility, serialized mutations, recovery, and shutdown. Release qualification also needs isolated packaged-app acceptance; unit tests and a production build are not a substitute.

@@ -31,7 +31,7 @@ There is no active `todos/` or `tracking/` directory. Use RepoPact status and co
 
 1. Run `git status --short` and preserve unrelated changes.
 2. Inspect `work/active/`, `work/proposed/`, the RepoPact dashboard, and relevant decisions/audits for an existing item.
-3. For substantive work with no matching item, create one before implementation with `python -m repopact.cli new work-item "Outcome-focused title" --status active`. Let RepoPact allocate the identifier.
+3. For substantive work with no matching item, create one before implementation with `.venv\Scripts\python.exe -m repopact.cli new work-item "Outcome-focused title" --status active`. Let RepoPact allocate the identifier.
 4. Record scope, observable acceptance criteria, dependencies, and assumptions in the item.
 5. Use a clean isolated branch/worktree for changes. Do not push directly to `main`.
 
@@ -49,9 +49,9 @@ RepoPact lifecycle statuses are `proposed`, `active`, `blocked`, `deferred`, and
 
 ## Validation
 
-Install the pinned RepoPact dependency from `requirements-repopact.txt`, then run the relevant gates:
+Install the pinned RepoPact dependency from `requirements-repopact.txt` into `.venv`, then run the relevant gates:
 
-- Governance/record changes: `python -m repopact.cli validate`
+- Governance/record changes: `.venv\Scripts\python.exe -m repopact.cli validate`
 - Documentation: `npm run validate:docs`
 - Certification content: `npm run validate:content`
 - Accessibility-affecting UI: `npm run validate:a11y`

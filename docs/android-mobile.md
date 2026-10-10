@@ -12,8 +12,7 @@ complete emulator runtime proof for the Android foundation. Nested ignore rules
 exclude Gradle caches, copied bundle resources, native libraries, APKs, and
 other reproducible build output.
 
-On 2026-07-02, the verified local Android NDK r26d archive was installed into
-`C:\Android\Sdk\ndk\26.3.11579264`; `source.properties` reports
+The verified Android NDK is r26d; its `source.properties` reports
 `Pkg.Revision = 26.3.11579264` and `Pkg.ReleaseName = r26d`.
 `npm run mobile:android:init` succeeded and generated `src-tauri/gen/android`.
 
@@ -28,8 +27,7 @@ Android release and debug builds now work locally:
 - Debug APK:
   `src-tauri/gen/android/app/build/outputs/apk/universal/debug/app-universal-debug.apk`
 
-The proof APK was installed on `emulator-5554` using the
-`forge_moto_one_hyper_lab_api35` Android 15 x86_64 AVD. With Wi-Fi and mobile
+The proof APK was installed on an Android 15 x86_64 AVD. With Wi-Fi and mobile
 data disabled, the app launched, cleared splash, loaded A+, Network+, and
 Security+ dashboard content, and persisted Security+ as the active track after
 force-stop/relaunch. Evidence is recorded in
@@ -57,9 +55,9 @@ targets should show destinations.
 - SDK tool paths available in the shell:
 
 ```powershell
-$env:ANDROID_HOME = "C:\Android\Sdk"
-$env:ANDROID_SDK_ROOT = "C:\Android\Sdk"
-$env:PATH = "C:\Android\Sdk\platform-tools;C:\Android\Sdk\cmdline-tools\latest\bin;C:\Android\Sdk\emulator;$env:PATH"
+$env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA "Android\Sdk"
+$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+$env:PATH = "$env:ANDROID_HOME\platform-tools;$env:ANDROID_HOME\cmdline-tools\latest\bin;$env:ANDROID_HOME\emulator;$env:PATH"
 ```
 
 Expected SDK packages:
@@ -70,8 +68,8 @@ sdkmanager --list_installed
 ```
 
 The Android SDK is usable for release builds when
-`C:\Android\Sdk\ndk\26.3.11579264\source.properties` exists and the Tauri CLI
-reports `Using installed NDK: C:\Android\Sdk\ndk\26.3.11579264`.
+`Test-Path (Join-Path $env:ANDROID_HOME "ndk\26.3.11579264\source.properties")`
+succeeds and the Tauri CLI reports that it selected the installed NDK.
 
 ## Commands
 
