@@ -1,3 +1,6 @@
+import { readdirSync } from "node:fs";
+import path from "node:path";
+
 const machinePathPatterns = [
   // A drive letter is the machine-specific part; do not depend on a short list
   // of familiar directory names such as Users, Projects, or Android.
@@ -11,6 +14,21 @@ const machinePathPatterns = [
   // root-relative web assets are intentionally not treated as local paths.
   /(?<![A-Za-z0-9_])\/(?:Users|home|root|mnt|Volumes|private|tmp|var\/tmp|workspace)\/[^\s`"<>]+/g,
 ];
+
+export function collectMarkdownFiles(root, ignoredDirectories = new Set([".git", "node_modules", ".venv", "dist", "target"])) {
+  const files = [];
+  function walk(directory) {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (!ignoredDirectories.has(entry.name)) walk(path.join(directory, entry.name));
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
+        files.push(path.join(directory, entry.name));
+      }
+    }
+  }
+  walk(root);
+  return files.sort();
+}
 
 export function findMachineSpecificPaths(source) {
   return machinePathPatterns

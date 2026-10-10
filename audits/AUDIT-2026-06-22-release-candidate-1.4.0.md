@@ -60,9 +60,9 @@ NEW_INSTALL_EXIT=0
 APEX_HKLM_AFTER_NEW=False
 APEX_HKCU_AFTER_NEW=False
 SKILLFORGE_VERSION=1.4.0
-STATE_DIR_BEFORE=C:\Users\jerem\AppData\Roaming\com.apexlearning.aplusacademy
+STATE_DIR_BEFORE=<redacted user-profile application-state directory>
 STATE_DIR_AFTER_EXISTS=True
-STATE_DIR_AFTER=C:\Users\jerem\AppData\Roaming\com.apexlearning.aplusacademy
+STATE_DIR_AFTER=<redacted user-profile application-state directory>
 ```
 
 This verifies the NSIS pre-install hook removes the legacy Apex A+ Academy

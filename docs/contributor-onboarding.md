@@ -71,7 +71,7 @@ Run the checks that match the files you changed. These commands run locally; the
     cargo check --manifest-path src-tauri/Cargo.toml
     .\.venv\Scripts\python.exe -m repopact.cli validate
 
-The documentation validator checks local Markdown links and heading anchors, privacy patterns, and release metadata. It does not request external URLs, so a passing local check does not establish that external links are available.
+The documentation validator checks local Markdown links and heading anchors in the six entry documents and `docs/`. It scans machine-specific paths, credential-shaped strings, and configured remote locations across all repository Markdown, including audit, work-item, and evidence records; generated, dependency, virtual-environment, and build directories are excluded. It does not request external URLs, so a passing local check does not establish that external links are available.
 
 Use the documentation, content, and accessibility validators for their respective surfaces. TypeScript behavior changes need tests and a frontend build. Rust changes need formatting and compilation checks. Release packaging needs `npm run desktop:build` plus isolated install/upgrade, learner-state recovery, and checksum evidence; a successful production build alone does not qualify an installer for release.
 

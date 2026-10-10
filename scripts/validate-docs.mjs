@@ -1,27 +1,20 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { findMachineSpecificPaths } from "./doc-paths.mjs";
+import { collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entryDocs = ["README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "ROADMAP.md", "CHANGELOG.md"];
-const ignoredDirectories = new Set([".git", "node_modules", ".venv", "dist", "target"]);
 const issues = [];
 const markdownFiles = new Set();
-
-function walk(directory) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.isDirectory()) {
-      if (!ignoredDirectories.has(entry.name)) walk(path.join(directory, entry.name));
-    } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
-      markdownFiles.add(path.join(directory, entry.name));
-    }
-  }
-}
+const publicMarkdownFiles = new Set(collectMarkdownFiles(root));
 
 for (const relative of entryDocs) markdownFiles.add(path.join(root, relative));
-walk(path.join(root, "docs"));
+for (const file of publicMarkdownFiles) {
+  const relative = path.relative(root, file);
+  if (relative.startsWith(`docs${path.sep}`)) markdownFiles.add(file);
+}
 
 function lineAt(source, offset) {
   return source.slice(0, offset).split("\n").length;
@@ -105,14 +98,18 @@ function statExists(file) {
   try { return statSync(file).isFile() || statSync(file).isDirectory(); } catch { return false; }
 }
 
+for (const file of [...publicMarkdownFiles].sort()) {
+  const source = readMarkdown(file);
+  for (const match of findMachineSpecificPaths(source)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
+  for (const match of source.matchAll(credentialPattern)) addIssue(file, lineAt(source, match.index), "credential-shaped value must not be published");
+}
+
 for (const file of [...markdownFiles].sort()) {
   if (!statExists(file)) {
     issues.push(`${path.relative(root, file)}: referenced entry document is missing`);
     continue;
   }
   const source = readMarkdown(file);
-  for (const match of findMachineSpecificPaths(source)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
-  for (const match of source.matchAll(credentialPattern)) addIssue(file, lineAt(source, match.index), "credential-shaped value must not be published");
   const linkSource = source
     .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, block => block.replace(/[^\r\n]/g, " "))
     .replace(/`+[^`\r\n]*`+/g, span => span.replace(/[^\r\n]/g, " "));
@@ -132,7 +129,7 @@ try {
     if (/^(?:https:\/\/github\.com\/JeremyShows\/skillforge-academy|git@github\.com:JeremyShows\/skillforge-academy|ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy)$/i.test(normalized)) continue;
     const githubSlug = normalized.match(/github\.com[:/]([^/]+\/[^/]+)$/i)?.[1];
     const protectedLocations = [remoteUrl, normalized, githubSlug].filter(Boolean).map(value => value.toLowerCase());
-    for (const file of markdownFiles) {
+    for (const file of publicMarkdownFiles) {
       const source = readMarkdown(file);
       const offset = protectedLocations.map(value => source.toLowerCase().indexOf(value)).find(value => value >= 0);
       if (offset !== undefined) addIssue(file, lineAt(source, offset), "location associated with a non-canonical Git remote appears in public documentation");
@@ -157,5 +154,5 @@ if (issues.length) {
   process.stderr.write(`Documentation validation failed with ${issues.length} issue(s):\n${issues.map(issue => `- ${issue}`).join("\n")}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} Markdown files, local links/anchors, privacy patterns, and release metadata. External URL availability is not checked.\n`);
+  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} curated Markdown files for local links/anchors; privacy, credential, and configured-remote scans covered ${publicMarkdownFiles.size} repository Markdown files; release metadata is consistent. External URL availability is not checked.\n`);
 }

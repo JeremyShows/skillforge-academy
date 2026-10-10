@@ -41,7 +41,8 @@
         "20261009-330-documentation-and-project-gates",
         "20261009-330-independent-review-remediation",
         "20261009-330-closeout-example-remediation",
-        "20261009-330-closeout-editor-sync-remediation"
+        "20261009-330-closeout-editor-sync-remediation",
+        "20261009-330-public-markdown-privacy-scan"
       ]
     },
     {
@@ -62,13 +63,14 @@
     },
     {
       "id": "AC-6",
-      "text": "Add a repeatable no-dependency documentation validator for relative links, local developer paths, credential-shaped strings, and release metadata consistency; resolve findings within the scoped public docs.",
+      "text": "Add a repeatable no-dependency documentation validator for local links and anchors in entry documents and docs/, and machine-specific paths, credential-shaped strings, and configured remote locations across repository Markdown, while checking release metadata consistency; resolve public disclosures within the repository.",
       "state": "satisfied",
       "evidence": [
         "20261009-330-documentation-and-project-gates",
         "20261009-330-independent-review-remediation",
         "20261009-330-closeout-example-remediation",
-        "20261009-330-closeout-editor-sync-remediation"
+        "20261009-330-closeout-editor-sync-remediation",
+        "20261009-330-public-markdown-privacy-scan"
       ]
     },
     {
@@ -79,7 +81,8 @@
         "20261009-330-documentation-and-project-gates",
         "20261009-330-independent-review-remediation",
         "20261009-330-closeout-example-remediation",
-        "20261009-330-closeout-editor-sync-remediation"
+        "20261009-330-closeout-editor-sync-remediation",
+        "20261009-330-public-markdown-privacy-scan"
       ]
     },
     {

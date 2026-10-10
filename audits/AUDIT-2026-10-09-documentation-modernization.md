@@ -47,6 +47,10 @@ Evidence for this follow-up and its validation is recorded in [20261009-330-clos
 
 A third fresh read-only review found a P2 synchronization defect in the closeout example at `docs/contributor-onboarding.md:176-186`: a PowerShell script could proceed from opening Notepad to moving the work item and running RepoPact before the user had saved edits. That could move an item whose status is still `active` into `work/completed`, which RepoPact rejects. The current example now pauses at a `Read-Host` prompt after opening the files, instructs the contributor to save and close all editors before continuing, and has a regression assertion that the pause precedes the move. New validation evidence is recorded in [20261009-330-closeout-editor-sync-remediation](../evidence/runs/20261009-330-closeout-editor-sync-remediation.json). Another fresh independent review remains pending; WI330 and this audit stay open.
 
+### Fourth independent PR review follow-up at `ef70689`
+
+A fourth fresh read-only review found a P2 privacy-scanning blind spot: `scripts/validate-docs.mjs` applied path, credential, and configured-remote checks to only the six entry documents and `docs/`, although audit, work-item, and evidence Markdown is also public. A repository-wide scan of 212 Markdown files found 12 machine-specific path matches in three historical audit/work records; expanding the configured-remote scan also found one private remote reference in a historical security incident summary. These disclosures are now replaced with redacted or portable Android SDK references and a generic private-origin description. The validator now scans privacy and configured-remote patterns across repository Markdown while keeping local link/anchor checks scoped to the six entry documents and `docs/`; the contributor guide states that scope. Regression checks assert that audit, work-item, and evidence Markdown is included and `.venv/` is excluded. New validation evidence is recorded in [20261009-330-public-markdown-privacy-scan](../evidence/runs/20261009-330-public-markdown-privacy-scan.json). A further independent review remains pending; WI330 and this audit stay open.
+
 ### P1: Contributor and signing docs referenced a non-public repository location
 
 **Status:** remediated in WI330 branch
@@ -91,7 +95,7 @@ Recommendation:
 
 **Status:** remediated in WI330
 
-Evidence: `npm run validate:docs` checks 37 Markdown files, local links and heading anchors, machine-specific paths, credential-shaped strings, configured private/internal remotes, and version consistency.
+Evidence: `npm run validate:docs` checks local links and heading anchors in the six entry documents and `docs/`, scans machine-specific paths, credential-shaped strings, and configured private/internal remotes across repository Markdown, and checks version consistency.
 
 Recommendation:
 

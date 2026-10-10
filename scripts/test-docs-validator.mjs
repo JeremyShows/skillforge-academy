@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { findMachineSpecificPaths } from "./doc-paths.mjs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const pathCases = [
   [String.raw`D:\workstation\Android\Sdk\ndk\26.3\source.properties`, true],
@@ -20,6 +22,17 @@ const pathCases = [
 for (const [sample, shouldMatch] of pathCases) {
   assert.equal(findMachineSpecificPaths(sample).length > 0, shouldMatch, `unexpected path classification: ${sample}`);
 }
+
+const projectRoot = fileURLToPath(new URL("../", import.meta.url));
+const publicMarkdownPaths = new Set(collectMarkdownFiles(projectRoot).map(file => path.relative(projectRoot, file).replaceAll("\\", "/")));
+for (const record of [
+  "audits/AUDIT-2026-06-22-release-candidate-1.4.0.md",
+  "work/completed/217-tauri-android-mobile-support-foundation/README.md",
+  "evidence/security/2026-10-05-private-branch-exposure/incident-summary.md",
+]) {
+  assert.ok(publicMarkdownPaths.has(record), `repository-wide privacy scan must include ${record}`);
+}
+assert.ok(![...publicMarkdownPaths].some(file => file.startsWith(".venv/")), "repository-wide privacy scan must exclude the preserved virtual environment");
 
 const workflow = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
 const validator = readFileSync(new URL("./validate-docs.mjs", import.meta.url), "utf8");
@@ -44,6 +57,7 @@ for (const command of [
 assert.ok(!workflow.includes("npm run validate:docs"), "release workflow does not run the documentation validator");
 assert.ok(!workflow.includes("repopact.cli validate"), "release workflow does not run RepoPact validation");
 assert.ok(actionsSection.includes("It does not run `npm run validate:docs` or RepoPact validation."), "onboarding must state that local-only checks are absent from Actions");
+assert.ok(validator.includes("const publicMarkdownFiles = new Set(collectMarkdownFiles(root))"), "privacy checks must use the complete public Markdown file set");
 
 for (const assignment of [
   '$python = ".\\.venv\\Scripts\\python.exe"',
@@ -65,4 +79,4 @@ const moveWorkItem = closeoutSection.indexOf("git mv -- $workItemDirectoryRelati
 assert.ok(lastEditor < saveAndClosePrompt && saveAndClosePrompt < moveWorkItem, "closeout example must wait for edits to be saved before moving the work item");
 assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
 
-process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, workflow and closeout consistency, and canonical SSH remote coverage.\n`);
+process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, repository-wide privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);
