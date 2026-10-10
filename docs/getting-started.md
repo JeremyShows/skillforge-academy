@@ -4,7 +4,7 @@ SkillForge Academy keeps certification study materials and learner progress on y
 
 ## Install the latest public release
 
-1. Open the [GitHub releases page](https://github.com/JeremyShows/skillforge-academy/releases) and download the latest published Windows installer. As of 2026-10-09, that is v1.3.2.
+1. Open the [GitHub releases page](https://github.com/ForgeWireLabs/skillforge-academy/releases) and download the latest published Windows installer. As of 2026-10-09, that is v1.3.2.
 2. Verify the installer using the SHA-256 checksum published with that release.
 3. Run the installer. Published Windows installers are currently unsigned and may trigger a SmartScreen warning; follow the release's signed/unsigned status and the [support guide](support-troubleshooting.md).
 

@@ -60,8 +60,8 @@ decide on a certificate.
    ```
 3. Add the two secrets (Settings → Secrets and variables → Actions), or via the CLI:
    ```powershell
-   gh secret set WINDOWS_PFX_BASE64 --repo JeremyShows/skillforge-academy < cert.b64
-   gh secret set WINDOWS_PFX_PASSWORD --repo JeremyShows/skillforge-academy --body "<pfx-password>"
+   gh secret set WINDOWS_PFX_BASE64 --repo ForgeWireLabs/skillforge-academy < cert.b64
+   gh secret set WINDOWS_PFX_PASSWORD --repo ForgeWireLabs/skillforge-academy --body "<pfx-password>"
    ```
 4. Cut a release as usual (push a `vX.Y.Z` tag). The `release` job decodes the
    PFX, runs `scripts/sign-windows.ps1`, and replaces the uploaded installer with

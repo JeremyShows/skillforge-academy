@@ -6,7 +6,7 @@ Certification preparation is one application of a reusable academic platform, no
 
 ## Project status
 
-The latest published GitHub release is [v1.3.2](https://github.com/JeremyShows/skillforge-academy/releases). The repository currently identifies its unreleased candidate as `1.4.1-beta.1`; that candidate is not a public release. `v2.0.0-beta.1` is a proposed milestone, with no tag or release published. See the [release readiness report](docs/v2.0-beta-readiness.md) and [version history](CHANGELOG.md).
+The latest published GitHub release is [v1.3.2](https://github.com/ForgeWireLabs/skillforge-academy/releases). The repository currently identifies its unreleased candidate as `1.4.1-beta.1`; that candidate is not a public release. `v2.0.0-beta.1` is a proposed milestone, with no tag or release published. See the [release readiness report](docs/v2.0-beta-readiness.md) and [version history](CHANGELOG.md).
 
 The public Windows desktop release is the validated distribution path. Android has a development foundation but no public release commitment; iOS remains blocked on its host-tooling and runtime validation. The current course-platform surfaces are still in beta development. See the [feature maturity matrix](docs/feature-maturity.md) for what is implemented and what remains incomplete.
 

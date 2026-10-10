@@ -1,0 +1,11 @@
+/work/ @ForgeWireLabs/forgewirelabs-maintainers
+/decisions/ @ForgeWireLabs/forgewirelabs-maintainers
+/audits/ @ForgeWireLabs/forgewirelabs-maintainers
+/evidence/ @ForgeWireLabs/forgewirelabs-maintainers
+/governance/ @ForgeWireLabs/forgewirelabs-maintainers
+/schemas/ @ForgeWireLabs/forgewirelabs-maintainers
+/.github/CODEOWNERS @ForgeWireLabs/forgewirelabs-maintainers
+/.github/workflows/ @ForgeWireLabs/forgewirelabs-maintainers
+/CONTRIBUTING.md @ForgeWireLabs/forgewirelabs-maintainers
+/docs/contributor-onboarding.md @ForgeWireLabs/forgewirelabs-maintainers
+/docs/CODE-SIGNING.md @ForgeWireLabs/forgewirelabs-maintainers

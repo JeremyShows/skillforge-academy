@@ -23,7 +23,7 @@ Status is assessed against source at `origin/main` commit `17be629702ef57ffd38db
 | External/proprietary service integration | Deferred | The public app and package runtime work without an external service. No proprietary provider implementation or private course dependency is part of this public runtime. Use only the public package and provider-neutral contracts. | [instructor fallback](../src/instructor/service.ts), [package security](COURSE-PACKAGE-SECURITY.md) |
 | Android development foundation | Experimental | Tauri Android scaffolding and development checks exist; this is not a public release commitment. | [Android status](android-mobile.md), WI 217 |
 | iOS delivery | Deferred | iOS remains blocked on macOS/Xcode-hosted runtime and permission validation. | [iOS status](ios-mobile.md), WI 218 |
-| Windows desktop distribution | Implemented | Published Windows releases exist; the latest public release is v1.3.2. Current releases are unsigned while the signing certificate remains unavailable. | [GitHub releases](https://github.com/JeremyShows/skillforge-academy/releases), [signing status](CODE-SIGNING.md), WI 212 |
+| Windows desktop distribution | Implemented | Published Windows releases exist; the latest public release is v1.3.2. Current releases are unsigned while the signing certificate remains unavailable. | [GitHub releases](https://github.com/ForgeWireLabs/skillforge-academy/releases), [signing status](CODE-SIGNING.md), WI 212 |
 | 1.4.1-beta.1 candidate qualification | Experimental | This candidate is unpublished and packaged-app acceptance remains pending. It does not qualify current main or a future v2 build. | [candidate record](beta-candidate-1.4.1-beta.1.md), WI 310 |
 
 ## Work-item status at the audit baseline

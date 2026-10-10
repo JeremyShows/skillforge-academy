@@ -1,0 +1,121 @@
+{
+  "id": "20261010-334-access-boundary-reassessment",
+  "timestamp": "2026-10-10T14:34:08Z",
+  "work_item": "334",
+  "result": "blocked",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "Verify current canonical repository ownership, visibility, PR #18 merge SHA, and public default branch metadata",
+      "exit_code": 0,
+      "summary": "Canonical public repository is under ForgeWireLabs; PR #18 head and merge commit remain on remote main."
+    },
+    {
+      "command": "Read organization base permission and admin membership metadata before and after the authorized correction",
+      "exit_code": 0,
+      "summary": "Base permission changed from read to none; owner remains an administrator."
+    },
+    {
+      "command": "Create least-privilege contributor and maintainer teams and verify their repository grants",
+      "exit_code": 0,
+      "summary": "Contributor team has pull and maintainer team has maintain on the public SkillForge repository only; neither is assigned to private repositories; no contributor was added."
+    },
+    {
+      "command": "Update and verify default-branch ruleset",
+      "exit_code": 0,
+      "summary": "Requires a pull request, one approval, code-owner review, latest-push approval by another person, and dismisses stale approvals; no bypass actor or required status check was added."
+    },
+    {
+      "command": "Metadata-only audit of the private personal course repository",
+      "exit_code": 0,
+      "summary": "Private personal owner, owner-only collaborator, no team grants or forks, and zero releases, Actions artifacts, workflow runs, repository secrets, and variables. No contents were read."
+    },
+    {
+      "command": "Enumerate public branches, tags, current main tree, and public pull-request records from the public repository",
+      "exit_code": 0,
+      "summary": "Twelve public branch/tag tips checked; current main had no matches for known checkout identifiers; two non-main refs and two public PR records retained identifier markers. Names and locations withheld."
+    },
+    {
+      "command": "Scan public release assets in memory and compare contact strings against public source, profile, pull-request/release metadata, and all public-ref commit authors",
+      "exit_code": 0,
+      "summary": "Scanned 12 of 12 public assets; two distinct non-placeholder strings remained unclassified. Values were neither printed nor retained; assets were not modified."
+    },
+    {
+      "command": "Read organization Actions-policy and organization secret/variable metadata",
+      "exit_code": 1,
+      "summary": "GitHub returned 403 for the current credential. No secret names or values were read."
+    },
+    {
+      "command": "Read private personal package metadata",
+      "exit_code": 1,
+      "summary": "GitHub returned 403 because the current credential lacks package-read scope. No package names or contents were read."
+    },
+    {
+      "command": "Verify effective access as a disposable new organization member",
+      "exit_code": 2,
+      "summary": "Blocked: no authorized disposable test identity or supported test mechanism was available; no actual contributor was invited."
+    },
+    {
+      "command": "npm run validate:docs",
+      "summary": "Passed: 37 curated Markdown files; privacy, credential, and configured-remote scans covered 221 repository Markdown files and 162 governance JSON records under evidence/ and work/.",
+      "exit_code": 0
+    },
+    {
+      "command": "node scripts/test-docs-validator.mjs",
+      "summary": "Passed: 23 path cases, 5 local-checkout cases, repository-wide scan-scope checks, workflow/closeout consistency, and canonical SSH remote coverage.",
+      "exit_code": 0
+    },
+    {
+      "command": "Generate canonical RepoPact dashboard",
+      "summary": "Passed; regenerated audits/reports/dashboard.md from current work-item records.",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "summary": "Passed; Git emitted only configured LF-to-CRLF working-copy warnings for three edited Markdown files.",
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m repopact.cli validate",
+      "summary": "Passed: repository governance records and evidence validate.",
+      "exit_code": 0
+    }
+  ],
+  "artifacts": [
+    "audits/AUDIT-2026-10-09-privacy-access-boundary.md",
+    "audits/index.md",
+    "audits/reports/dashboard.md",
+    "evidence/runs/20261010-334-access-boundary-reassessment.json",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/README.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json",
+    "README.md",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "CONTRIBUTING.md",
+    ".github/CODEOWNERS",
+    "docs/contributor-onboarding.md",
+    "scripts/validate-docs.mjs",
+    "scripts/test-docs-validator.mjs",
+    "evidence/runs/20260720-310-windows-gates.json"
+  ],
+  "environment": {
+    "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
+    "private_course": "metadata only; repository name withheld",
+    "private_course_contents": "not inspected",
+    "learner_data": "not inspected",
+    "secret_values": "not read",
+    "local_private_worktree": "preserved and not modified",
+    "local_private_git_refs": "not scanned",
+    "public_history_scope": "explicit public branches, tags, public pull-request records, and current main only",
+    "invitations": "none",
+    "organization_base_permission": "read changed to none; owner administrator verified",
+    "teams": "created with no contributors assigned; access scoped only to public SkillForge repository",
+    "release_asset_values": "scanned in memory; not retained or printed",
+    "effective_access_test": "blocked; no authorized disposable identity",
+    "organization_inventory": "Six public repositories (five active, one archived) and two private repositories; one organization administrator; no outside collaborators or pending invitations.",
+    "private_organization_actions_metadata": "Across the two private organization repositories, zero current artifacts, repository secrets, and variables; Actions disabled on one, enabled on one with all actions allowed, read-only workflow token, and PR-review approval disabled.",
+    "organization_actions_policy_visibility": "Unverified: current credential received HTTP 403 for organization Actions-policy and secret/variable visibility metadata.",
+    "private_course_package_metadata": "Unverified: current credential lacks package-read scope; no package names or contents accessed.",
+    "extra_organization_controls": "Repository creation, outside invitations, and organization two-factor enforcement were not changed; owner decision remains pending."
+  }
+}

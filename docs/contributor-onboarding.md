@@ -8,7 +8,7 @@ The release workflow uses Node.js 22 on Windows. Use Node 22 for the closest mat
 
 Clone the public repository and install its locked JavaScript dependencies:
 
-    git clone https://github.com/JeremyShows/skillforge-academy.git
+    git clone https://github.com/ForgeWireLabs/skillforge-academy.git
     cd skillforge-academy
     npm ci
 
@@ -103,13 +103,13 @@ Before substantive work:
        .\.venv\Scripts\python.exe -m repopact.cli validate
        .\.venv\Scripts\python.exe -m repopact.cli dashboard
 
-`decisions/` records stable architectural choices; `audits/` records independent findings; `governance/` and `schemas/` define repository policy and record contracts. Do not invent a work-item ID, mark work complete without evidence, or rewrite historical release records to imply a version was published.
+`decisions/` records stable architectural choices; `audits/` records independent findings; `governance/` and `schemas/` define repository policy and record contracts. Do not invent a work-item ID, mark work complete without evidence, or rewrite historical release records to imply a version was published. Contributors may propose work-item changes, but maintainers alone accept canonical work records; protected paths require maintainer code-owner review. RepoPact validates schemas and evidence, not author identity. A policy that rejects work-item proposals from non-maintainers before review would require a dedicated CI identity check; that check is not currently configured.
 
 ## 5. Use pull requests and close out work
 
-Create a focused branch using the `codex/` prefix, commit only scoped files, and open a pull request against `main`. Include the work-item ID, behavior or documentation summary, checks run, and unresolved risks. The repository's GitHub PR template is in `.github/PULL_REQUEST_TEMPLATE.md`.
+Create a focused branch using the `codex/` prefix, commit only scoped files, and open a pull request against `main`. Include the work-item ID, behavior or documentation summary, checks run, and unresolved risks. The repository's GitHub PR template is in `.github/PULL_REQUEST_TEMPLATE.md`. The organization base permission is `none`; the Contributors team has read access to this public repository, and the Maintainers team has repository-scoped maintain access here. Neither team is assigned to unrelated private repositories. New contributor access is owner-controlled; contributors should use a fork and pull request, and receive no private repository access from membership alone.
 
-As verified on 2026-10-09, the active default-branch ruleset prevents deletion and non-fast-forward updates; it does not require a fixed approval count or a required-status-check set. Recheck the live ruleset before relying on it: `gh api repos/JeremyShows/skillforge-academy/rulesets`. A PR is the project collaboration path. An independent technical review is a quality assessment and is not the same as formal GitHub approval.
+As verified on 2026-10-10, the active default-branch ruleset requires pull requests, one approving review, approval of the latest push by someone other than its author, and maintainer code-owner review for protected governance paths; stale approvals are dismissed after new commits. It also blocks deletion and non-fast-forward updates. No status-check context is required. Recheck the live ruleset with `gh api repos/ForgeWireLabs/skillforge-academy/rulesets`. A PR is the collaboration path. Independent technical review is a quality assessment and is separate from formal GitHub approval.
 
 For work-item closeout that changes governance records on `main`, use the repository's established sequence: merge the implementation/evidence PR after technical review, then open a separate governance-closeout PR that updates the work-item state and audit/evidence index as required. PRs #12 and #13 demonstrate the sequence for WI324. Do not push directly to `main` or claim closeout before the governance change is merged.
 
