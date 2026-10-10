@@ -1,6 +1,6 @@
 {
   "id": "20261010-334-access-boundary-reassessment",
-  "timestamp": "2026-10-10T14:34:08Z",
+  "timestamp": "2026-10-10T14:36:47Z",
   "work_item": "334",
   "result": "blocked",
   "provenance": "concrete",
@@ -71,14 +71,24 @@
       "exit_code": 0
     },
     {
-      "command": "git diff --check",
-      "summary": "Passed; Git emitted only configured LF-to-CRLF working-copy warnings for three edited Markdown files.",
+      "command": "git diff --check (before final README cross-reference adjustment)",
+      "summary": "Passed before a final README cross-reference was added; the final staged whitespace check is recorded separately.",
       "exit_code": 0
     },
     {
       "command": ".venv/Scripts/python.exe -m repopact.cli validate",
       "summary": "Passed: repository governance records and evidence validate.",
       "exit_code": 0
+    },
+    {
+      "command": "git diff --cached --check (initial final-content attempt)",
+      "exit_code": 1,
+      "summary": "Detected trailing whitespace on the newly added final README paragraph; normalized the file to LF and reran the staged check."
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "summary": "Passed after newline normalization, before commit."
     }
   ],
   "artifacts": [
