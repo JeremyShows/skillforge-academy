@@ -94,7 +94,7 @@
     "repopact": "3.0.2",
     "rustc": "1.96.0",
     "cargo": "1.96.0",
-    "reviewed_commit": "ef706899b2020ef703e1dc88caf827475b51afac",
+    "reviewed_commit": "f89112657de3d774779c27560ddd2bfe94df0c69",
     "branch": "codex/documentation-modernization"
   }
 }

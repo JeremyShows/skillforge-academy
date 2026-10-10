@@ -84,7 +84,7 @@
   "environment": {
     "base_revision": "34b1fd2a10fb97d38be4211d9fb4231e327dd3c6",
     "implementation_commit": "bae7940b53515d1a3bfc211a3a65cfbf803df7f2",
-    "worktree": "C:\\Users\\jerem\\.codex\\worktrees\\wi324-canonical-envelope\\skillforge-academy",
+    "worktree": "<machine-specific path redacted>",
     "repository": "JeremyShows/skillforge-academy",
     "platform": "Windows",
     "scope": "Public WI324 review-blocker remediation only; no merge, packaging, installation, learner backup use, WI322/WI323 changes, WI325-WI329 implementation, or Course Studio work."

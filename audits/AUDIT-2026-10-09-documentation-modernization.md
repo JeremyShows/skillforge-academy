@@ -49,7 +49,11 @@ A third fresh read-only review found a P2 synchronization defect in the closeout
 
 ### Fourth independent PR review follow-up at `ef70689`
 
-A fourth fresh read-only review found a P2 privacy-scanning blind spot: `scripts/validate-docs.mjs` applied path, credential, and configured-remote checks to only the six entry documents and `docs/`, although audit, work-item, and evidence Markdown is also public. A repository-wide scan of 212 Markdown files found 12 machine-specific path matches in three historical audit/work records; expanding the configured-remote scan also found one private remote reference in a historical security incident summary. These disclosures are now replaced with redacted or portable Android SDK references and a generic private-origin description. The validator now scans privacy and configured-remote patterns across repository Markdown while keeping local link/anchor checks scoped to the six entry documents and `docs/`; the contributor guide states that scope. Regression checks assert that audit, work-item, and evidence Markdown is included and `.venv/` is excluded. New validation evidence is recorded in [20261009-330-public-markdown-privacy-scan](../evidence/runs/20261009-330-public-markdown-privacy-scan.json). A further independent review remains pending; WI330 and this audit stay open.
+A fourth fresh read-only review found a P2 privacy-scanning blind spot: `scripts/validate-docs.mjs` applied path, credential, and configured-remote checks to only the six entry documents and `docs/`, although audit, work-item, and evidence Markdown is also public. A repository-wide scan of 212 Markdown files found 12 machine-specific path matches in three historical audit/work records; expanding the configured-remote scan also found one private remote reference in a historical security incident summary. These Markdown disclosures were replaced with redacted or portable Android SDK references and a generic private-origin description. The validator now scans privacy and configured-remote patterns across repository Markdown while keeping local link/anchor checks scoped to the six entry documents and `docs/`; the contributor guide states that scope. Regression checks assert that audit, work-item, and evidence Markdown is included and `.venv/` is excluded. Validation evidence is recorded in [20261009-330-public-markdown-privacy-scan](../evidence/runs/20261009-330-public-markdown-privacy-scan.json).
+
+### Fifth independent PR review follow-up at `f891126`
+
+A fifth fresh read-only review found two P2 evidence-boundary issues: the Markdown privacy-scan record named the preceding source commit as its reviewed commit, and public evidence JSON still contained machine-specific paths outside the Markdown scan. The validator now scans path, credential, and configured-remote patterns over all repository Markdown plus governance JSON under `evidence/` and `work/`, while local link and anchor checks remain scoped to the six entry documents and `docs/`. Eight historical evidence JSON records were sanitized to remove twelve machine-specific path occurrences; 45 historical evidence records were also cleared of the same non-canonical repository identifier. Regression coverage now asserts that active work-item JSON and evidence-run JSON are included and `.venv/` is excluded. Fresh validation evidence for the implementation commit is recorded in [20261009-330-public-record-privacy-scan](../evidence/runs/20261009-330-public-record-privacy-scan.json). Independent re-review remains pending; WI330 and this audit stay open.
 
 ### P1: Contributor and signing docs referenced a non-public repository location
 
@@ -95,7 +99,7 @@ Recommendation:
 
 **Status:** remediated in WI330
 
-Evidence: `npm run validate:docs` checks local links and heading anchors in the six entry documents and `docs/`, scans machine-specific paths, credential-shaped strings, and configured private/internal remotes across repository Markdown, and checks version consistency.
+Evidence: `npm run validate:docs` checks local links and heading anchors in the six entry documents and `docs/`, scans machine-specific paths, credential-shaped strings, and configured private/internal remotes across repository Markdown and governance JSON under `evidence/` and `work/`, and checks version consistency.
 
 Recommendation:
 

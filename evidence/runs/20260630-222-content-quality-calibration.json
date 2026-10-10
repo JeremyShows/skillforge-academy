@@ -48,7 +48,7 @@
     "work/completed/222-content-quality-and-assessment-calibration-audit"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Content quality and calibration audit completed with one high-confidence Security+ multi-select fix and release-ready-with-notes recommendation."
   }

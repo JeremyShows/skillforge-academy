@@ -13,7 +13,7 @@ Bring public product, architecture, contributor, governance, roadmap, and releas
 
 - README, AGENTS, CONTRIBUTING, SECURITY, ROADMAP, CHANGELOG, docs navigation, learner guidance, and architecture/package boundaries.
 - Feature-maturity and documentation discrepancy reports.
-- A no-dependency documentation validator for local links/anchors in entry and `docs/` Markdown, plus machine-specific paths, credential-shaped strings, and configured remote locations across repository Markdown; it also checks version metadata consistency.
+- A no-dependency documentation validator for local links/anchors in entry and `docs/` Markdown, plus machine-specific paths, credential-shaped strings, and configured remote locations across repository Markdown and governance JSON under `evidence/` and `work/`; it also checks version metadata consistency.
 - Work-item and audit evidence for the documentation-only milestone.
 
 ## Out of scope

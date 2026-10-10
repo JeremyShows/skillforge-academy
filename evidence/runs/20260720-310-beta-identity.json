@@ -37,7 +37,7 @@
     "CHANGELOG.md"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Product identity 1.4.1-beta.1; VERSION file stays RepoPact-strict 1.4.1. NSIS accepts semver prerelease."
   }

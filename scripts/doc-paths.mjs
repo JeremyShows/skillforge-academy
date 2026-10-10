@@ -30,6 +30,21 @@ export function collectMarkdownFiles(root, ignoredDirectories = new Set([".git",
   return files.sort();
 }
 
+export function collectGovernanceJsonFiles(root, ignoredDirectories = new Set([".git", "node_modules", ".venv", "dist", "target"])) {
+  const files = [];
+  function walk(directory) {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        if (!ignoredDirectories.has(entry.name)) walk(path.join(directory, entry.name));
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".json")) {
+        files.push(path.join(directory, entry.name));
+      }
+    }
+  }
+  for (const directory of ["evidence", "work"]) walk(path.join(root, directory));
+  return files.sort();
+}
+
 export function findMachineSpecificPaths(source) {
   return machinePathPatterns
     .flatMap((pattern, patternIndex) => [...source.matchAll(pattern)].map(match => {

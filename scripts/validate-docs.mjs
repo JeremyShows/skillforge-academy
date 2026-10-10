@@ -2,13 +2,15 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
+import { collectGovernanceJsonFiles, collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entryDocs = ["README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "ROADMAP.md", "CHANGELOG.md"];
 const issues = [];
 const markdownFiles = new Set();
 const publicMarkdownFiles = new Set(collectMarkdownFiles(root));
+const publicGovernanceJsonFiles = new Set(collectGovernanceJsonFiles(root));
+const privacyScanFiles = new Set([...publicMarkdownFiles, ...publicGovernanceJsonFiles]);
 
 for (const relative of entryDocs) markdownFiles.add(path.join(root, relative));
 for (const file of publicMarkdownFiles) {
@@ -98,7 +100,7 @@ function statExists(file) {
   try { return statSync(file).isFile() || statSync(file).isDirectory(); } catch { return false; }
 }
 
-for (const file of [...publicMarkdownFiles].sort()) {
+for (const file of [...privacyScanFiles].sort()) {
   const source = readMarkdown(file);
   for (const match of findMachineSpecificPaths(source)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
   for (const match of source.matchAll(credentialPattern)) addIssue(file, lineAt(source, match.index), "credential-shaped value must not be published");
@@ -129,7 +131,7 @@ try {
     if (/^(?:https:\/\/github\.com\/JeremyShows\/skillforge-academy|git@github\.com:JeremyShows\/skillforge-academy|ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy)$/i.test(normalized)) continue;
     const githubSlug = normalized.match(/github\.com[:/]([^/]+\/[^/]+)$/i)?.[1];
     const protectedLocations = [remoteUrl, normalized, githubSlug].filter(Boolean).map(value => value.toLowerCase());
-    for (const file of publicMarkdownFiles) {
+    for (const file of privacyScanFiles) {
       const source = readMarkdown(file);
       const offset = protectedLocations.map(value => source.toLowerCase().indexOf(value)).find(value => value >= 0);
       if (offset !== undefined) addIssue(file, lineAt(source, offset), "location associated with a non-canonical Git remote appears in public documentation");
@@ -154,5 +156,5 @@ if (issues.length) {
   process.stderr.write(`Documentation validation failed with ${issues.length} issue(s):\n${issues.map(issue => `- ${issue}`).join("\n")}\n`);
   process.exitCode = 1;
 } else {
-  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} curated Markdown files for local links/anchors; privacy, credential, and configured-remote scans covered ${publicMarkdownFiles.size} repository Markdown files; release metadata is consistent. External URL availability is not checked.\n`);
+  process.stdout.write(`Documentation validation passed: ${markdownFiles.size} curated Markdown files for local links/anchors; privacy, credential, and configured-remote scans covered ${publicMarkdownFiles.size} repository Markdown files and ${publicGovernanceJsonFiles.size} governance JSON records under evidence/ and work/; release metadata is consistent. External URL availability is not checked.\n`);
 }

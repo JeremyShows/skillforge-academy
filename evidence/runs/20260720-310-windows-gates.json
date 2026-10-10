@@ -21,7 +21,7 @@
     "https://github.com/ForgeWireLabs/skillforge-academy/actions/runs/29799368920"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Remote Windows CI waived for private-beta gate due to external GitHub billing lock; local gates recorded. Re-run workflow before public recruitment."
   }

@@ -11,7 +11,7 @@
       "summary": "[AC-1] Android SDK metadata lists CMake 3.22.1, emulator, platform-tools, and Android 35 x86_64 system image only; platform android-35, build-tools 35.0.0, and NDK are not installed."
     },
     {
-      "command": "Move-Item C:\\Android\\Sdk\\ndk\\26.3.11579264 C:\\Android\\Sdk\\.temp\\ndk-26.3.11579264-partial-*",
+      "command": "Move-Item <machine-specific path redacted> <machine-specific path redacted>*",
       "exit_code": 0,
       "summary": "[AC-1] Moved the previous partial NDK directory aside after verifying it contained only .installer metadata and no source.properties."
     },
@@ -57,9 +57,9 @@
     "audits/AUDIT-2026-06-30-android-mobile-foundation.md"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
-    "android_sdk_root": "C:\\Android\\Sdk",
+    "android_sdk_root": "<machine-specific path redacted>",
     "required_missing_packages": [
       "platforms;android-35",
       "build-tools;35.0.0",

@@ -6,12 +6,12 @@
   "result": "passed",
   "commands": [
     {
-      "command": "Get-FileHash C:\\Users\\jerem\\Downloads\\android-ndk-r26d-windows.zip -Algorithm SHA1",
+      "command": "Get-FileHash <machine-specific path redacted> -Algorithm SHA1",
       "exit_code": 0,
       "summary": "[AC-1] Verified the local NDK r26d archive SHA-1 as C7EA35FFE916082876611DA1A6D5618D15430C29 before extraction."
     },
     {
-      "command": "Expand-Archive android-ndk-r26d-windows.zip to C:\\Android\\Sdk\\ndk\\26.3.11579264",
+      "command": "Expand-Archive android-ndk-r26d-windows.zip to <machine-specific path redacted>",
       "exit_code": 0,
       "summary": "[AC-1] Installed the NDK from the verified local archive; source.properties reports Pkg.Revision 26.3.11579264 and Pkg.ReleaseName r26d."
     },
@@ -151,9 +151,9 @@
     "evidence/android/217-import-test.apexbackup"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
-    "android_sdk_root": "C:\\Android\\Sdk",
+    "android_sdk_root": "<machine-specific path redacted>",
     "ndk": "26.3.11579264 r26d",
     "java": "OpenJDK 17.0.19",
     "avd": "forge_moto_one_hyper_lab_api35",

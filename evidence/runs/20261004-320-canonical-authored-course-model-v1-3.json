@@ -26,5 +26,5 @@
     "src/platform/publicPackages.ts",
     "work/completed/320-canonical-authored-course-model-v1-3"
   ],
-  "environment": {"repository":"ForgeWireLabs/skillforge-academy","platform":"Windows","base_revision":"83f88fa11fdd77d44945e97eeb048a3d8ce41917","worktree":"C:\\Projects\\skillforge-canonical-authored-v1-3"}
+  "environment": {"repository":"redacted repository identifier","platform":"Windows","base_revision":"83f88fa11fdd77d44945e97eeb048a3d8ce41917","worktree":"<machine-specific path redacted>"}
 }

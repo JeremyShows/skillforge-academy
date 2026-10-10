@@ -36,7 +36,7 @@
     "decisions/0008-consume-repopact-from-pypi.md"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "repopact": "2.3.0",
     "process_note": "Adopted RELEASE_LABEL rather than prerelease-in-VERSION per RepoPact 2.3.0 / decision 0026."

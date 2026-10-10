@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
+import { collectGovernanceJsonFiles, collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const pathCases = [
   [String.raw`D:\workstation\Android\Sdk\ndk\26.3\source.properties`, true],
@@ -25,6 +25,7 @@ for (const [sample, shouldMatch] of pathCases) {
 
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const publicMarkdownPaths = new Set(collectMarkdownFiles(projectRoot).map(file => path.relative(projectRoot, file).replaceAll("\\", "/")));
+const governanceJsonPaths = new Set(collectGovernanceJsonFiles(projectRoot).map(file => path.relative(projectRoot, file).replaceAll("\\", "/")));
 for (const record of [
   "audits/AUDIT-2026-06-22-release-candidate-1.4.0.md",
   "work/completed/217-tauri-android-mobile-support-foundation/README.md",
@@ -33,6 +34,13 @@ for (const record of [
   assert.ok(publicMarkdownPaths.has(record), `repository-wide privacy scan must include ${record}`);
 }
 assert.ok(![...publicMarkdownPaths].some(file => file.startsWith(".venv/")), "repository-wide privacy scan must exclude the preserved virtual environment");
+for (const record of [
+  "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+  "evidence/runs/20261009-330-public-markdown-privacy-scan.json",
+]) {
+  assert.ok(governanceJsonPaths.has(record), `governance JSON privacy scan must include ${record}`);
+}
+assert.ok(![...governanceJsonPaths].some(file => file.startsWith(".venv/")), "governance JSON privacy scan must exclude the preserved virtual environment");
 
 const workflow = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
 const validator = readFileSync(new URL("./validate-docs.mjs", import.meta.url), "utf8");
@@ -58,6 +66,10 @@ assert.ok(!workflow.includes("npm run validate:docs"), "release workflow does no
 assert.ok(!workflow.includes("repopact.cli validate"), "release workflow does not run RepoPact validation");
 assert.ok(actionsSection.includes("It does not run `npm run validate:docs` or RepoPact validation."), "onboarding must state that local-only checks are absent from Actions");
 assert.ok(validator.includes("const publicMarkdownFiles = new Set(collectMarkdownFiles(root))"), "privacy checks must use the complete public Markdown file set");
+assert.ok(validator.includes("const publicGovernanceJsonFiles = new Set(collectGovernanceJsonFiles(root))"), "privacy checks must include evidence and work-item JSON records");
+assert.ok(validator.includes("const privacyScanFiles = new Set([...publicMarkdownFiles, ...publicGovernanceJsonFiles])"), "path, credential, and configured-remote scans must cover Markdown and governance JSON");
+assert.ok(validator.includes("for (const file of [...privacyScanFiles].sort())"), "path and credential scans must use the complete privacy-scan set");
+assert.ok(validator.includes("for (const file of privacyScanFiles)"), "configured-remote scans must use the complete privacy-scan set");
 
 for (const assignment of [
   '$python = ".\\.venv\\Scripts\\python.exe"',
@@ -79,4 +91,4 @@ const moveWorkItem = closeoutSection.indexOf("git mv -- $workItemDirectoryRelati
 assert.ok(lastEditor < saveAndClosePrompt && saveAndClosePrompt < moveWorkItem, "closeout example must wait for edits to be saved before moving the work item");
 assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
 
-process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, repository-wide privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);
+process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, repository-wide Markdown and governance JSON privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);
