@@ -15,7 +15,8 @@ const pathCases = [
   ["$env:ANDROID_HOME\\platform-tools", false],
   ["src-tauri\\Cargo.toml", false],
   ["https://example.com/docs", false],
-  ["[mirror](//cdn.example.com/docs)", false],
+  ["[share](//build-host/private-share)", true],
+  ["https://cdn.example.com/docs", false],
   ["/assets/course-logo.svg", false],
 ];
 
