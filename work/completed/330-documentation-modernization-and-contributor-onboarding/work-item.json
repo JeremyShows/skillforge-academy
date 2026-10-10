@@ -2,7 +2,7 @@
   "$schema": "../../../schemas/work-item.schema.json",
   "id": "330",
   "title": "Documentation modernization and contributor onboarding",
-  "status": "active",
+  "status": "completed",
   "owner_scope": "governance",
   "affected_scopes": [
     "docs",
@@ -97,9 +97,10 @@
     {
       "id": "AC-8",
       "text": "Submit the documentation milestone through the established implementation pull request and retain the audit/work item for separate governance closeout after independent review and merge.",
-      "state": "pending",
+      "state": "satisfied",
       "evidence": [
-        "20261009-330-pr-submission"
+        "20261009-330-pr-submission",
+        "20261009-330-independent-review-and-merge"
       ]
     }
   ],

@@ -1,6 +1,6 @@
 # WI 330 — Documentation modernization and contributor onboarding
 
-> **Status:** Active
+> **Status:** Complete
 > **Owner scope:** Governance and documentation
 > **Baseline:** `origin/main` at `17be629702ef57ffd38db35c5d541745f02e73b0`
 > **Release dependency:** None; this documentation milestone is independently deliverable.
@@ -30,6 +30,7 @@ See `work-item.json`. Close this item only after the documentation validation an
 
 ## Handoff
 
-- Implementation PR: [#14](https://github.com/JeremyShows/skillforge-academy/pull/14), open against `main` and ready for independent technical review.
+- Implementation PR: [#14](https://github.com/JeremyShows/skillforge-academy/pull/14), merged after an independent read-only review found no P1/P2 blockers.
 - Submission evidence: `20261009-330-pr-submission`.
-- After review and merge, complete the separate RepoPact governance-closeout PR.
+- Final review and merge evidence: `20261009-330-independent-review-and-merge`.
+- This separate RepoPact governance-closeout change records the accepted work item and audit state.
