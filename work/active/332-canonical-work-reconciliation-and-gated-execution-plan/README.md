@@ -21,4 +21,10 @@ The full inventory, traceability matrix, execution stages, and contributor bound
 
 ## Closeout
 
-Keep WI332 active through independent review and the separate protected-branch closeout. Do not close it from this implementation PR or treat the plan as evidence that feature work is complete.
+PR [#16](https://github.com/JeremyShows/skillforge-academy/pull/16) is open.
+The governance deliverables and repository validations are evidenced. Keep
+WI332 active through independent review and the separate protected-branch
+closeout. The current GitHub account is the PR author, and the only listed
+repository collaborator is that same account, so no self-review was requested;
+an eligible reviewer must be assigned. Do not close WI332 from this
+implementation PR or treat the plan as evidence that feature work is complete.

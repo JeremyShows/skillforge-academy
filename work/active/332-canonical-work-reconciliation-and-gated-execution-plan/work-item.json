@@ -16,20 +16,20 @@
     {
       "id": "AC-1",
       "text": "Reconcile the complete canonical inventory and discovered branch-local work; register WI323 from its preserved original record with maintainer scope acceptance while leaving WI330 and WI331 under their separate PR owner.",
-      "state": "pending",
-      "evidence": []
+      "state": "satisfied",
+      "evidence": ["20261009-332-work-reconciliation"]
     },
     {
       "id": "AC-2",
       "text": "Publish a validated dependency DAG and traceability report that separates the WI312 pre-pilot privacy gate from later institutional privacy work, preserves WI310 historical candidate evidence, and records WI322 source and review status without claiming unverified completion.",
-      "state": "pending",
-      "evidence": []
+      "state": "satisfied",
+      "evidence": ["20261009-332-work-reconciliation"]
     },
     {
       "id": "AC-3",
       "text": "Publish a gated roadmap and contributor ownership matrix for remaining work, including WI325-WI329 integration boundaries and separate release preparation, candidate verification, learner pilot, and publication authorization gates.",
-      "state": "pending",
-      "evidence": []
+      "state": "satisfied",
+      "evidence": ["20261009-332-work-reconciliation"]
     },
     {
       "id": "AC-4",

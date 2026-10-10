@@ -120,6 +120,7 @@ PR #14 (WI330 docs) and PR #15 (WI330 governance closeout): merged
 WI330: completed with eight satisfied criteria and linked evidence
 WI331: canonical proposed item; preparation dependency narrowed to WI330
 WI324 PR #12 and PR #13: merged; WI324 complete on main
+WI332 PR #16: open; no reviewer request because only collaborator is its author
 RepoPact 3.0.2: dependency, cycle, lifecycle, and evidence validation available
 Full inventory and execution map: governance/execution-roadmap.md
 ```
@@ -133,6 +134,9 @@ Full inventory and execution map: governance/execution-roadmap.md
 - WI331 remains a proposal without candidate evidence. Phase-specific gates are
   recorded in its README; they must be honored even though RepoPact's simple
   dependency edge allows preparation to start.
+- This PR has no eligible independent GitHub reviewer in the current
+  collaborator list. The authenticated account is the author; self-review was
+  not requested. Assign an eligible reviewer before WI332 closeout.
 - RepoPact does not encode stage gates, release phases, owner boundaries, or
   work-item supersession. The human execution map is a required operating record.
 
