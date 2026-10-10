@@ -18,13 +18,15 @@ The full inventory, traceability matrix, execution stages, and contributor bound
 - WI322 source is present on canonical main and has branch-era tests and evidence, but its recorded acceptance criteria remain pending and no independent-review closeout is linked. Its status stays active.
 - PR #14 (WI330 docs) and PR #15 (WI330 governance closeout) merged while this work was in progress. WI330 is completed with AC-1 through AC-8 evidenced. WI331 is now canonical and remains proposed; this reconciliation narrows its RepoPact dependency to completed WI330 so preparation is not blocked by every platform feature. Candidate and publication entry conditions remain explicit in its README and the roadmap. No release implementation is taken over.
 - `PlatformLearnerEnvelope` remains the single platform learner-state owner under decision 0011. No parallel persistence authority is introduced.
+- The `local/interview-lab` checkout was reconciled read-only. Its five commits and nine uncommitted paths are preserved on the original branch; they are not implementation evidence for WI322/WI325/WI329. The old branch's course and learner-state contracts diverge from current main. Gate O in the execution roadmap requires a maintainer decision, current-main baseline, explicit ownership, and integration evidence before any overlapping source work. The detailed path inventory is in [`the reconciliation report`](../../../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
 
 ## Closeout
 
 PR [#16](https://github.com/JeremyShows/skillforge-academy/pull/16) is open.
 The governance deliverables and repository validations are evidenced. Keep
 WI332 active through independent review and the separate protected-branch
-closeout. The current GitHub account is the PR author, and the only listed
-repository collaborator is that same account, so no self-review was requested;
-an eligible reviewer must be assigned. Do not close WI332 from this
-implementation PR or treat the plan as evidence that feature work is complete.
+closeout. The current GitHub account is the PR author; no self-review was requested.
+Independent technical review and any GitHub approval requirement are separate;
+check the active ruleset before merge and do not represent a Codex review as a
+human GitHub approval. Do not close WI332 from this implementation PR or treat
+the plan as evidence that feature work is complete.

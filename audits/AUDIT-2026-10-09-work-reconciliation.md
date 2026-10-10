@@ -111,6 +111,44 @@ Disposition:
 - Preserve WI310's historical candidate evidence; no candidate or publication
   acceptance is claimed.
 
+## P2: Branch-local course and persistence implementation overlaps planned ownership
+
+**Status:** Remediated in this PR's governance plan; effective on canonical main
+only after PR #16 and its separate WI332 closeout merge. No implementation was
+integrated, and the source branch remains untouched.
+
+**Evidence:** `local/interview-lab` is at `cbc4dcd79a67fd589d4251cef82bed1c8064264c`.
+Its common ancestor with the review baseline is `687dfbb85234b0863f5c80f790d9c0e0d7280cb4`; at review, `origin/main` was `e46d4227117a6a0a16bcb41430cfe429a82de880`, 57 commits ahead of the branch and 5 commits behind it. The working tree has no staged changes, eight modified tracked files, and one untracked file. The independent review finding was correct: course progress, learner state, and course styles overlap WI322/WI325/WI329 surfaces.
+
+**Semantic comparison:** The branch's versions of `src/course/progress.ts` and
+`src/course/types.ts` remove capstone-stage, module-assessment, academic-mastery,
+and assessment-evidence state that exists on review `origin/main`. Its
+`src/state/learnerState.ts` is a distinct browser/Tauri store and lacks the
+canonical-main `importLearnerBackupAtomically` and `importLegacyLearnerState`
+entry points. Its Tauri changes add another course-state command path. These are
+not drop-in implementations of WI322, WI325, WI324, or WI329. Merging or copying
+them wholesale could regress current course and learner-backup contracts.
+
+**Disposition:** Preserve all five committed changes and all uncommitted files
+on the original branch. Do not merge, rebase, cherry-pick, stage, or transfer
+implementation under WI332. WI322/WI325/WI329 must use a clean branch from
+refreshed canonical main and the Gate O contract in
+[`governance/execution-roadmap.md`](../governance/execution-roadmap.md#source-ownership-and-integration-gate).
+No new dependency edges are introduced. The standalone interview academy has no
+canonical owning WI; if maintainers later authorize public productization,
+register a new scoped proposed WI rather than expanding the narrower WI322,
+WI325, or WI329 criteria. Commit-by-commit capabilities, exact path lists,
+working-tree inventory, classification, and required evidence are recorded in
+[`the branch reconciliation report`](../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
+
+**Required evidence before overlapping implementation:** named maintainer and
+source-workstream owner decision; exact current-main SHA and file/API contract;
+public-safe course/evaluator scope; synthetic progress and backup migration
+fixtures; tests for existing capstone/assessment/resume behavior and legacy
+backup recovery; accessibility/build/Rust validation for the touched surface;
+and independent review. The gate protects shared files only and does not add
+blocking dependencies to disjoint work.
+
 ## Evidence
 
 ```text
@@ -142,7 +180,8 @@ Full inventory and execution map: governance/execution-roadmap.md
 
 ## Actions
 
-- [ ] Obtain independent review of this PR and complete its protected-branch closeout.
+- [ ] Obtain independent review of the ownership-gate correction, then complete the protected-branch closeout.
+- [x] Inventory and preserve the local interview-lab branch and its uncommitted work; publish Gate O without importing code.
 - [ ] Complete WI322 independent review and closeout.
 - [ ] Complete WI311 and WI333 before Gate 1 exit.
 - [ ] Keep WI331 candidate verification blocked until its claimed runtime and
