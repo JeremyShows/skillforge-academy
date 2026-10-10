@@ -2,41 +2,57 @@
 
 - **Type:** privacy / security / governance
 - **Status:** blocked before contributor onboarding
-- **Date:** 2026-10-09
-- **Related work item:** [WI334](../work/active/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json)
+- **Updated:** 2026-10-10
+- **Related work item:** [WI334](../work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json)
 
 ## Scope
 
-Reviewed the public SkillForge Academy repository's current tree, explicitly published branches, pull-request refs, tags, reachable Git history, pull-request descriptions and review metadata, release payloads, governance records, documentation, fixtures, workflow metadata, and available CI-artifact metadata. Organization and repository visibility and permission metadata were queried read-only. Private course-repository contents and learner records were not queried. Exact repository names, access mappings, personal values, and disclosure locations are withheld from this public record.
+Verified the canonical public SkillForge repository after transfer, the current default branch, public branch and tag refs, public pull-request records and changed-file patches, release and Actions metadata, public-facing documentation, and available organization access metadata. Queried metadata only for the private personal course repository; its contents, files, branches, tags, answers, learner records, progress, and personal files were not inspected. No secret values were read. Exact private repository names, collaborator identities, contact strings, local checkout values, machine paths, and exposed public ref locations are omitted from this public record.
 
-## Findings
+## Verified ownership and organization access
 
-### P1: Organization membership does not isolate the intended contributor surface
+- The canonical SkillForge repository is public under ForgeWireLabs. The former repository path resolves to the transferred repository.
+- PR #18 remains merged. Its head is c492d3f6b242fb4e4bad731cbbedb00c453b3457, and merge commit 8a549b84b429f94d94de0c70ee5e65dffc35ad6d is the current remote main commit.
+- Organization and repository access boundaries were inspected using available metadata. Default access restrictions are configured for the planned contributor scope; effective access verification remains pending, and no contributor was added.
+- Repository-level workflow, artifact, and secret-sharing exposure was assessed where metadata was available. Organization-wide workflow policy and secret sharing could not be verified with the available credential. No secret names or values were read.
+- No organization security settings were changed. Any organization-wide access or authentication changes remain owner decisions and are outside this audit's authorization.
 
-The read-only organization access review found that prospective member access would extend beyond the intended public contribution surface. Exact repository names and permission mappings are withheld from this public report. GitHub documents that organization base permissions apply across repositories, while repository roles can scope access to an individual repository or team ([base permissions](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/setting-base-permissions-for-an-organization), [repository roles](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-repository-roles/repository-roles-for-an-organization)).
+## Private personal course isolation
 
-**Disposition:** do not invite contributors until the organization owner narrows member base access and grants only the approved repositories through least-privilege teams, or isolates sensitive repositories. Recheck private forks and outside-collaborator grants after any access-model change. No permission was changed and no contributor was invited.
+Personal learning materials are maintained outside the contributor-accessible repository scope. Ordinary ForgeWireLabs membership alone does not grant inherited access to a personal-account repository. No private course contents, learner data, secret values, or package contents were inspected. Delegated access through tokens, applications, integrations, and shared packages or artifacts remains unverified; no authorized effective-access test identity was available. This is not a tested negative access result.
 
-### P2: Current public records included non-public development identifiers
+## Public repository privacy findings
 
-Some current public reconciliation records previously included unnecessary development-location and source-ownership details. Those details have been removed or replaced with generic ownership gates in this PR. A regression check now flags local branch and checkout references in public Markdown and governance JSON.
+- The current main tree has no matches for the known private checkout marker in the scanned Markdown and governance records. The PR #19 additions contain no email-like contact strings, user-profile paths, or private-checkout identifiers. Its Windows-path-shaped scan matches are validator-regex syntax, not machine paths. Canonical organization URLs replace the former personal-owner repository URLs in the updated public documentation.
+- Historical public refs and pull-request diffs retain some checkout or source-location metadata. The reviewed records disclosed location labels, not private course contents, answer keys, learner records, or progress data. Specific references and locations are omitted; no history, branch, tag, or pull-request record was altered.
+- Existing public release assets contain contact metadata whose ownership and project role cannot be established from public evidence. Redacted disposition: treat it as potentially personal, omit it from future builds unless the release owner privately confirms its role, and leave existing assets unchanged absent separate authorization.
+- Public-repository workflow and artifact exposure was assessed at a control level. Repository readers may be able to access workflow logs and artifacts according to repository permissions; no log contents were inspected. Organization-level workflow policy and secret-sharing visibility remain unverified, so this audit does not establish that organization secrets are unavailable to public-repository workflows.
+- No credentials, tokens, secret values, private course content, or learner information were found in the reviewed public records. This does not resolve the access-verification blockers below.
 
-### P2: Historical public metadata remains
+## Contributor governance controls and PR #19 review
 
-Earlier public Git and pull-request records retain some development identifiers and author-contact metadata. Exact locations, values, and counts were delivered privately to the maintainer. No shared history, pull-request description, or release evidence was deleted or rewritten. A history rewrite would require separate explicit authorization and coordination with forks and clones. Configure future public commits to use an appropriate GitHub no-reply identity.
+The earlier audit snapshot recorded a mandatory human-review gate; that state is historical. The current single-maintainer model permits normal pull-request changes without mandatory GitHub approval while retaining pull-request and repository-integrity controls. Formal GitHub approval is optional; independent technical review and all RepoPact acceptance evidence remain separate requirements. PR #19 is open and WI334 remains blocked.
 
-### P2: Published release payloads need owner classification
+The initial `.github/CODEOWNERS` file is introduced by PR #19, so GitHub cannot use it to request review on that same PR. After merge, its listed paths will have documented ownership; availability of a qualified non-author reviewer remains a governance consideration. This is separate from the privacy findings.
 
-The public release payload scan found contact-like metadata that could not be classified from public source or commit metadata. Exact assets, counts, and values were delivered privately to the maintainer. No release asset was modified or removed. The release owner must determine whether the metadata is service/vendor information or personal information before onboarding is declared ready.
+The independent read-only review of the previous PR head found no P1 or correctness defect and no course, learner, or contact values in the proposed changes; it did identify the P2 metadata over-disclosure addressed by this revision. The updated head remains pending a new independent read-only review; that review does not constitute formal GitHub approval. RepoPact validates record schemas and evidence but does not authenticate record authors. A dedicated CI identity check would be required if policy must reject a non-maintainer's proposed work-item change before maintainer review; that CI control is not configured.
 
-### CI artifacts and secrets
+## Readiness and blockers
 
-The public repository currently reports no Actions artifacts. Some organization-level security metadata was unavailable to the read-only API credentials; no secret values were requested or read. Private-repository artifacts and contents were not inspected.
+Contributor onboarding is **BLOCKED** until all of the following are resolved:
 
-## Readiness
+1. Verify effective organization-member access with an explicitly authorized disposable identity or supported permission-check mechanism. None was available; the owner account was not used as a substitute, and no contributor was invited.
+2. Separately verify metadata-only delegated access paths to the private personal-account repository, including personal access tokens, OAuth/GitHub Apps and other integrations, and shared package or artifact access. Organization membership alone does not grant access to that repository, but direct collaborator and fork metadata do not establish the absence of these delegated routes.
+3. Obtain sufficient read-only access to organization Actions-policy and secret-sharing metadata and personal package metadata, or have the owner verify these boundaries without exposing secret values or course contents.
+4. Have the release owner privately classify the two custom-domain contacts. Until ownership is confirmed, use role-based contacts in future release builds; changing existing release assets remains separately authorized work.
+5. Review historical checkout and source-location metadata and obtain explicit owner authorization before any targeted history remediation. No history was rewritten, branch deleted, PR removed, or evidence deleted.
+6. Obtain independent technical review of the final PR head. Formal GitHub approval is optional under the current single-maintainer model; it is not a substitute for acceptance criteria or validation.
+7. Before contributor invitations are reopened, review organization-wide access and authentication controls; those settings were not changed in this reassessment.
 
-Not ready for invitations. The organization access boundary must be corrected, and the release-owner classification must be completed. This audit does not establish that private repository files or learner data are safe for new members to access.
+This audit does not establish access by impersonating a new member, and it does not claim that written policy alone enforces work-item governance.
 
-## Evidence and limitations
+## Historical disclosure classification
 
-Final Git history findings use an explicit list of published remote branches, public pull-request refs, and tags. The documentation validator does not inspect GitHub pull-request descriptions, release payloads, workflow logs, or organization-level secret values. Historical copies remain until a separately authorized remediation changes them.
+A prior public revision of this audit included detailed organization/repository permission relationships, workflow/security settings, and private-repository existence/access metadata. Some high-level pull-request policy outcomes are observable through GitHub; the more granular permission mappings and configuration details are internal operational/security metadata. The prior revision disclosed metadata only, not repository contents. No credentials, tokens, secret values, private course materials, or learner information were present in the reviewed disclosure.
+
+Detailed configuration is not needed to support the current public governance finding; this revision retains the control-level assessment, its limits, and outstanding verification steps. The prior commits remain publicly reachable, and no historical refs were changed. Based on the reviewed non-secret metadata, history rewriting is not recommended; if an owner identifies a credible ongoing risk in those historical details, any targeted historical redaction should be handled as a separate, narrowly scoped, explicitly authorized action.

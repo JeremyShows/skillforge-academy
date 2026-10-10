@@ -8,7 +8,7 @@ The release workflow uses Node.js 22 on Windows. Use Node 22 for the closest mat
 
 Clone the public repository and install its locked JavaScript dependencies:
 
-    git clone https://github.com/JeremyShows/skillforge-academy.git
+    git clone https://github.com/ForgeWireLabs/skillforge-academy.git
     cd skillforge-academy
     npm ci
 
@@ -103,13 +103,13 @@ Before substantive work:
        .\.venv\Scripts\python.exe -m repopact.cli validate
        .\.venv\Scripts\python.exe -m repopact.cli dashboard
 
-`decisions/` records stable architectural choices; `audits/` records independent findings; `governance/` and `schemas/` define repository policy and record contracts. Do not invent a work-item ID, mark work complete without evidence, or rewrite historical release records to imply a version was published.
+`decisions/` records stable architectural choices; `audits/` records independent findings; `governance/` and `schemas/` define repository policy and record contracts. Do not invent a work-item ID, mark work complete without evidence, or rewrite historical release records to imply a version was published. Contributors may propose work-item changes, but maintainers alone accept canonical work records. `CODEOWNERS` identifies maintainers for canonical paths and can support voluntary review requests; it does not make GitHub approval mandatory. RepoPact validates schemas and evidence, not author identity. A policy that rejects work-item proposals from non-maintainers before review would require a dedicated CI identity check; that check is not currently configured.
 
 ## 5. Use pull requests and close out work
 
-Create a focused branch using the `codex/` prefix, commit only scoped files, and open a pull request against `main`. Include the work-item ID, behavior or documentation summary, checks run, and unresolved risks. The repository's GitHub PR template is in `.github/PULL_REQUEST_TEMPLATE.md`.
+Create a focused branch using the `codex/` prefix, commit only scoped files, and open a pull request against `main`. Include the work-item ID, behavior or documentation summary, checks run, and unresolved risks. The repository's GitHub PR template is in `.github/PULL_REQUEST_TEMPLATE.md`. Contributor access to the approved public repository follows a least-privilege scope; new access is owner-controlled. Contributors should use a fork and pull request. Organization membership does not grant access to repositories owned by a maintainer's personal account, but tokens, applications, integrations, packages, and shared artifacts must be checked separately before onboarding.
 
-As verified on 2026-10-09, the active default-branch ruleset prevents deletion and non-fast-forward updates; it does not require a fixed approval count or a required-status-check set. Recheck the live ruleset before relying on it: `gh api repos/JeremyShows/skillforge-academy/rulesets`. A PR is the project collaboration path. An independent technical review is a quality assessment and is not the same as formal GitHub approval.
+Default-branch changes use pull requests and retain repository-integrity protections. `CODEOWNERS` is read from the PR's base branch; once the file is merged, it identifies maintainers for the listed paths and can support voluntary reviewer requests. Formal GitHub approval is optional under the current single-maintainer model. Independent technical review remains required where a RepoPact criterion or governance decision specifies it; a passing review does not replace required tests, command results, or acceptance evidence. Mandatory human approval can be introduced when qualified non-author maintainers are available. Do not merge work whose RepoPact gates are incomplete merely because GitHub permits the merge.
 
 For work-item closeout that changes governance records on `main`, use the repository's established sequence: merge the implementation/evidence PR after technical review, then open a separate governance-closeout PR that updates the work-item state and audit/evidence index as required. PRs #12 and #13 demonstrate the sequence for WI324. Do not push directly to `main` or claim closeout before the governance change is merged.
 

@@ -39,7 +39,7 @@ reproducible.
 - Microsoft Edge WebView2 Runtime (included with current Windows releases)
 - About 100 MB free disk space
 
-Download the installer only from a published [GitHub release](https://github.com/JeremyShows/skillforge-academy/releases). As of 2026-10-09, v1.3.2 is the latest published release. The repository's 1.4.1-beta.1 candidate is unpublished and is not a public download. For a release that includes `SHA256SUMS.txt`, compare the listed filename and hash with the local file:
+Download the installer only from a published [GitHub release](https://github.com/ForgeWireLabs/skillforge-academy/releases). As of 2026-10-09, v1.3.2 is the latest published release. The repository's 1.4.1-beta.1 candidate is unpublished and is not a public download. For a release that includes `SHA256SUMS.txt`, compare the listed filename and hash with the local file:
 
 ```powershell
 Get-Content .\SHA256SUMS.txt

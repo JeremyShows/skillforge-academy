@@ -6,7 +6,7 @@
 
 ## Method
 
-Reviewed README, CHANGELOG, ROADMAP, CONTRIBUTING, SECURITY, AGENTS, the docs hierarchy and existing architecture/package/privacy/release pages; RepoPact decisions and schemas; active/completed/proposed work items; current source modules, tests, build scripts, release workflow, and version metadata. Checked public GitHub release/tag history and the active default-branch ruleset. No installer was built or installed during this documentation audit.
+Reviewed README, CHANGELOG, ROADMAP, CONTRIBUTING, SECURITY, AGENTS, the docs hierarchy and existing architecture/package/privacy/release pages; RepoPact decisions and schemas; active/completed/proposed work items; current source modules, tests, build scripts, release workflow, and version metadata. Checked public GitHub release/tag history and current branch governance. No installer was built or installed during this documentation audit.
 
 ## Discrepancies found
 
@@ -22,8 +22,8 @@ Reviewed README, CHANGELOG, ROADMAP, CONTRIBUTING, SECURITY, AGENTS, the docs hi
 
 ## Verified release and governance facts
 
-- Public release page and remote tags show v1.3.2 as the latest published release/tag: [GitHub releases](https://github.com/JeremyShows/skillforge-academy/releases).
-- GitHub's live default-branch ruleset on 2026-10-09 had deletion and non-fast-forward rules only. It did not require an approval count or status checks. RepoPact technical independent review is distinct from those GitHub requirements.
+- Public release page and remote tags show v1.3.2 as the latest published release/tag: [GitHub releases](https://github.com/ForgeWireLabs/skillforge-academy/releases).
+- The live pull-request governance was reviewed on 2026-10-09 and repository-integrity controls were confirmed. Detailed security configuration is omitted from this public audit. RepoPact technical independent review remains distinct from formal GitHub approval.
 - The repository's current closeout precedent is an implementation/evidence PR followed, after merge, by a separate governance-closeout PR (WI324 PRs #12 and #13).
 - The `1.4.1-beta.1` candidate gate remains incomplete: WI310 AC-4 packaged-app interactive acceptance is pending; remote Windows CI was waived/blocked on billing for that frozen candidate. The existing installer is not evidence for current main or a v2 candidate.
 

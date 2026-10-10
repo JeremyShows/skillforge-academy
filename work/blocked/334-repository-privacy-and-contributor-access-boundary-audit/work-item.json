@@ -1,0 +1,95 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "334",
+  "title": "Repository privacy and contributor access boundary audit",
+  "status": "blocked",
+  "owner_scope": "governance",
+  "affected_scopes": [
+    "governance",
+    "foundation",
+    "docs",
+    "implementation"
+  ],
+  "depends_on": [],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-09T00:00:00Z",
+    "note": "Stamped by `repopact new`; the work item was recorded before implementation began."
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "text": "Inventory the published repository refs, pull requests, releases, documentation, governance records, fixtures, and CI artifacts for privacy and access-boundary exposures; record redacted findings and scope limits.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-334-public-privacy-access-boundary",
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-2",
+      "text": "Remove unnecessary local checkout identifiers and private source-location metadata from the current public tree, while preserving shared history and unrelated private work.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-334-public-privacy-access-boundary",
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-3",
+      "text": "Verify with redacted organization metadata and an authorized disposable identity or supported effective-access mechanism that an ordinary new member can access only approved public repositories and cannot access private repositories, the private personal course, learner data, restricted Actions assets, organization secrets, or repository administration. Separately verify metadata-only delegated routes to the private personal-account repository, including personal access tokens, OAuth/GitHub Apps and other integrations, and shared package or artifact access; distinguish those routes from organization membership.",
+      "state": "pending",
+      "evidence": [
+        "20261009-334-public-privacy-access-boundary",
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-4",
+      "text": "Add a public-safe regression check for local checkout identifiers and run RepoPact plus documentation validation.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-334-public-privacy-access-boundary",
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-5",
+      "text": "Establish restricted organization and repository access for the planned contributor scope while retaining owner administration; limit contributor and maintainer access to approved public repositories; do not invite contributors or grant access to private repositories.",
+      "state": "satisfied",
+      "evidence": [
+        "20261009-334-public-privacy-access-boundary",
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-6",
+      "text": "Review public release, Actions, and package exposure metadata; obtain a defensible classification and redacted disposition for contact metadata without exposing values or changing releases.",
+      "state": "pending",
+      "evidence": [
+        "20261010-334-access-boundary-reassessment",
+        "20261010-334-single-maintainer-review-policy"
+      ]
+    },
+    {
+      "id": "AC-7",
+      "text": "After the initial CODEOWNERS file is merged, verify that it identifies maintainers for canonical governance paths, that default-branch rules require pull requests and preserve integrity protections without mandatory GitHub approval under the single-maintainer model, and that RepoPact does not authenticate record authors.",
+      "state": "pending",
+      "evidence": [
+        "20261010-334-access-boundary-reassessment",
+        "20261010-334-single-maintainer-review-policy"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Obtain and record an independent read-only technical review of the final implementation/evidence PR head. Formal GitHub approval is optional under the current single-maintainer model; technical review does not replace required tests or acceptance evidence.",
+      "state": "pending",
+      "evidence": [
+        "20261010-334-access-boundary-reassessment"
+      ]
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-10"
+}

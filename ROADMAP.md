@@ -46,6 +46,6 @@ Changes must retain the canonical `CourseProgress` authority and the legacy lear
 
 ## Release status and next major milestone
 
-GitHub's latest published release is [v1.3.2](https://github.com/JeremyShows/skillforge-academy/releases). The `1.4.0` entry is a local candidate, and `1.4.1-beta.1` is an unpublished candidate identity. The proposed `v2.0.0-beta.1` milestone is tracked separately under work item 331; no version metadata, tag, installer, or release has been created for it.
+GitHub's latest published release is [v1.3.2](https://github.com/ForgeWireLabs/skillforge-academy/releases). The `1.4.0` entry is a local candidate, and `1.4.1-beta.1` is an unpublished candidate identity. The proposed `v2.0.0-beta.1` milestone is tracked separately under work item 331; no version metadata, tag, installer, or release has been created for it.
 
 Before any public beta, the project needs a known-commit candidate, required automated and independent Windows CI evidence, isolated install/upgrade acceptance, verified learner-state and backup recovery, artifact checksums, privacy/content/accessibility review, accurate limitations, and explicit maintainer authorization. See [v2.0 beta readiness](docs/v2.0-beta-readiness.md). Do not weaken a release gate to force publication.

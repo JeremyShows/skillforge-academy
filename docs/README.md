@@ -48,4 +48,4 @@ Backup documentation distinguishes the supported legacy `.apexbackup` workflow f
 - [Windows code signing](CODE-SIGNING.md)
 - [Screenshot generation notes](screenshots/README.md)
 
-Historical candidate and pilot records are retained for governance and are not general public installation instructions. Check the [GitHub releases page](https://github.com/JeremyShows/skillforge-academy/releases) for published installers; a repository version label alone does not mean a release was published.
+Historical candidate and pilot records are retained for governance and are not general public installation instructions. Check the [GitHub releases page](https://github.com/ForgeWireLabs/skillforge-academy/releases) for published installers; a repository version label alone does not mean a release was published.

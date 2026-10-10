@@ -114,6 +114,6 @@ const lastEditor = closeoutSection.lastIndexOf("notepad.exe audits/index.md");
 const saveAndClosePrompt = closeoutSection.indexOf('Read-Host "Save and close all opened editors, then press Enter to continue"');
 const moveWorkItem = closeoutSection.indexOf("git mv -- $workItemDirectoryRelative $completedDirectory");
 assert.ok(lastEditor < saveAndClosePrompt && saveAndClosePrompt < moveWorkItem, "closeout example must wait for edits to be saved before moving the work item");
-assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
+assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/ForgeWireLabs\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
 
 process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, ${checkoutReferenceCases.length} local-checkout cases, repository-wide Markdown and governance JSON privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);

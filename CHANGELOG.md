@@ -4,7 +4,7 @@ All notable changes to SkillForge Academy are documented here. SkillForge Academ
 
 ## Unreleased
 
-The latest published release is v1.3.2. The repository's current 1.4.1-beta.1 label identifies an unpublished candidate; the 1.4.0 entry below is also an unpublished local candidate. See the [release page](https://github.com/JeremyShows/skillforge-academy/releases) and [v2.0 beta readiness report](docs/v2.0-beta-readiness.md).
+The latest published release is v1.3.2. The repository's current 1.4.1-beta.1 label identifies an unpublished candidate; the 1.4.0 entry below is also an unpublished local candidate. See the [release page](https://github.com/ForgeWireLabs/skillforge-academy/releases) and [v2.0 beta readiness report](docs/v2.0-beta-readiness.md).
 
 ### Added
 

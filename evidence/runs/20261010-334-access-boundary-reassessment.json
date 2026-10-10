@@ -1,0 +1,47 @@
+{
+  "id": "20261010-334-access-boundary-reassessment",
+  "timestamp": "2026-10-10T15:17:28Z",
+  "work_item": "334",
+  "result": "blocked",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "Redacted public and available organization/repository metadata assessment",
+      "exit_code": 0,
+      "summary": "Control boundaries were assessed using available metadata. Effective member access and organization-wide workflow/secret-sharing verification remain pending."
+    },
+    {
+      "command": "Redacted public history and release metadata review",
+      "exit_code": 0,
+      "summary": "Checkout/location metadata and unattributed contact metadata were classified without publishing values or exact references. No history or release was changed."
+    },
+    {
+      "command": "Private-material boundary check",
+      "exit_code": 0,
+      "summary": "No private course contents, learner data, package contents, credential values, or secret values were accessed."
+    }
+  ],
+  "artifacts": [
+    "audits/AUDIT-2026-10-09-privacy-access-boundary.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/README.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json",
+    "docs/contributor-onboarding.md",
+    "evidence/runs/20261009-334-public-privacy-access-boundary.json",
+    "evidence/runs/20261010-334-single-maintainer-review-policy.json"
+  ],
+  "environment": {
+    "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
+    "public_privacy_scope": "Public repository content, available organization/repository metadata, public history, and release metadata were assessed at a control level.",
+    "organization_access_boundary": "Default access restrictions are configured for the planned contributor scope; effective member access verification remains pending.",
+    "personal_learning_boundary": "Personal learning materials are outside the organization repository scope. No contents were inspected. Delegated access routes remain unverified.",
+    "workflow_and_secret_sharing": "Repository-level metadata was reviewed where available. Organization-wide workflow policy and secret-sharing metadata remain unverified; no secret values were read.",
+    "release_contact_disposition": "Some existing release contact metadata may be personal. Ownership and role are unverified; values are withheld and existing releases are unchanged.",
+    "historical_exposure_classification": "A prior public audit revision included some GitHub-observable policy outcomes and more granular internal organization/repository permission, workflow, and private-repository relationship metadata. No credentials, tokens, secret values, private course contents, or learner information were present in the reviewed disclosure. Prior commits remain reachable; no history rewrite is recommended absent a separately documented credible risk and explicit authorization.",
+    "pr_19_review_state": "Open; the current head requires a new independent read-only review after metadata minimization.",
+    "wi334_state": "Blocked pending effective-access, delegated-access, workflow/secret-sharing, contact-classification, historical-disposition, and review evidence.",
+    "private_course_contents": "not_accessed",
+    "learner_data": "not_accessed",
+    "secret_values": "not_accessed",
+    "invitations": "none"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261010-334-single-maintainer-review-policy",
+  "timestamp": "2026-10-10T15:34:16Z",
+  "work_item": "334",
+  "result": "blocked",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "Read-only review of effective pull-request governance",
+      "exit_code": 0,
+      "summary": "The single-maintainer model does not require formal GitHub approval. Pull-request and repository-integrity controls remain in effect."
+    },
+    {
+      "command": "Governance evidence and onboarding review",
+      "exit_code": 0,
+      "summary": "Independent technical review remains separate from tests and acceptance evidence. No invitations or access changes were made."
+    }
+  ],
+  "artifacts": [
+    "audits/AUDIT-2026-10-09-privacy-access-boundary.md",
+    "docs/contributor-onboarding.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json"
+  ],
+  "environment": {
+    "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
+    "review_policy": "Formal human GitHub approval is optional under the current single-maintainer model; independent technical review remains required where RepoPact specifies it.",
+    "preserved_controls": "Pull-request workflow and repository-integrity protections remain enabled.",
+    "technical_review": "A new independent read-only review is required for the updated PR head; it does not replace tests or acceptance evidence.",
+    "pr_19": "Open and not merged; WI334 remains blocked.",
+    "wi334": "Outstanding access and privacy criteria remain pending.",
+    "private_course_contents": "not_accessed",
+    "private_account_delegated_access": "unverified",
+    "learner_data": "not_accessed",
+    "secret_values": "not_accessed",
+    "invitations": "none"
+  }
+}
