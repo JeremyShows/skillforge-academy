@@ -1,9 +1,10 @@
 # WI-332 — Canonical Work Reconciliation and Gated Execution Plan
 
-> **Status:** Active
+> **Status:** Complete
 > **Owner:** Governance steward; maintainers of separate workstreams retain their existing ownership.
 > **Discovery baseline:** `origin/main` at `17be629702ef57ffd38db35c5d541745f02e73b0`.
-> **Rebased PR base:** `origin/main` at `e46d4227117a6a0a16bcb41430cfe429a82de880`.
+> **PR #16 reviewed head:** `26f2d749afafdadbadcb7cd09f8ed06d7aced603`.
+> **PR #16 merge commit:** `b2eced6f976624e8867d64d8efa88abe0274f2fe`.
 
 ## Intent
 
@@ -19,14 +20,19 @@ The full inventory, traceability matrix, execution stages, and contributor bound
 - PR #14 (WI330 docs) and PR #15 (WI330 governance closeout) merged while this work was in progress. WI330 is completed with AC-1 through AC-8 evidenced. WI331 is now canonical and remains proposed; this reconciliation narrows its RepoPact dependency to completed WI330 so preparation is not blocked by every platform feature. Candidate and publication entry conditions remain explicit in its README and the roadmap. No release implementation is taken over.
 - `PlatformLearnerEnvelope` remains the single platform learner-state owner under decision 0011. No parallel persistence authority is introduced.
 - The `local/interview-lab` checkout was reconciled read-only. Its five commits and nine uncommitted paths are preserved on the original branch; they are not implementation evidence for WI322/WI325/WI329. The old branch's course and learner-state contracts diverge from current main. Gate O in the execution roadmap requires a maintainer decision, current-main baseline, explicit ownership, and integration evidence before any overlapping source work. The detailed path inventory is in [`the reconciliation report`](../../../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
+- The independent review found that the initial PR version added blanket WI311/WI322/WI332/WI333 prerequisites to WI326–WI328. The reviewed PR head restores the original WI324-only dependency for each item and makes Gate O and other policy/ownership controls scope-specific.
 
 ## Closeout
 
-PR [#16](https://github.com/JeremyShows/skillforge-academy/pull/16) is open.
-The governance deliverables and repository validations are evidenced. Keep
-WI332 active through independent review and the separate protected-branch
-closeout. The current GitHub account is the PR author; no self-review was requested.
-Independent technical review and any GitHub approval requirement are separate;
-check the active ruleset before merge and do not represent a Codex review as a
-human GitHub approval. Do not close WI332 from this implementation PR or treat
-the plan as evidence that feature work is complete.
+PR [#16](https://github.com/JeremyShows/skillforge-academy/pull/16) merged at
+`b2eced6f976624e8867d64d8efa88abe0274f2fe` after a fresh independent read-only
+Codex review of head `26f2d749afafdadbadcb7cd09f8ed06d7aced603` found no P1/P2
+blockers and recommended merge. The review was technical evidence, not a
+GitHub review or approval. At merge, the active default-branch ruleset only
+blocked deletion and non-fast-forward updates; no non-author GitHub approval
+was required. The separate governance closeout records this evidence, completes
+AC-4/AC-5, closes this work item, and closes the reconciliation audit with
+future WI322, WI311, WI333, WI310, WI331, and WI228 follow-ups left with their
+own owners. No feature implementation or release work is completed by WI332.
+
+Closeout evidence: `20261010-332-governance-closeout`.

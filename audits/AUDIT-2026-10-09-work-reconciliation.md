@@ -1,10 +1,10 @@
 # AUDIT-2026-10-09-work-reconciliation: Canonical Work Inventory and Gated Execution
 
 Type: foundation / architecture
-Status: open
+Status: passed-with-follow-ups
 Date: 2026-10-09
 Auditor: Codex
-Related Todo: [WI332](../work/active/332-canonical-work-reconciliation-and-gated-execution-plan/README.md)
+Related Work Item: [WI332](../work/completed/332-canonical-work-reconciliation-and-gated-execution-plan/README.md)
 
 ## Scope
 
@@ -49,7 +49,7 @@ so governance edits remain isolated in a separate worktree.
 
 ### P1: Pilot privacy safeguards were sequenced after learner participation
 
-Status: Resolved in this PR's proposed dependency graph.
+Status: Resolved on canonical main by PR #16 merge `b2eced6`.
 Evidence: WI312 depended on WI228, while WI228 had no pre-pilot privacy gate.
 
 Recommendation:
@@ -60,7 +60,7 @@ Recommendation:
 
 ### P2: WI323 scope was accepted but absent from canonical main
 
-Status: Registration prepared in this PR; canonical status remains proposed.
+Status: Registered on canonical main by PR #16; WI323 remains proposed with all five implementation criteria pending.
 Evidence: Original record in `ux-follow-up-candidate` at `72a8ecb`, including
 the October 6 preflight and five pending criteria.
 
@@ -98,7 +98,7 @@ Recommendation:
 
 ### P2: WI331's blanket dependencies blocked harmless preparation
 
-Status: Dependency correction proposed in this PR; WI331 remains proposed and
+Status: Dependency correction merged by PR #16; WI331 remains proposed and
 its six acceptance criteria are unchanged.
 Evidence: Merged WI331 listed 310, 311, 322, 324–330 while combining
 preparation, candidate verification, and publication.
@@ -113,9 +113,9 @@ Disposition:
 
 ## P2: Branch-local course and persistence implementation overlaps planned ownership
 
-**Status:** Remediated in this PR's governance plan; effective on canonical main
-only after PR #16 and its separate WI332 closeout merge. No implementation was
-integrated, and the source branch remains untouched.
+**Status:** Gate O is part of canonical main after PR #16 and becomes effective
+for future implementation when this separate WI332 closeout merges. No
+implementation was integrated, and the source branch remains untouched.
 
 **Evidence:** `local/interview-lab` is at `cbc4dcd79a67fd589d4251cef82bed1c8064264c`.
 Its common ancestor with the review baseline is `687dfbb85234b0863f5c80f790d9c0e0d7280cb4`; at review, `origin/main` was `e46d4227117a6a0a16bcb41430cfe429a82de880`, 57 commits ahead of the branch and 5 commits behind it. The working tree has no staged changes, eight modified tracked files, and one untracked file. The independent review finding was correct: course progress, learner state, and course styles overlap WI322/WI325/WI329 surfaces.
@@ -141,14 +141,23 @@ WI325, or WI329 criteria. Commit-by-commit capabilities, exact path lists,
 working-tree inventory, classification, and required evidence are recorded in
 [`the branch reconciliation report`](../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
 
-The fresh ownership review also found that this PR initially added blanket
+The fresh ownership review also found that PR #16 initially added blanket
 WI311/WI322/WI332/WI333 prerequisites to WI326–WI328, although their
 `origin/main` records depended only on WI324. The PR branch restores WI324 as
 their sole direct prerequisite and makes Gate O conditional on edits to a
 protected shared path. Authored-content policy, formal-activity ownership, and
 real-pilot safeguards remain binding only when that scope is entered; they do
-not block disjoint synthetic/runtime work. This correction changes planning
-records only and does not start WI326–WI328 implementation.
+not block disjoint synthetic/runtime work. Independent review confirmed the
+corrected records and roadmap. This correction changes planning records only
+and does not start WI326–WI328 implementation.
+
+The independent review of closeout PR #17 found a remaining overbroad privacy
+dependency: WI325 and WI329 hard-depended on WI333 despite their public-neutral
+or synthetic implementation scope, and the roadmap graph treated WI333 as an
+unconditional WI331 candidate-verification prerequisite. The closeout corrects
+those records and scope gates. WI333 remains mandatory for WI228 and other
+explicitly authorized real-learner pilot participation; WI331 candidate privacy
+checks remain conditional on learner-data use. No implementation was started.
 
 **Required evidence before overlapping implementation:** named maintainer and
 source-workstream owner decision; exact current-main SHA and file/API contract;
@@ -167,7 +176,10 @@ PR #14 (WI330 docs) and PR #15 (WI330 governance closeout): merged
 WI330: completed with eight satisfied criteria and linked evidence
 WI331: canonical proposed item; preparation dependency narrowed to WI330
 WI324 PR #12 and PR #13: merged; WI324 complete on main
-WI332 PR #16: open; no reviewer request because only collaborator is its author
+WI332 PR #16 reviewed head: 26f2d749afafdadbadcb7cd09f8ed06d7aced603
+WI332 PR #16 independent review: no P1/P2; technical recommendation to merge
+WI332 PR #16 merge commit on origin/main: b2eced6f976624e8867d64d8efa88abe0274f2fe
+GitGuardian Security Checks: passed on PR #16 head
 RepoPact 3.0.2: dependency, cycle, lifecycle, and evidence validation available
 Full inventory and execution map: governance/execution-roadmap.md
 ```
@@ -181,17 +193,18 @@ Full inventory and execution map: governance/execution-roadmap.md
 - WI331 remains a proposal without candidate evidence. Phase-specific gates are
   recorded in its README; they must be honored even though RepoPact's simple
   dependency edge allows preparation to start.
-- The checked active GitHub ruleset requires no PR review or approval; it only
-  blocks deletion and non-fast-forward updates. The collaborator list contains
-  only the PR author, so no non-author collaborator is available. Codex's
-  independent technical review is not GitHub approval. Recheck the active
-  ruleset before merge; no formal approval gate is currently mandatory.
+- Before PR #16 merge, the checked active default-branch ruleset was `no delete`
+  with only deletion and non-fast-forward restrictions; `main` had no branch
+  protection and no non-author collaborator was available. Codex's independent
+  technical review was not GitHub approval; no formal approval gate was
+  mandatory under the checked rules. Recheck the active ruleset before merging
+  the closeout PR.
 - RepoPact does not encode stage gates, release phases, owner boundaries, or
   work-item supersession. The human execution map is a required operating record.
 
 ## Actions
 
-- [ ] Obtain independent review of the ownership-gate correction, then complete the protected-branch closeout.
+- [x] Obtain independent read-only review with no P1/P2 findings and merge PR #16 at `b2eced6f976624e8867d64d8efa88abe0274f2fe`; complete this separate governance closeout to finish WI332.
 - [x] Inventory and preserve the local interview-lab branch and its uncommitted work; publish Gate O without importing code.
 - [ ] Review and close WI322 before WI323 or any formal-activity contract change.
 - [ ] Complete WI311 before governed authored-content expansion and WI333
@@ -204,6 +217,9 @@ Full inventory and execution map: governance/execution-roadmap.md
 
 ## Final Status
 
-Open. The governance plan is reviewable, but this PR and its separate WI332
-closeout, WI322 review, WI311, WI333, and WI310 packaged acceptance remain
-outstanding. WI331 remains proposed with no candidate evidence.
+Closed with follow-ups. WI332's inventory, dependency corrections, ownership
+gate, independent technical review, PR #16 merge, and separate governance
+closeout are complete. No branch-local implementation was imported. WI322
+review/closeout, WI311 authored-content work, WI333 pre-pilot safeguards, WI310
+candidate evidence, WI331 release gates, and the WI228 pilot remain separately
+tracked and are not represented as completed by this reconciliation audit.
