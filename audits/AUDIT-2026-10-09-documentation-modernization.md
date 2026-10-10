@@ -55,6 +55,10 @@ A fourth fresh read-only review found a P2 privacy-scanning blind spot: `scripts
 
 A fifth fresh read-only review found two P2 evidence-boundary issues: the Markdown privacy-scan record named the preceding source commit as its reviewed commit, and public evidence JSON still contained machine-specific paths outside the Markdown scan. The validator now scans path, credential, and configured-remote patterns over all repository Markdown plus governance JSON under `evidence/` and `work/`, while local link and anchor checks remain scoped to the six entry documents and `docs/`. Eight historical evidence JSON records were sanitized to remove twelve machine-specific path occurrences; 45 historical evidence records were also cleared of the same non-canonical repository identifier. Regression coverage now asserts that active work-item JSON and evidence-run JSON are included and `.venv/` is excluded. Fresh validation evidence for the implementation commit is recorded in [20261009-330-public-record-privacy-scan](../evidence/runs/20261009-330-public-record-privacy-scan.json). Independent re-review remains pending; WI330 and this audit stay open.
 
+### Sixth independent PR review follow-up at `e5afb9a`
+
+A sixth fresh read-only review found a P2 gap in slash-separated UNC detection: the matcher skipped candidates immediately after an opening parenthesis to avoid flagging protocol-relative URLs, so a Markdown destination with a host/share path passed. The matcher now scans that syntax as UNC-like and the documentation guidance asks contributors to use explicit `https://` schemes for external links. Regression cases cover both the Markdown host/share destination and an explicit HTTPS URL. The reviewer found no current disclosure matching the missed form. Targeted validation evidence is recorded in [20261009-330-unc-destination-scan](../evidence/runs/20261009-330-unc-destination-scan.json). A fresh independent review remains pending; WI330 and this audit stay open.
+
 ### P1: Contributor and signing docs referenced a non-public repository location
 
 **Status:** remediated in WI330 branch

@@ -1,0 +1,52 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-unc-destination-scan",
+  "timestamp": "2026-10-09T20:40:42-05:00",
+  "work_item": "330",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm run test:docs-validator",
+      "exit_code": 0,
+      "summary": "13 positive/negative path cases passed, including a host/share UNC-like path in a Markdown destination and an explicit HTTPS URL; repository privacy-scan scope, Actions/onboarding, and closeout safeguards also passed."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Validated 37 curated Markdown files for local links/anchors; privacy, credential, and configured-remote scans covered 212 repository Markdown files and 150 governance JSON records under evidence/ and work/. No findings; release metadata is consistent. External URL availability is not checked."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli dashboard --root . (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "Regenerated the RepoPact dashboard with the pinned virtual-environment interpreter and restricted PATH."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli validate (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "RepoPact governance, evidence references, and generated dashboard validation passed with the pinned virtual-environment interpreter."
+    },
+    {
+      "command": "git diff --cached --check; git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in staged or unstaged WI330 changes."
+    }
+  ],
+  "artifacts": [
+    "scripts/doc-paths.mjs",
+    "scripts/test-docs-validator.mjs",
+    "docs/contributor-onboarding.md",
+    "audits/AUDIT-2026-10-09-documentation-modernization.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+    "evidence/runs/20261009-330-public-record-privacy-scan.json"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python": "3.12.4",
+    "repopact": "3.0.2",
+    "implementation_commit": "00f0d2c33cac8128c80b7d74f914be0e93d0ce88",
+    "branch": "codex/documentation-modernization"
+  }
+}
