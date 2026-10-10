@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { collectGovernanceJsonFiles, collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
+import { collectGovernanceJsonFiles, collectMarkdownFiles, findLocalCheckoutReferences, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const pathCases = [
   [String.raw`D:\workstation\Android\Sdk\ndk\26.3\source.properties`, true],
@@ -34,6 +34,17 @@ for (const [sample, shouldMatch] of pathCases) {
   assert.equal(findMachineSpecificPaths(sample).length > 0, shouldMatch, `unexpected path classification: ${sample}`);
 }
 
+const checkoutReferenceCases = [
+  ["The branch ref is local/synthetic-checkout.", true],
+  ["This worktree uses local/synthetic-review-branch.", true],
+  ["Diagnostics are local/initiated.", false],
+  ["https://skillforge.local/$defs/course.json", false],
+  ["localStorage keeps learner state on this device.", false],
+];
+for (const [sample, shouldMatch] of checkoutReferenceCases) {
+  assert.equal(findLocalCheckoutReferences(sample).length > 0, shouldMatch, `unexpected local checkout classification: ${sample}`);
+}
+
 const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const publicMarkdownPaths = new Set(collectMarkdownFiles(projectRoot).map(file => path.relative(projectRoot, file).replaceAll("\\", "/")));
 const governanceJsonPaths = new Set(collectGovernanceJsonFiles(projectRoot).map(file => path.relative(projectRoot, file).replaceAll("\\", "/")));
@@ -46,7 +57,7 @@ for (const record of [
 }
 assert.ok(![...publicMarkdownPaths].some(file => file.startsWith(".venv/")), "repository-wide privacy scan must exclude the preserved virtual environment");
 for (const record of [
-  "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+  "work/completed/330-documentation-modernization-and-contributor-onboarding/work-item.json",
   "evidence/runs/20261009-330-public-markdown-privacy-scan.json",
 ]) {
   assert.ok(governanceJsonPaths.has(record), `governance JSON privacy scan must include ${record}`);
@@ -105,4 +116,4 @@ const moveWorkItem = closeoutSection.indexOf("git mv -- $workItemDirectoryRelati
 assert.ok(lastEditor < saveAndClosePrompt && saveAndClosePrompt < moveWorkItem, "closeout example must wait for edits to be saved before moving the work item");
 assert.ok(validator.includes(String.raw`ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy`), "canonical SSH remote form must be excluded from protected-remote scanning");
 
-process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, repository-wide Markdown and governance JSON privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);
+process.stdout.write(`Documentation validator regression checks passed: ${pathCases.length} path cases, ${checkoutReferenceCases.length} local-checkout cases, repository-wide Markdown and governance JSON privacy-scan scope, workflow and closeout consistency, and canonical SSH remote coverage.\n`);

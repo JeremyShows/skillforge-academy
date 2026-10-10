@@ -1,0 +1,28 @@
+{
+  "id": "20261009-332-source-ownership-reconciliation",
+  "timestamp": "2026-10-09T00:00:00Z",
+  "work_item": "332",
+  "result": "partial",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "public remote branch, pull-request, and tag metadata review",
+      "exit_code": 0,
+      "summary": "Reviewed published references and their ownership disposition; no non-public source was accepted as implementation evidence."
+    },
+    {
+      "command": "public documentation and governance-record privacy review",
+      "exit_code": 0,
+      "summary": "Identifying local checkout and source-location metadata was redacted from the current public tree; historical copies remain."
+    }
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-09-wi332-source-ownership-reconciliation.md",
+    "governance/execution-roadmap.md"
+  ],
+  "environment": {
+    "scope": "public repository records and explicitly published references",
+    "private_repository_content": "not inspected",
+    "release_or_history_rewrite": "not performed"
+  }
+}

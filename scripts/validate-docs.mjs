@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { collectGovernanceJsonFiles, collectMarkdownFiles, findMachineSpecificPaths } from "./doc-paths.mjs";
+import { collectGovernanceJsonFiles, collectMarkdownFiles, findLocalCheckoutReferences, findMachineSpecificPaths } from "./doc-paths.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const entryDocs = ["README.md", "AGENTS.md", "CONTRIBUTING.md", "SECURITY.md", "ROADMAP.md", "CHANGELOG.md"];
@@ -103,6 +103,7 @@ function statExists(file) {
 for (const file of [...privacyScanFiles].sort()) {
   const source = readMarkdown(file);
   for (const match of findMachineSpecificPaths(source)) addIssue(file, lineAt(source, match.index), "machine-specific absolute path must not be published");
+  for (const match of findLocalCheckoutReferences(source)) addIssue(file, lineAt(source, match.index), "local branch or checkout identifier must not be published");
   for (const match of source.matchAll(credentialPattern)) addIssue(file, lineAt(source, match.index), "credential-shaped value must not be published");
 }
 

@@ -1,9 +1,10 @@
 # Audit Index
 
-Last updated: 2026-10-10 (WI332 separate governance closeout)
+Last updated: 2026-10-09 (WI334 privacy and access boundary audit)
 
 | ID | Title | Type | Status | Related Todo | Date |
 | --- | --- | --- | --- | --- | --- |
+| [AUDIT-2026-10-09-privacy-access-boundary](AUDIT-2026-10-09-privacy-access-boundary.md) | Contributor Privacy and Access Readiness | privacy / security / governance | blocked | [334](../work/active/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json) | 2026-10-09 |
 | [AUDIT-2026-10-09-work-reconciliation](AUDIT-2026-10-09-work-reconciliation.md) | Canonical Work Inventory and Gated Execution | foundation / architecture | passed-with-follow-ups | [332](../work/completed/332-canonical-work-reconciliation-and-gated-execution-plan/README.md) | 2026-10-09 |
 | [AUDIT-2026-06-16-foundation](AUDIT-2026-06-16-foundation.md) | Agent/Todo/Audit/Tracking Foundation Created | foundation | passed-with-notes | [001](../work/completed/001-true-cert-factory/README.md) | 2026-06-16 |
 | [AUDIT-2026-06-16-true-cert-factory](AUDIT-2026-06-16-true-cert-factory.md) | True Certification Factory Implementation | architecture / implementation | passed-with-notes | [001](../work/completed/001-true-cert-factory/README.md), [002](../work/completed/002-cert-authoring-guide/README.md), [302](../work/completed/302-milestone-true-certification-factory/README.md) | 2026-06-16 |
