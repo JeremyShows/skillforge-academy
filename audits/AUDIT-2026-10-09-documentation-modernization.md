@@ -1,10 +1,10 @@
 # AUDIT-2026-10-09-documentation-modernization: Documentation, architecture, and release-state audit
 
 - **Type:** documentation / architecture / release
-- **Status:** open
+- **Status:** passed-with-notes
 - **Date:** 2026-10-09
 - **Auditor:** Codex
-- **Related work item:** [WI 330](../work/active/330-documentation-modernization-and-contributor-onboarding/README.md)
+- **Related work item:** [WI 330](../work/completed/330-documentation-modernization-and-contributor-onboarding/README.md)
 
 ## Scope
 
@@ -65,7 +65,13 @@ A seventh independent read-only review found three P2 blockers: angle-bracket Ma
 
 ### Eighth independent PR review follow-up at `f12348e`
 
-An eighth fresh read-only review confirmed the angle-bracket Markdown, JSON-escaped UNC, and published-release fixes, then found that a network-share file URI could bypass the privacy scan because it followed a URI scheme. The path scanner now detects file URIs with host/share authorities; its Windows drive-path matcher also detects local drive paths encoded as file URIs. HTTPS destinations remain excluded. The validator regression suite now passes 23 positive and negative path cases. The full content, accessibility, Vitest, frontend build, Rust, and documentation gates passed again, and RepoPact dashboard and validation were rerun with PATH restricted. Evidence is recorded in [20261009-330-file-uri-path-scan](../evidence/runs/20261009-330-file-uri-path-scan.json). Another fresh independent review of the resulting exact PR head remains pending; WI330 and this audit stay open.
+An eighth fresh read-only review confirmed the angle-bracket Markdown, JSON-escaped UNC, and published-release fixes, then found that a network-share file URI could bypass the privacy scan because it followed a URI scheme. The path scanner now detects file URIs with host/share authorities; its Windows drive-path matcher also detects local drive paths encoded as file URIs. HTTPS destinations remain excluded. The validator regression suite now passes 23 positive and negative path cases. The full content, accessibility, Vitest, frontend build, Rust, and documentation gates passed again, and RepoPact dashboard and validation were rerun with PATH restricted. Evidence is recorded in [20261009-330-file-uri-path-scan](../evidence/runs/20261009-330-file-uri-path-scan.json). The final exact-head review is recorded below.
+
+### Ninth independent PR review and merge at `a562159`
+
+A fresh independent read-only review checked the documentation audit, contributor onboarding, maturity matrix, architecture descriptions, privacy boundaries, validator, release-readiness statements, links, setup commands, and RepoPact workflow against the current source and governance records. It found no P1/P2 blockers and recommended proceeding with PR #14. The reviewer confirmed the 23-case validator suite, the 37-file local-link/anchor scan and repository-wide privacy scan coverage, the pinned RepoPact validation, and the previously recorded project gates. The review also confirmed the published v1.3.2 release is A+-only and that external URL availability is outside the local validator's scope.
+
+PR #14 was merged after that review as merge commit `fed5f159f7134298ead925ea3386398e4cb14aeb`, with reviewed head `a562159aaeed5b1186eca913a56e7f86d5d87e2a` and base `17be629702ef57ffd38db35c5d541745f02e73b0`. The live repository ruleset was checked at closeout: the active `no delete` ruleset blocks deletion and non-fast-forward updates; it does not require approvals or status checks. The GitGuardian check passed. Review and merge evidence is recorded in [20261009-330-independent-review-and-merge](../evidence/runs/20261009-330-independent-review-and-merge.json).
 
 ### P1: Contributor and signing docs referenced a non-public repository location
 
@@ -131,22 +137,22 @@ Recommendation:
 
 - See [documentation discrepancy report](../docs/documentation-audit-2026-10-09.md), [feature maturity matrix](../docs/feature-maturity.md), and [v2.0 beta readiness](../docs/v2.0-beta-readiness.md).
 - See [WI330 evidence run `20261009-330-documentation-and-project-gates`](../evidence/runs/20261009-330-documentation-and-project-gates.json) for dependency installation, documentation/content/accessibility validation, tests, frontend build, Rust checks, and whitespace validation.
-- The [implementation PR #14](https://github.com/JeremyShows/skillforge-academy/pull/14) is open; independent technical review, merge, and governance closeout remain pending.
+- The [implementation PR #14](https://github.com/JeremyShows/skillforge-academy/pull/14) merged after a no-blocker independent review. This record and the WI330 status move are the separate governance-closeout change.
 
 ## Risks
 
 - This audit covers documentation and source review; it does not qualify an installer or close release blockers.
-- WI311 and WI322 remain active. The 1.4.1-beta.1 packaged-app acceptance gate remains incomplete.
-- The audit still requires independent technical review and the repository's separate governance closeout after the implementation PR merges.
+- The documentation validator checks local links and anchors but does not verify external URL availability.
+- WI311 and WI322 remain active. WI310's 1.4.1-beta.1 packaged-app acceptance gate remains incomplete.
 
 ## Actions
 
 - [x] Replace stale public positioning and onboarding instructions.
 - [x] Publish current feature-maturity and release-readiness records.
 - [x] Add and run the documentation validator and applicable project checks.
-- [ ] Receive independent technical review and merge the documentation PR.
-- [ ] Complete the RepoPact governance-closeout PR after merge.
+- [x] Receive independent technical review with no P1/P2 blockers and merge the documentation PR.
+- [x] Complete the separate RepoPact governance-closeout change after merge.
 
 ## Final Status
 
-Open pending independent review, implementation merge, and separate governance closeout.
+Passed with notes. The exact-head review found no P1/P2 blockers; PR #14 merged, and the separate RepoPact governance-closeout change records WI330 as complete.
