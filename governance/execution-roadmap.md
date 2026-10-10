@@ -115,9 +115,9 @@ follows the inventory.
 | [323 — Classroom and Authored Activity Layout Usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | `proposed`; copied from `ux-follow-up-candidate`; canonical registration is this PR | 314, 322 | Original proposal copied from ux-follow-up-candidate at 72a8ecb; no WI323 source changes or evidence found. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Maintainer accepted scope only. Keep proposed; start after WI314 and WI322. |
 | [324 — Canonical Learner Envelope and Serialized Persistence](../work/completed/324-canonical-learner-envelope-serialized-persistence/README.md) | `completed`; canonical main record (updated on this PR branch) | 320 | Implementation merged through PR #12; governance closeout merged through PR #13. AC: 13 satisfied, 0 waived, 0 pending; 5 evidence refs. | Completed with evidence; decision 0011 preserves one envelope owner. Do not duplicate persistence. |
 | [325 — Capstone Stage Context, Evaluation, and Academic Record Parity](../work/proposed/325-capstone-stage-context-evaluation-academic-record-parity/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 322, 324, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 4 pending; 0 evidence refs. | Gate 2; capstone/projection only; use WI324 API. |
-| [326 — Persistent Lecture Delivery State](../work/proposed/326-persistent-lecture-delivery-state/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 322, 324, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | Gate 2; lecture delivery state only; wait for WI322 closeout. |
-| [327 — Reachable Lab Completion and Persistent Lab Runs](../work/proposed/327-reachable-lab-completion-persistent-lab-runs/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 322, 324, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | Gate 2; authored lab completion/state only. |
-| [328 — Native Windows Encrypted Backup and Restore](../work/proposed/328-native-windows-encrypted-backup-restore/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 322, 324, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | Gate 2; new Windows backup/restore evidence required; no real learner files. |
+| [326 — Persistent Lecture Delivery State](../work/proposed/326-persistent-lecture-delivery-state/README.md) | `proposed`; canonical main record (updated on this PR branch) | 324 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | WI324 API; lecture-local state may proceed. WI322 owner decision for formal activity contract changes; Gate O for protected-path edits. |
+| [327 — Reachable Lab Completion and Persistent Lab Runs](../work/proposed/327-reachable-lab-completion-persistent-lab-runs/README.md) | `proposed`; canonical main record (updated on this PR branch) | 324 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | WI324 API and synthetic fixtures; Gate O applies only before protected-path edits. |
+| [328 — Native Windows Encrypted Backup and Restore](../work/proposed/328-native-windows-encrypted-backup-restore/README.md) | `proposed`; canonical main record (updated on this PR branch) | 324 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | New Windows backup/restore evidence; synthetic fixtures; Gate O before protected-path edits. |
 | [329 — Legacy Certification Runtime and Feature Parity](../work/proposed/329-legacy-certification-runtime-feature-parity/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 320, 322, 324, 325, 326, 327, 328, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 4 pending; 0 evidence refs. | Gate 3 integration after WI325-WI328; own compatibility without new state authority. |
 | [330 — Documentation modernization and contributor onboarding](../work/completed/330-documentation-modernization-and-contributor-onboarding/README.md) | `completed`; canonical main record; PR #14 implementation and PR #15 governance closeout merged | — | Docs, onboarding, and documentation validator merged through PR #14 (`fed5f15`); PR #15 closeout at `e46d422`. AC: 8 satisfied, 0 waived, 0 pending; 10 evidence refs. | Retain completed record and evidence; no remaining WI330 implementation gap. |
 | [331 — SkillForge Academy v2.0.0-beta.1 release preparation and publication gates](../work/proposed/331-v2-0-beta-release-preparation-and-publication-gates/README.md) | `proposed`; canonical main record added by merged PR #14 | 330 | Proposed release gates only; no candidate artifact or implementation. AC: 0 satisfied, 0 waived, 6 pending; 0 evidence refs. | Prep depends on completed docs; candidate verification and publication remain subject to explicit phase gates in README. |
@@ -138,9 +138,9 @@ follows the inventory.
 | [323 — classroom/authored activity layout usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | Original proposal only; no source changes in `ux-follow-up-candidate` at `72a8ecb` | Five original criteria pending; no evidence refs | Canonical registration is this PR; source proposal remains in its separate worktree | Scope accepted, implementation not accepted/completed. Start after WI314 and WI322. Keep layout ownership separate from evaluation/persistence. |
 | [324 — canonical learner envelope](../work/completed/324-canonical-learner-envelope-serialized-persistence/README.md) | `src/platform/persistence.ts`, `src/platform/PlatformHub.tsx`, Tauri persistence in `src-tauri/src/lib.rs`; schema-1 compatibility | `20261009-324-canonical-envelope-persistence`, review-remediation and post-fix review runs | PR #12 merge `1306755`; PR #13 closeout `17be629` | Completed. Sole platform learner-state owner; does not implement lecture/lab persistence, legacy migration, or WI328 restore. |
 | [325 — capstone context/academic parity](../work/proposed/325-capstone-stage-context-evaluation-academic-record-parity/README.md) | Proposed course evaluation and academic projection; no source implementation | Four criteria pending; no evidence refs | Main, proposed | Gate 2 after WI332, WI311, WI322, WI333, and WI324. No second Academic Record store. |
-| [326 — persistent lecture delivery](../work/proposed/326-persistent-lecture-delivery-state/README.md) | Proposed `src/lecture/persistence.ts` integration; no envelope integration | Three criteria pending; no evidence refs | Main, proposed | Gate 2 after WI322 closeout and shared gates. Use WI324 API only. |
-| [327 — persistent lab runs](../work/proposed/327-reachable-lab-completion-persistent-lab-runs/README.md) | Proposed `src/labs/**` flow and envelope adapter; no implementation | Three criteria pending; no evidence refs | Main, proposed | Gate 2 after shared gates. Preserve authored evaluation. |
-| [328 — native Windows backup/restore](../work/proposed/328-native-windows-encrypted-backup-restore/README.md) | Proposed Tauri picker/command and backup UX; no implementation | Three criteria pending; no evidence refs | Main, proposed | Gate 2 after shared gates; synthetic fixtures; preserve prior state on failure. WI221 evidence is not proof for this path. |
+| [326 — persistent lecture delivery](../work/proposed/326-persistent-lecture-delivery-state/README.md) | Proposed `src/lecture/persistence.ts` integration; no envelope integration | Three criteria pending; no evidence refs | Main, proposed | WI324 is its prerequisite. Lecture-local state may proceed; formal activity contract changes need WI322 owner decision; protected-path edits need Gate O. |
+| [327 — persistent lab runs](../work/proposed/327-reachable-lab-completion-persistent-lab-runs/README.md) | Proposed `src/labs/**` flow and envelope adapter; no implementation | Three criteria pending; no evidence refs | Main, proposed | WI324 is its prerequisite. Use synthetic fixtures; Gate O applies before protected-path edits. Preserve authored evaluation. |
+| [328 — native Windows backup/restore](../work/proposed/328-native-windows-encrypted-backup-restore/README.md) | Proposed Tauri picker/command and backup UX; no implementation | Three criteria pending; no evidence refs | Main, proposed | WI324 is its prerequisite. Use synthetic fixtures; protected-path edits need Gate O. Preserve prior state on failure; WI221 evidence is not proof for this path. |
 | [329 — legacy certification parity/migration](../work/proposed/329-legacy-certification-runtime-feature-parity/README.md) | Proposed legacy adapter/migration; no implementation | Four criteria pending; no evidence refs | Main, proposed | Gate 3 after WI325–WI328. Integrate without changing WI324's persistence owner. |
 | [228 — controlled learner pilot](../work/deferred/228-real-learner-beta-pilot-and-feedback-loop/README.md) | Pilot runbook and feedback workflow; no participant evidence | Five criteria pending; no evidence refs | Main, deferred | Requires exact WI310 candidate plus WI333. Results do not qualify another candidate. |
 | [333 — pre-pilot privacy safeguards](../work/proposed/333-pre-pilot-learner-privacy-gate/README.md) | Proposed consent, minimization, public-evidence handling, and stop conditions | Five criteria pending; no evidence refs | Proposed on this PR | Required by WI228; complete before recruiting. No legal compliance claim or telemetry/cloud collection. |
@@ -163,25 +163,13 @@ flowchart TD
   W314[WI314 broad UX program] --> W323[WI323 focused layout usability]
   W322[WI322 lecture bridge review/closeout] --> W323
   W311[WI311 legal/IP hardening] --> W325[WI325 capstone/academic]
-  W311 --> W326[WI326 lecture persistence]
-  W311 --> W327[WI327 lab persistence]
-  W311 --> W328[WI328 Windows backup/restore]
   W322 --> W325
-  W322 --> W326
-  W322 --> W327
-  W322 --> W328
   W324[WI324 canonical envelope] --> W325
   W324 --> W326
   W324 --> W327
   W324 --> W328
   W332 --> W325
-  W332 --> W326
-  W332 --> W327
-  W332 --> W328
   W333 --> W325
-  W333 --> W326
-  W333 --> W327
-  W333 --> W328
   W325 --> W329[WI329 legacy integration]
   W326 --> W329
   W327 --> W329
@@ -197,12 +185,15 @@ flowchart TD
   W331C --> W331P[WI331 publication authorization]
 ```
 
-WI325–WI328 share prerequisites but have no feature-to-feature dependency, so
-they can proceed in bounded parallel lanes after Gate 1. WI329 is the
-integration checkpoint and depends on all four. WI323 retains its original
-WI314/WI322 dependencies. WI312 does not depend on WI228 or WI310; future
-hosted/institutional research can proceed without blocking a bounded local
-pilot.
+WI325 retains its scope-specific prerequisites. WI326–WI328 each depend only on
+WI324 and have no feature-to-feature dependency; they may proceed in bounded
+parallel lanes on assigned paths after WI324. Gate O and other conditional
+scope gates apply before edits to protected paths, formal activity contracts,
+authored content, or real pilot data; they do not add blanket prerequisites.
+WI329 is the integration checkpoint and depends on all four. WI323 retains its
+original WI314/WI322 dependencies. WI312 does not depend on WI228 or WI310;
+future hosted/institutional research can proceed without blocking a bounded
+local pilot.
 
 The graph is acyclic; all referenced dependencies exist. Completed dependencies
 have evidence-backed acceptance records. RepoPact does not encode stage gates,
@@ -216,9 +207,9 @@ here.
 
 | Gate | Required outcomes and entry conditions | Permitted work | Exit evidence | Current state |
 | --- | --- | --- | --- | --- |
-| **0 — Canonical governance and contributor readiness** | This reconciliation is reviewed/merged; WI323 is canonical with accepted scope; WI330 is complete; WI331 is canonical with phase-specific dependency boundaries; dependency validation and ownership boundaries are current. | Continue already-active bounded WI310, WI311, WI322. Harmless WI331 release preparation may proceed after WI330; no broad feature lane starts. | Canonical registry/dashboard, RepoPact validation, accepted WI323 proposal, completed WI330, reconciled WI331 phases, owner map. | **In progress.** WI330 is complete; WI331 is canonical; this PR and WI323 registration await review/merge. |
-| **1 — Foundational integrity and risk boundaries** | Gate 0 complete. Resolve WI311; complete WI333; independently review and close WI322 against current main; verify decision 0011's envelope contract and WI323 entry conditions. | No broad parallel feature work before these controls pass. WI323 implementation still waits on WI314 and WI322. | WI311/WI333/WI322 evidence; public-safe tests/fixtures; one canonical state owner. | **Blocked.** WI311/WI322 active; WI333 proposed; WI322 review/closeout missing. |
-| **2 — Course platform completion** | Gate 1 evidence, WI324 complete, and WI332 closeout. Isolated branches and shared owner contracts required. | WI325–WI328 can run in at most three bounded workstreams when file ownership and integration checkpoints are explicit. WI326 follows WI322's reviewed interface. | Component tests, a11y, restart/failure proof, neutral fixtures, independent review, merged evidence. | **Not started.** WI325–WI328 proposed. |
+| **0 — Canonical governance and contributor readiness** | This reconciliation is reviewed/merged; WI323 is canonical with accepted scope; WI330 is complete; WI331 is canonical with phase-specific dependency boundaries; dependency validation and ownership boundaries are current. | Continue already-active bounded WI310, WI311, WI322. WI326–WI328 may proceed under WI324 in disjoint assigned paths; protected edits wait for Gate O. Harmless WI331 release preparation may proceed after WI330; no other broad feature lane starts. | Canonical registry/dashboard, RepoPact validation, accepted WI323 proposal, completed WI330, reconciled WI331 phases, owner map. | **In progress.** WI330 is complete; WI331 is canonical; this PR and WI323 registration await review/merge. |
+| **1 — Foundational integrity and risk boundaries** | Gate 0 complete. Resolve WI311; complete WI333 for real-pilot scope; independently review and close WI322 for dependent formal-activity work; verify decision 0011's envelope contract and WI323 entry conditions. | WI325 and other scopes retain their own prerequisites. WI326–WI328 may proceed after WI324 in assigned disjoint paths. WI323 implementation still waits on WI314 and WI322; WI228 still waits on WI310 and WI333. Protected-path edits must pass Gate O. | WI311/WI333/WI322 evidence where their scopes apply; public-safe tests/fixtures; one canonical state owner. | **In progress.** WI311/WI322 active; WI333 proposed; WI322 review/closeout missing. |
+| **2 — Course platform completion** | WI325's own prerequisites; WI324 complete for WI326–WI328; Gate O satisfied before any protected-path edit. Isolated branches and shared owner contracts required. | WI326–WI328 implementation may begin earlier in disjoint assigned paths under Gate 0. Gate 2 covers their integration and any protected-path edit. WI325–WI328 may run in at most three bounded workstreams under their RepoPact prerequisites. WI326 uses the WI322-owned formal-activity contract only after its owner decision; no blanket WI311/WI322/WI332/WI333 gate is added to WI326–WI328. | Component tests, a11y, restart/failure proof, neutral fixtures, independent review, merged evidence. | **Not started.** WI325–WI328 proposed. |
 | **3 — Legacy integration and cross-feature conformance** | WI325–WI328 merged; WI324 remains persistence authority. | WI329 owns integration; feature authors join convergence checkpoints. | End-to-end CourseProgress, legacy state/backup, assessment/capstone, lecture/lab, instructor, package identity/version, restart/recovery, preservation evidence. | **Not started.** WI329 proposed. |
 | **4 — Candidate verification and learner validation** | Separate preparation, candidate construction, installed-app verification, controlled learner pilot, and publication. For a full v2 parity claim, require Gate 3 integration, WI311 review, candidate-specific privacy controls when learner data is involved, and exact candidate evidence. Decide whether a limited cohort precedes wider beta. | WI331 preparation can begin after WI330 without waiting for unrelated platform work. Candidate verification waits for the capabilities it claims. WI228 remains tied to WI310's exact historical candidate unless formally amended/replaced; a different candidate needs its own pilot authorization and evidence. | Exact clean commit, unique version, retained installer/hash/provenance, independent CI, fresh install/upgrade/recovery, privacy/accessibility review, controlled-pilot report where authorized, known limitations, and approvals. Publication needs separate explicit maintainer authorization. | **Preparation unstarted; candidate not ready.** WI331 remains proposed; WI310 AC-4 is pending; no v2 artifact. |
 | **5 — Product expansion** | Gate 4 disposition recorded and foundational runtime stable. | WI313 content depth; WI314 UX parity; WI312 institutional/hosted/minor-data architecture; WI218 iOS with macOS/Xcode; WI212 signing with trusted certificate. Safe research/design may begin earlier. | Scope-specific evidence; external prerequisites for 218/212 recorded. | **Not started / externally blocked** for 218 and 212. |
@@ -295,16 +286,19 @@ identity, explicit authorization, and evidence.
 | WI322 | Course-runtime contributor owns bridge/resolution/evaluation | `src/platform/AuthoredActivitySurface.tsx`, `src/lecture/**`, `src/course/progress.ts` | No CourseProgress bypass, private course content, or UI-only success | Focused tests, browser scenarios, neutral fixtures, privacy scan, independent review/closeout. |
 | WI323 | Learner-layout/accessibility contributor owns layout | `src/platform/PlatformHub.tsx`, `src/platform/AuthoredActivitySurface.tsx`, `src/styles.css` | No evaluator, CourseProgress, persistence, or authored content changes | Resize, keyboard/focus/labels, before/after proof, a11y validation, independent review; after WI314/322. |
 | WI325 | Course/academic contributor owns capstone context/projection | `src/course/**`, `src/academic/**`, envelope API | No separate Academic Record or direct envelope read/merge/write | Stage success/failure/retry and projection tests; independent review. |
-| WI326 | Lecture contributor owns state in `src/lecture/persistence.ts` | WI322 bridge and WI324 API | No second lecture store or direct envelope-owner edit | Restart/namespace/failure/hydration tests; reviewed WI322 contract. |
+| WI326 | Lecture contributor owns state in `src/lecture/persistence.ts` | WI324 API; WI322 contract only if formal activity resolution/evaluation changes | No second lecture store or direct envelope-owner edit | Restart/namespace/failure/hydration tests; WI322 owner review for any formal activity contract change. |
 | WI327 | Labs contributor owns `src/labs/**` and completion flow | WI324 reserved lab slot/API | No auto-pass, executable/network capability, or parallel persistence | Accessible completion, deterministic checks, invalid input, restart/recovery; review. |
 | WI328 | Desktop contributor owns Windows picker/native UX; data-migration reviewer owns restore safety | Tauri commands, backup contract, WI324 durability API | No real learner files; no competing legacy migration/shared envelope edits | Cancel/denied path/roundtrip/corruption/prior-state tests; Windows and data review. |
 | WI329 | Maintainer-assigned integration/data-migration lead owns legacy adapter | `src/state/learnerState.ts`, platform runtime, CourseProgress/backups | No second state authority or schema/namespace change without migration review | End-to-end synthetic migration and old-state recovery across supported features. |
 | WI330 | Completed through PR #14 and closeout PR #15 | Contributor docs, validator, dashboard | No further implementation; preserve evidence | Independent review and governance closeout are recorded. |
 | WI331 | Release maintainer owns preparation and publication; feature leads own runtime | Release metadata, evidence packet, candidate artifact | No candidate claim before its gates; no publication without explicit maintainer authorization | Independent technical/governance review; exact-candidate evidence; separate publication approval. |
 
-After Gate 1, run at most three WI325–WI328 streams at once. Each needs an
-isolated branch, maintainer-approved owner, public-safe fixtures, and a recorded
-file/API contract. One maintainer-designated integration owner controls
+Run at most three WI325–WI328 streams at once. WI325 starts when its own
+prerequisites are satisfied; WI326–WI328 may start when WI324 is satisfied and
+their assigned paths are available. Each needs an isolated branch,
+maintainer-approved owner, public-safe fixtures, and a recorded file/API
+contract. Gate O must release each protected-path edit before it occurs. One
+maintainer-designated integration owner controls
 `PlatformLearnerEnvelope`/`src/platform/persistence.ts` changes. Merge each
 feature through an integration checkpoint; WI329 starts after all four are
 merged and reviewed.
@@ -338,7 +332,7 @@ must fetch and record the then-current `origin/main` before starting.
 
 **Gate O entry/exit.** Entry is triggered by a planned edit to any path above or any attempt to integrate the local branch. The disposition for this reconciliation is **preserve all five commits and all uncommitted edits on `local/interview-lab`; do not merge, rebase, cherry-pick, stage, or transfer them**. The branch's common ancestor is `687dfbb85234b0863f5c80f790d9c0e0d7280cb4`, versus current review main `e46d4227117a6a0a16bcb41430cfe429a82de880` (57 main-only and 5 branch-only commits). That divergent history and the semantic removals make it an unsafe integration base.
 
-For any future overlapping implementation, exit the gate only when: (1) a maintainer records the work-item owner and exact public scope; (2) the source-workstream owner explicitly hands off any selected work; (3) a clean branch starts from the refreshed canonical main SHA with a file/API contract against WI320/WI324; (4) no private content or real learner data is transferred; and (5) required baseline, migration, progression/evaluation, accessibility, and build evidence passes with independent review. If no selected work is to be integrated, the preserve-only disposition remains in force and the item owner implements only its accepted scope from current main. These conditions add no RepoPact dependency edges. WI326–WI328 retain their existing prerequisites and may work in their separate assigned surfaces; any touch to a protected path re-enters Gate O. WI311, WI333, and WI331 preparation retain their existing gates.
+For any future overlapping implementation, exit the gate only when: (1) a maintainer records the work-item owner and exact public scope; (2) the source-workstream owner explicitly hands off any selected work; (3) a clean branch starts from the refreshed canonical main SHA with a file/API contract against WI320/WI324; (4) no private content or real learner data is transferred; and (5) required baseline, migration, progression/evaluation, accessibility, and build evidence passes with independent review. If no selected work is to be integrated, the preserve-only disposition remains in force and the item owner implements only its accepted scope from current main. These conditions add no RepoPact dependency edges. WI326–WI328 retain their existing WI324 prerequisite and may work in their separate assigned surfaces; any touch to a protected path re-enters Gate O. Authored-content policy, WI322 formal-activity ownership, and WI333/WI228 real-pilot safeguards apply only when the corresponding scope is entered; they are not blanket prerequisites for these three work items. WI311, WI333, and WI331 preparation retain their existing gates.
 
 ## Governance enforcement and limitations
 
@@ -354,10 +348,14 @@ future machine enforcement should be proposed to RepoPact Core.
 
 1. Independently review/merge this WI332 PR; keep WI332 active through separate
    governance closeout.
-2. Independently review and close WI322 against current main.
-3. Complete WI311 and WI333. Keep WI228 deferred until WI310 and WI333 are
-   evidence-backed complete.
-4. After Gate 1, start no more than three WI325–WI328 lanes, then integrate
-   through WI329.
+2. Independently review and close WI322 before WI323 starts or WI326 changes
+   formal-activity contracts; lecture-local state work remains under WI324.
+3. Continue WI326–WI328 when their WI324 prerequisite and assigned-path
+   ownership allow. Complete WI311 before governed authored-content expansion;
+   complete WI333 before any WI228 real-learner pilot. Keep WI228 deferred until
+   WI310 and WI333 are evidence-backed complete.
+4. Start WI325 when its own prerequisites are satisfied. Run at most three
+   WI325–WI328 lanes concurrently, apply Gate O before protected-path edits, and
+   integrate through WI329.
 5. Allow WI331's harmless preparation after WI330; hold candidate and
    publication stages to their evidence gates.

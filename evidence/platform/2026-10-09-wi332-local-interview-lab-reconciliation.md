@@ -118,5 +118,5 @@ and implement only the accepted WI scope on current main. WI326–WI328 and othe
 disjoint work are not frozen; their current RepoPact prerequisites still apply,
 and they must not edit a protected surface before that surface's gate exit.
 
-This is a human roadmap gate. RepoPact's dependency DAG remains unchanged; no
-new blanket dependency was added.
+This is a human path-ownership gate. It adds no RepoPact dependency beyond the
+existing work-item prerequisites; WI326–WI328 retain only their WI324 edge.

@@ -141,6 +141,15 @@ WI325, or WI329 criteria. Commit-by-commit capabilities, exact path lists,
 working-tree inventory, classification, and required evidence are recorded in
 [`the branch reconciliation report`](../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
 
+The fresh ownership review also found that this PR initially added blanket
+WI311/WI322/WI332/WI333 prerequisites to WI326–WI328, although their
+`origin/main` records depended only on WI324. The PR branch restores WI324 as
+their sole direct prerequisite and makes Gate O conditional on edits to a
+protected shared path. Authored-content policy, formal-activity ownership, and
+real-pilot safeguards remain binding only when that scope is entered; they do
+not block disjoint synthetic/runtime work. This correction changes planning
+records only and does not start WI326–WI328 implementation.
+
 **Required evidence before overlapping implementation:** named maintainer and
 source-workstream owner decision; exact current-main SHA and file/API contract;
 public-safe course/evaluator scope; synthetic progress and backup migration
@@ -172,9 +181,11 @@ Full inventory and execution map: governance/execution-roadmap.md
 - WI331 remains a proposal without candidate evidence. Phase-specific gates are
   recorded in its README; they must be honored even though RepoPact's simple
   dependency edge allows preparation to start.
-- This PR has no eligible independent GitHub reviewer in the current
-  collaborator list. The authenticated account is the author; self-review was
-  not requested. Assign an eligible reviewer before WI332 closeout.
+- The checked active GitHub ruleset requires no PR review or approval; it only
+  blocks deletion and non-fast-forward updates. The collaborator list contains
+  only the PR author, so no non-author collaborator is available. Codex's
+  independent technical review is not GitHub approval. Recheck the active
+  ruleset before merge; no formal approval gate is currently mandatory.
 - RepoPact does not encode stage gates, release phases, owner boundaries, or
   work-item supersession. The human execution map is a required operating record.
 
@@ -182,8 +193,10 @@ Full inventory and execution map: governance/execution-roadmap.md
 
 - [ ] Obtain independent review of the ownership-gate correction, then complete the protected-branch closeout.
 - [x] Inventory and preserve the local interview-lab branch and its uncommitted work; publish Gate O without importing code.
-- [ ] Complete WI322 independent review and closeout.
-- [ ] Complete WI311 and WI333 before Gate 1 exit.
+- [ ] Review and close WI322 before WI323 or any formal-activity contract change.
+- [ ] Complete WI311 before governed authored-content expansion and WI333
+      before WI228/real-learner pilot scope; these are not blanket prerequisites
+      for WI326–WI328's WI324-scoped work.
 - [ ] Keep WI331 candidate verification blocked until its claimed runtime and
   privacy prerequisites have evidence; keep publication behind explicit
   maintainer authorization.

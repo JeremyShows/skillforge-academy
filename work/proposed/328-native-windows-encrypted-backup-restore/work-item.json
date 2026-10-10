@@ -10,7 +10,7 @@
     "release",
     "governance"
   ],
-  "depends_on": ["311", "322", "324", "332", "333"],
+  "depends_on": ["324"],
   "provenance": "concrete",
   "preflight": {
     "created_at": "2026-10-09T14:56:05-05:00",

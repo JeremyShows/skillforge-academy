@@ -2,7 +2,7 @@
 
 > **Status:** Proposed
 > **Owner:** Desktop/persistence contributor; data-migration specialist reviews restore safety.
-> **Depends on:** WI311, WI322, WI324, WI332, and WI333.
+> **Depends on:** WI324.
 
 ## Scope and ownership
 
@@ -12,4 +12,4 @@ Use public-safe synthetic fixtures only. Restore must validate/decrypt before re
 
 ## Start and review gates
 
-This item remains proposed until WI332's governance gate, WI311, WI322, WI333, and WI324 are complete/stable. Use an isolated branch, cancellation/invalid-destination/roundtrip/failure-preservation tests, and independent desktop/data review. Integrate at the Gate 2 checkpoint in `governance/execution-roadmap.md`.
+This item remains proposed until its own readiness decision and WI324 are complete/stable. Use an isolated branch, cancellation/invalid-destination/roundtrip/failure-preservation tests, and independent desktop/data review. Before editing a protected shared path, satisfy Gate O in `governance/execution-roadmap.md` against the then-current main contract. Use only public-safe synthetic fixtures; real learner pilot work remains gated by WI333/WI228. These scope-specific gates do not add blanket prerequisites for the native backup workflow described here. Integrate at the Gate 2 checkpoint in `governance/execution-roadmap.md`.
