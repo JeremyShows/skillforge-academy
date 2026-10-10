@@ -1,7 +1,7 @@
 # SkillForge Academy Work Reconciliation and Gated Execution Roadmap
 
-**Snapshot:** 2026-10-09, freshly fetched and rebased `origin/main` at
-`e46d4227117a6a0a16bcb41430cfe429a82de880` (includes PR #14 and PR #15).
+**Closeout baseline:** 2026-10-10, fresh branch from `origin/main` at PR #16
+merge commit `b2eced6f976624e8867d64d8efa88abe0274f2fe`.
 
 This map is the human-readable guide to the canonical RepoPact registry in
 `work/`. It records the current plan and evidence boundaries; it does not mark
@@ -11,13 +11,18 @@ layout and contributor process.
 
 ## Executive status
 
-- Latest public main: `e46d422`. WI324 implementation PR #12 and governance
+- PR #16's reviewed head `26f2d749afafdadbadcb7cd09f8ed06d7aced603` merged to
+  canonical main as `b2eced6f976624e8867d64d8efa88abe0274f2fe` after an
+  independent read-only review found no P1/P2 blockers and recommended merge.
+  The review was not a GitHub review or approval. This separate closeout
+  completes WI332 and makes Gate O operative on main.
+- WI324 implementation PR #12 and governance
   closeout PR #13 are merged; WI324 is completed with the canonical learner
   envelope as the single generic platform persistence owner (decision 0011).
 - WI330's implementation PR #14 and governance closeout PR #15 are merged. WI330
   is completed, with all eight criteria and linked evidence present on main.
 - WI331 is canonical on main as proposed work. Its previous blanket dependency
-  list is narrowed in this PR to WI330 for the preparation phase; the README
+  list was narrowed by PR #16 to WI330 for the preparation phase; the README
   retains candidate-verification and publication gates.
 - WI323 existed only as an untracked proposed item in the preserved
   `ux-follow-up-candidate` worktree at `72a8ecb`. Its original record is carried
@@ -42,7 +47,7 @@ layout and contributor process.
 
 ## Canonical work inventory
 
-The table enumerates all 69 canonical work items: 51 completed, 4 active, 11
+The table enumerates all 69 canonical work items: 52 completed, 3 active, 11
 proposed, 2 blocked, and 1 deferred. Each row records status, dependencies,
 source/implementation state, criteria/evidence, and disposition.
 The RepoPact records remain authoritative for acceptance and evidence.
@@ -112,7 +117,7 @@ follows the inventory.
 | [320 — Canonical Authored Course Model V1.3](../work/completed/320-canonical-authored-course-model-v1-3/README.md) | `completed`; canonical main record (updated on this PR branch) | 319 | Canonical main history; no live source branch/worktree identified. Source/test notes and formal evidence are linked by this RepoPact record. AC: 4 satisfied, 0 waived, 0 pending; 1 evidence refs. | Retain as completed history; no open overlap identified in this reconciliation. |
 | [321 — Private Branch Exposure Remediation 2026-10-05](../work/completed/321-private-branch-exposure-remediation-2026-10-05/README.md) | `completed`; canonical main record (updated on this PR branch) | 320 | Canonical main history; no live source branch/worktree identified. Source/test notes and formal evidence are linked by this RepoPact record. AC: 6 satisfied, 0 waived, 0 pending; 1 evidence refs. | Retain as completed history; no open overlap identified in this reconciliation. |
 | [322 — Lecture Formal Activity UI Bridge](../work/active/322-lecture-formal-activity-ui-bridge/README.md) | `active`; canonical main record (updated on this PR branch) | 319, 321 | Canonical main includes bridge source commits 846cc19/762837f; branch-era evidence retained. AC: 0 satisfied, 0 waived, 8 pending; 1 evidence refs. | Code is present but criteria remain pending; no independent review/closeout linked. Keep active. |
-| [323 — Classroom and Authored Activity Layout Usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | `proposed`; copied from `ux-follow-up-candidate`; canonical registration is this PR | 314, 322 | Original proposal copied from ux-follow-up-candidate at 72a8ecb; no WI323 source changes or evidence found. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Maintainer accepted scope only. Keep proposed; start after WI314 and WI322. |
+| [323 — Classroom and Authored Activity Layout Usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | `proposed`; registered on canonical main by PR #16 | 314, 322 | Original proposal copied from ux-follow-up-candidate at 72a8ecb; no WI323 source changes or evidence found. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Maintainer accepted scope only. Keep proposed; start after WI314 and WI322. |
 | [324 — Canonical Learner Envelope and Serialized Persistence](../work/completed/324-canonical-learner-envelope-serialized-persistence/README.md) | `completed`; canonical main record (updated on this PR branch) | 320 | Implementation merged through PR #12; governance closeout merged through PR #13. AC: 13 satisfied, 0 waived, 0 pending; 5 evidence refs. | Completed with evidence; decision 0011 preserves one envelope owner. Do not duplicate persistence. |
 | [325 — Capstone Stage Context, Evaluation, and Academic Record Parity](../work/proposed/325-capstone-stage-context-evaluation-academic-record-parity/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 322, 324, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 4 pending; 0 evidence refs. | Gate 2; capstone/projection only; use WI324 API. |
 | [326 — Persistent Lecture Delivery State](../work/proposed/326-persistent-lecture-delivery-state/README.md) | `proposed`; canonical main record (updated on this PR branch) | 324 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 3 pending; 0 evidence refs. | WI324 API; lecture-local state may proceed. WI322 owner decision for formal activity contract changes; Gate O for protected-path edits. |
@@ -121,8 +126,8 @@ follows the inventory.
 | [329 — Legacy Certification Runtime and Feature Parity](../work/proposed/329-legacy-certification-runtime-feature-parity/README.md) | `proposed`; canonical main record (updated on this PR branch) | 311, 320, 322, 324, 325, 326, 327, 328, 332, 333 | Canonical proposal; no source implementation/evidence. AC: 0 satisfied, 0 waived, 4 pending; 0 evidence refs. | Gate 3 integration after WI325-WI328; own compatibility without new state authority. |
 | [330 — Documentation modernization and contributor onboarding](../work/completed/330-documentation-modernization-and-contributor-onboarding/README.md) | `completed`; canonical main record; PR #14 implementation and PR #15 governance closeout merged | — | Docs, onboarding, and documentation validator merged through PR #14 (`fed5f15`); PR #15 closeout at `e46d422`. AC: 8 satisfied, 0 waived, 0 pending; 10 evidence refs. | Retain completed record and evidence; no remaining WI330 implementation gap. |
 | [331 — SkillForge Academy v2.0.0-beta.1 release preparation and publication gates](../work/proposed/331-v2-0-beta-release-preparation-and-publication-gates/README.md) | `proposed`; canonical main record added by merged PR #14 | 330 | Proposed release gates only; no candidate artifact or implementation. AC: 0 satisfied, 0 waived, 6 pending; 0 evidence refs. | Prep depends on completed docs; candidate verification and publication remain subject to explicit phase gates in README. |
-| [332 — Canonical work reconciliation and gated execution plan](../work/active/332-canonical-work-reconciliation-and-gated-execution-plan/README.md) | `active`; registered on this PR branch, rebased to `e46d422` | — | Governance inventory, DAG, privacy gate, roadmap, audit, and contributor boundaries are in this change. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Active until independent review and separate RepoPact closeout. |
-| [333 — Pre-pilot learner privacy safeguards](../work/proposed/333-pre-pilot-learner-privacy-gate/README.md) | `proposed`; new record on this PR branch | 227, 332 | New proposed work item on this PR branch; no privacy implementation/evidence yet. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Gate 1 pre-pilot control; required by WI228. |
+| [332 — Canonical work reconciliation and gated execution plan](../work/completed/332-canonical-work-reconciliation-and-gated-execution-plan/README.md) | `completed`; PR #16 and separate governance closeout merged | — | Governance inventory, DAG, privacy gate, roadmap, audit, and contributor boundaries are merged. PR #16 merge `b2eced6`; independent review found no P1/P2. AC: 5 satisfied, 0 waived, 0 pending; 7 evidence refs. | Complete; no feature implementation or release completion is claimed. |
+| [333 — Pre-pilot learner privacy safeguards](../work/proposed/333-pre-pilot-learner-privacy-gate/README.md) | `proposed`; registered on canonical main by PR #16 | 227, 332 | New proposed work item on canonical main; no privacy implementation/evidence yet. AC: 0 satisfied, 0 waived, 5 pending; 0 evidence refs. | Gate 1 pre-pilot control; required by WI228. |
 <!-- INVENTORY:END -->
 
 ## Traceability matrix for active and upcoming work
@@ -135,7 +140,7 @@ follows the inventory.
 | [313 — certification depth/mastery](../work/proposed/313-certification-content-depth-assessment-breadth-and-mastery-parity/README.md) | Content banks, assessment metadata, authoring and quality pipeline | Criteria pending; no implementation evidence | Main, proposed | Gate 5 after release readiness and WI311; preserve original-content boundaries. |
 | [314 — learner UI/UX parity](../work/proposed/314-learner-ui-ux-competitive-parity-and-polish/README.md) | Cross-platform UI and workflow design | Criteria pending; no implementation evidence | Main, proposed | Gate 5. WI323 is a narrow follow-up, not a duplicate. |
 | [322 — lecture formal activity bridge](../work/active/322-lecture-formal-activity-ui-bridge/README.md) | `src/platform/lectureActivityBridge.ts`, `src/platform/AuthoredActivitySurface.tsx`, lecture runtime; commits `846cc19` and `762837f` are ancestors of current main | `20261005-322-lecture-formal-activity-bridge`; focused tests, browser acceptance, privacy scan, frontend/Rust/content/a11y/RepoPact evidence | Implementation present on main; original candidate branch no longer appears in local worktrees; no linked WI322 PR/review record found | Keep active. Evidence is branch-era and criteria remain pending; independently review current main and close separately. |
-| [323 — classroom/authored activity layout usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | Original proposal only; no source changes in `ux-follow-up-candidate` at `72a8ecb` | Five original criteria pending; no evidence refs | Canonical registration is this PR; source proposal remains in its separate worktree | Scope accepted, implementation not accepted/completed. Start after WI314 and WI322. Keep layout ownership separate from evaluation/persistence. |
+| [323 — classroom/authored activity layout usability](../work/proposed/323-classroom-and-authored-activity-layout-usability/README.md) | Original proposal only; no source changes in `ux-follow-up-candidate` at `72a8ecb` | Five original criteria pending; no evidence refs | Registered on canonical main by PR #16; source proposal remains in its separate worktree | Scope accepted, implementation not accepted/completed. Start after WI314 and WI322. Keep layout ownership separate from evaluation/persistence. |
 | [324 — canonical learner envelope](../work/completed/324-canonical-learner-envelope-serialized-persistence/README.md) | `src/platform/persistence.ts`, `src/platform/PlatformHub.tsx`, Tauri persistence in `src-tauri/src/lib.rs`; schema-1 compatibility | `20261009-324-canonical-envelope-persistence`, review-remediation and post-fix review runs | PR #12 merge `1306755`; PR #13 closeout `17be629` | Completed. Sole platform learner-state owner; does not implement lecture/lab persistence, legacy migration, or WI328 restore. |
 | [325 — capstone context/academic parity](../work/proposed/325-capstone-stage-context-evaluation-academic-record-parity/README.md) | Proposed course evaluation and academic projection; no source implementation | Four criteria pending; no evidence refs | Main, proposed | Gate 2 after WI332, WI311, WI322, WI333, and WI324. No second Academic Record store. |
 | [326 — persistent lecture delivery](../work/proposed/326-persistent-lecture-delivery-state/README.md) | Proposed `src/lecture/persistence.ts` integration; no envelope integration | Three criteria pending; no evidence refs | Main, proposed | WI324 is its prerequisite. Lecture-local state may proceed; formal activity contract changes need WI322 owner decision; protected-path edits need Gate O. |
@@ -143,7 +148,7 @@ follows the inventory.
 | [328 — native Windows backup/restore](../work/proposed/328-native-windows-encrypted-backup-restore/README.md) | Proposed Tauri picker/command and backup UX; no implementation | Three criteria pending; no evidence refs | Main, proposed | WI324 is its prerequisite. Use synthetic fixtures; protected-path edits need Gate O. Preserve prior state on failure; WI221 evidence is not proof for this path. |
 | [329 — legacy certification parity/migration](../work/proposed/329-legacy-certification-runtime-feature-parity/README.md) | Proposed legacy adapter/migration; no implementation | Four criteria pending; no evidence refs | Main, proposed | Gate 3 after WI325–WI328. Integrate without changing WI324's persistence owner. |
 | [228 — controlled learner pilot](../work/deferred/228-real-learner-beta-pilot-and-feedback-loop/README.md) | Pilot runbook and feedback workflow; no participant evidence | Five criteria pending; no evidence refs | Main, deferred | Requires exact WI310 candidate plus WI333. Results do not qualify another candidate. |
-| [333 — pre-pilot privacy safeguards](../work/proposed/333-pre-pilot-learner-privacy-gate/README.md) | Proposed consent, minimization, public-evidence handling, and stop conditions | Five criteria pending; no evidence refs | Proposed on this PR | Required by WI228; complete before recruiting. No legal compliance claim or telemetry/cloud collection. |
+| [333 — pre-pilot privacy safeguards](../work/proposed/333-pre-pilot-learner-privacy-gate/README.md) | Proposed consent, minimization, public-evidence handling, and stop conditions | Five criteria pending; no evidence refs | Proposed on canonical main by PR #16 | Required by WI228; complete before recruiting. No legal compliance claim or telemetry/cloud collection. |
 | [330 — documentation/onboarding](../work/completed/330-documentation-modernization-and-contributor-onboarding/README.md) | Documentation validator, docs, and contributor onboarding | AC-1..8 satisfied; evidence refs on main | PR #14 implementation merge `fed5f15`; PR #15 closeout `e46d422` | Completed; preserve evidence and use the canonical contributor path. |
 | [331 — v2.0 release preparation/publication](../work/proposed/331-v2-0-beta-release-preparation-and-publication-gates/README.md) | Proposed release work only; no candidate implementation | Six criteria pending; no candidate evidence | Canonical proposal on main through PR #14 | WI330 is preparation prerequisite; verify candidate and publication against phase gates; do not reuse WI310 evidence. |
 
@@ -207,7 +212,7 @@ here.
 
 | Gate | Required outcomes and entry conditions | Permitted work | Exit evidence | Current state |
 | --- | --- | --- | --- | --- |
-| **0 — Canonical governance and contributor readiness** | This reconciliation is reviewed/merged; WI323 is canonical with accepted scope; WI330 is complete; WI331 is canonical with phase-specific dependency boundaries; dependency validation and ownership boundaries are current. | Continue already-active bounded WI310, WI311, WI322. WI326–WI328 may proceed under WI324 in disjoint assigned paths; protected edits wait for Gate O. Harmless WI331 release preparation may proceed after WI330; no other broad feature lane starts. | Canonical registry/dashboard, RepoPact validation, accepted WI323 proposal, completed WI330, reconciled WI331 phases, owner map. | **In progress.** WI330 is complete; WI331 is canonical; this PR and WI323 registration await review/merge. |
+| **0 — Canonical governance and contributor readiness** | This reconciliation is reviewed/merged; WI323 is canonical with accepted scope; WI330 is complete; WI331 is canonical with phase-specific dependency boundaries; dependency validation and ownership boundaries are current. | Continue already-active bounded WI310, WI311, WI322. WI326–WI328 may proceed under WI324 in disjoint assigned paths; protected edits wait for Gate O. Harmless WI331 release preparation may proceed after WI330; no other broad feature lane starts. | Canonical registry/dashboard, RepoPact validation, accepted WI323 proposal, completed WI330, reconciled WI331 phases, owner map. | **Complete.** WI332 PR #16 and separate governance closeout are merged; WI323 is canonical and proposed. |
 | **1 — Foundational integrity and risk boundaries** | Gate 0 complete. Resolve WI311; complete WI333 for real-pilot scope; independently review and close WI322 for dependent formal-activity work; verify decision 0011's envelope contract and WI323 entry conditions. | WI325 and other scopes retain their own prerequisites. WI326–WI328 may proceed after WI324 in assigned disjoint paths. WI323 implementation still waits on WI314 and WI322; WI228 still waits on WI310 and WI333. Protected-path edits must pass Gate O. | WI311/WI333/WI322 evidence where their scopes apply; public-safe tests/fixtures; one canonical state owner. | **In progress.** WI311/WI322 active; WI333 proposed; WI322 review/closeout missing. |
 | **2 — Course platform completion** | WI325's own prerequisites; WI324 complete for WI326–WI328; Gate O satisfied before any protected-path edit. Isolated branches and shared owner contracts required. | WI326–WI328 implementation may begin earlier in disjoint assigned paths under Gate 0. Gate 2 covers their integration and any protected-path edit. WI325–WI328 may run in at most three bounded workstreams under their RepoPact prerequisites. WI326 uses the WI322-owned formal-activity contract only after its owner decision; no blanket WI311/WI322/WI332/WI333 gate is added to WI326–WI328. | Component tests, a11y, restart/failure proof, neutral fixtures, independent review, merged evidence. | **Not started.** WI325–WI328 proposed. |
 | **3 — Legacy integration and cross-feature conformance** | WI325–WI328 merged; WI324 remains persistence authority. | WI329 owns integration; feature authors join convergence checkpoints. | End-to-end CourseProgress, legacy state/backup, assessment/capstone, lecture/lab, instructor, package identity/version, restart/recovery, preservation evidence. | **Not started.** WI329 proposed. |
@@ -216,8 +221,8 @@ here.
 
 ### WI331 release dependency correction
 
-PR #14 and WI330 closeout PR #15 are merged. WI331 remains proposed. This PR
-narrows the RepoPact `depends_on` field to completed WI330, the prerequisite
+PR #14 and WI330 closeout PR #15 are merged. WI331 remains proposed. PR #16
+narrowed the RepoPact `depends_on` field to completed WI330, the prerequisite
 for harmless preparation. Phase-specific entry conditions remain in the WI331
 README because RepoPact cannot attach different dependencies to individual
 criteria:
@@ -316,9 +321,9 @@ interview-course implementation.
 
 **Gate O — ownership and baseline.** Until this gate is recorded on canonical
 main, no WI322, WI325, or WI329 implementation may modify the overlapping
-shared files or import the local branch. This PR establishes the reconciliation
-and preserve-only disposition; the gate becomes operative when this PR and the
-separate WI332 closeout are merged. The comparison baseline for this review was
+shared files or import the local branch. PR #16 established the reconciliation
+and preserve-only disposition. This separate closeout makes Gate O operative
+when it merges to canonical main. The comparison baseline for this review was
 `origin/main` `e46d4227117a6a0a16bcb41430cfe429a82de880`; every implementation
 must fetch and record the then-current `origin/main` before starting.
 
@@ -346,16 +351,14 @@ future machine enforcement should be proposed to RepoPact Core.
 
 ## Next executable work
 
-1. Independently review/merge this WI332 PR; keep WI332 active through separate
-   governance closeout.
-2. Independently review and close WI322 before WI323 starts or WI326 changes
+1. Independently review and close WI322 before WI323 starts or WI326 changes
    formal-activity contracts; lecture-local state work remains under WI324.
-3. Continue WI326–WI328 when their WI324 prerequisite and assigned-path
+2. Continue WI326–WI328 when their WI324 prerequisite and assigned-path
    ownership allow. Complete WI311 before governed authored-content expansion;
    complete WI333 before any WI228 real-learner pilot. Keep WI228 deferred until
    WI310 and WI333 are evidence-backed complete.
-4. Start WI325 when its own prerequisites are satisfied. Run at most three
+3. Start WI325 when its own prerequisites are satisfied. Run at most three
    WI325–WI328 lanes concurrently, apply Gate O before protected-path edits, and
    integrate through WI329.
-5. Allow WI331's harmless preparation after WI330; hold candidate and
+4. Allow WI331's harmless preparation after WI330; hold candidate and
    publication stages to their evidence gates.

@@ -2,7 +2,7 @@
   "$schema": "../../../schemas/work-item.schema.json",
   "id": "332",
   "title": "Canonical work reconciliation and gated execution plan",
-  "status": "active",
+  "status": "completed",
   "owner_scope": "governance",
   "affected_scopes": [
     "governance",
@@ -47,17 +47,17 @@
     {
       "id": "AC-4",
       "text": "Run RepoPact validation, regenerate the dashboard, verify dependency acyclicity and registry consistency, run applicable documentation/privacy/whitespace checks, and submit the governance change through a reviewable PR with independent review requested.",
-      "state": "pending",
-      "evidence": []
+      "state": "satisfied",
+      "evidence": ["20261010-332-governance-closeout"]
     },
     {
       "id": "AC-5",
       "text": "Keep the work item active until independent review and protected-branch governance closeout are complete; do not mark the plan or future implementation items completed without their own evidence.",
-      "state": "pending",
-      "evidence": []
+      "state": "satisfied",
+      "evidence": ["20261010-332-governance-closeout"]
     }
   ],
   "created": "2026-10-09",
-  "updated": "2026-10-09",
+  "updated": "2026-10-10",
   "source": "Maintainer directive to reconcile canonical work and establish gated execution from freshly fetched origin/main."
 }
