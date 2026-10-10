@@ -65,16 +65,24 @@
     },
     {
       "id": "AC-6",
-      "text": "Review public release, Actions, and package exposure metadata; classify the previously unresolved release contact metadata or record the unresolved blocker without exposing values or changing releases.",
-      "state": "pending",
+      "text": "Review public release, Actions, and package exposure metadata; record a redacted classification and disposition for unresolved contact metadata without exposing values or changing releases.",
+      "state": "satisfied",
       "evidence": [
         "20261010-334-access-boundary-reassessment"
       ]
     },
     {
       "id": "AC-7",
-      "text": "Enforce maintainer review for canonical RepoPact governance changes with CODEOWNERS and default-branch rules, and document any remaining requirement for custom CI enforcement.",
-      "state": "satisfied",
+      "text": "Ensure CODEOWNERS and the active default-branch rules enforce maintainer review for canonical governance paths after the initial CODEOWNERS file is merged; document that RepoPact does not authenticate record authors.",
+      "state": "pending",
+      "evidence": [
+        "20261010-334-access-boundary-reassessment"
+      ]
+    },
+    {
+      "id": "AC-8",
+      "text": "Obtain an independent read-only technical review of the final implementation/evidence PR head and formal non-author GitHub approval that satisfies the active ruleset without bypassing latest-push approval.",
+      "state": "pending",
       "evidence": [
         "20261010-334-access-boundary-reassessment"
       ]
