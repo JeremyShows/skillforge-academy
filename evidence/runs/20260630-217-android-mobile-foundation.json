@@ -87,9 +87,9 @@
     "work/blocked/217-tauri-android-mobile-support-foundation"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
-    "android_sdk_root": "C:\\Android\\Sdk",
+    "android_sdk_root": "<machine-specific path redacted>",
     "java": "OpenJDK 17.0.19",
     "process_note": "Repository-side Android foundation is present; Android target initialization, launch, persistence, offline-content runtime proof, backup document/share handoff, and APK output remain blocked by incomplete local Android NDK installation."
   }

@@ -1,0 +1,99 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-documentation-and-project-gates",
+  "timestamp": "2026-10-09T19:33:42-05:00",
+  "work_item": "330",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm ci",
+      "exit_code": 0,
+      "summary": "Clean dependency installation completed; npm reported zero vulnerabilities."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Documentation validation passed for 37 Markdown files, local links and anchors, privacy patterns, and release metadata."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "Validated 3 certification tracks, 19 domains, 770 questions, 135 flashcards, 28 PBQs, 150 lessons, and objective coverage."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "194 tests passed across 14 files."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript and Vite production build passed."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Windows Tauri backend check passed."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in the working diff."
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in the staged implementation diff."
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m repopact.cli dashboard",
+      "exit_code": 0,
+      "summary": "Regenerated the canonical RepoPact dashboard after recording WI330 and its evidence run."
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "Repository governance validation passed, including the work item, evidence references, schemas, and generated dashboard."
+    }
+  ],
+  "artifacts": [
+    "README.md",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "ROADMAP.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
+    "docs/README.md",
+    "docs/contributor-onboarding.md",
+    "docs/feature-maturity.md",
+    "docs/documentation-audit-2026-10-09.md",
+    "docs/v2.0-beta-readiness.md",
+    "audits/AUDIT-2026-10-09-documentation-modernization.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+    "work/proposed/331-v2-0-beta-release-preparation-and-publication-gates/work-item.json",
+    "scripts/validate-docs.mjs",
+    "package.json"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python": "3.12.4",
+    "rustc": "1.96.0",
+    "cargo": "1.96.0",
+    "base_commit": "17be629702ef57ffd38db35c5d541745f02e73b0",
+    "branch": "codex/documentation-modernization",
+    "release_packaging": "Not run; this work item covers documentation and readiness assessment, not a release build."
+  }
+}

@@ -39,12 +39,11 @@ reproducible.
 - Microsoft Edge WebView2 Runtime (included with current Windows releases)
 - About 100 MB free disk space
 
-Download the NSIS installer from the GitHub release (or use the local
-`1.4.0` release-candidate artifact when publishing is blocked). Verify the
-SHA-256 against `SHA256SUMS.txt` when available:
+Download the installer only from a published [GitHub release](https://github.com/JeremyShows/skillforge-academy/releases). As of 2026-10-09, v1.3.2 is the latest published release. The repository's 1.4.1-beta.1 candidate is unpublished and is not a public download. For a release that includes `SHA256SUMS.txt`, compare the listed filename and hash with the local file:
 
 ```powershell
-Get-FileHash ".\SkillForge Academy_1.4.0_x64-setup.exe" -Algorithm SHA256
+Get-Content .\SHA256SUMS.txt
+Get-ChildItem -File *.exe | Get-FileHash -Algorithm SHA256
 ```
 
 ### SmartScreen / unrecognized publisher
@@ -66,11 +65,12 @@ assurance. Signing details for maintainers: [CODE-SIGNING.md](CODE-SIGNING.md).
 
 ### Upgrade from Apex A+ Academy
 
-Installing SkillForge removes the old Apex desktop shortcut/install entry and
-keeps the shared learner data directory. Progress, notes, and backups carry
-over without a conversion step. If both names appear briefly in Apps & Features
-during an interrupted install, finish or re-run the SkillForge installer rather
-than deleting app data.
+The existing Tauri application identity and app-data directory are retained for
+legacy certification progress. That data remains in the legacy workspace; it is
+not automatically migrated into CourseProgress in the generic course runtime.
+Make a backup before any upgrade and do not delete app data to resolve an
+installer problem. If both names appear briefly in Apps & Features during an
+interrupted install, finish or re-run the published SkillForge installer.
 
 ## App launch
 
@@ -227,7 +227,7 @@ Until that lands:
 
 - Do not treat iOS install, persistence, or backup handoff as supported for end
   users.
-- Desktop and Android remain the supported recovery paths.
+- The published support path is Windows desktop. Android is a development foundation, not a public release commitment; iOS runtime recovery remains blocked on host validation.
 - When iOS runtime is proven, this section should gain the same backup/reset
   checklist used on Android.
 

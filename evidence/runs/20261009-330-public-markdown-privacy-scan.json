@@ -1,0 +1,100 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-public-markdown-privacy-scan",
+  "timestamp": "2026-10-09T20:22:43-05:00",
+  "work_item": "330",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Validated 37 curated Markdown files for local links and anchors; privacy, credential, and configured-remote scans covered all 212 repository Markdown files; release metadata was consistent. External URL availability is not checked."
+    },
+    {
+      "command": "npm run test:docs-validator",
+      "exit_code": 0,
+      "summary": "Passed 12 positive/negative path cases, repository-wide privacy-scan scope checks for audit/work-item/evidence Markdown with .venv excluded, Actions/onboarding consistency, closeout safeguards, and canonical SSH remote coverage."
+    },
+    {
+      "command": "PowerShell here-string piped to node --input-type=module - (collectMarkdownFiles and findMachineSpecificPaths)",
+      "exit_code": 0,
+      "summary": "Scanned all 212 public repository Markdown files and found zero machine-specific path matches after sanitizing three historical audit/work records."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "Validated 3 certification tracks, 19 domains, 770 questions, 135 flashcards, 28 PBQs, 150 lessons, and objective coverage."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "194 tests passed across 14 files."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript and Vite production build passed."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Windows Tauri backend check passed."
+    },
+    {
+      "command": "PowerShell parser validation of fenced snippets in docs/contributor-onboarding.md",
+      "exit_code": 0,
+      "summary": "All 3 documented PowerShell snippets parsed successfully."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli dashboard (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "Regenerated the canonical RepoPact dashboard with the pinned virtual-environment interpreter and restricted PATH."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli validate (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "Repository governance validation passed with the pinned virtual-environment interpreter and restricted PATH."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in the privacy-scope expansion and record sanitization diff."
+    }
+  ],
+  "artifacts": [
+    "scripts/doc-paths.mjs",
+    "scripts/validate-docs.mjs",
+    "scripts/test-docs-validator.mjs",
+    "docs/contributor-onboarding.md",
+    "audits/AUDIT-2026-06-22-release-candidate-1.4.0.md",
+    "audits/AUDIT-2026-06-30-android-mobile-foundation.md",
+    "work/completed/217-tauri-android-mobile-support-foundation/README.md",
+    "evidence/security/2026-10-05-private-branch-exposure/incident-summary.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/README.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+    "audits/AUDIT-2026-10-09-documentation-modernization.md",
+    "audits/reports/dashboard.md"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python": "3.12.4",
+    "repopact": "3.0.2",
+    "rustc": "1.96.0",
+    "cargo": "1.96.0",
+    "reviewed_commit": "f89112657de3d774779c27560ddd2bfe94df0c69",
+    "branch": "codex/documentation-modernization"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-angle-bracket-unc-release-accuracy",
+  "timestamp": "2026-10-09T20:48:02-05:00",
+  "work_item": "330",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm run test:docs-validator",
+      "exit_code": 0,
+      "summary": "18 positive/negative path cases passed, including angle-bracket inline and reference Markdown destinations, unquoted HTML href destinations, JSON-stringified UNC paths, and HTTPS exclusions. Workflow coverage and published-release wording assertions also passed."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Validated 37 curated Markdown files for local links and anchors; privacy, credential, and configured-remote scans covered 212 repository Markdown files and 151 governance JSON records under evidence/ and work/. No findings; release metadata is consistent. External URL availability is not checked."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "Passed for 3 certifications, 19 domains, 770 questions, 135 flashcards, 28 PBQs, and 150 lessons; all 116 objectives meet lesson and question coverage targets."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "Accessibility validation passed 20 checks."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "Vitest passed all 194 tests across 14 files."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript check and Vite production build passed; 2,183 modules were transformed."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust check passed."
+    },
+    {
+      "command": "RepoPact onboarding sequence in an isolated clone with restricted PATH",
+      "exit_code": 0,
+      "summary": "Created a work item, registered a schema-shaped evidence run, regenerated the dashboard, validated records, moved the completed item with git mv, and reran dashboard and validation. No RepoPact executable was available on PATH; commands used the documented virtual-environment Python module."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli dashboard (PATH restricted to Windows system tools)",
+      "exit_code": 0,
+      "summary": "Generated the current RepoPact dashboard with pinned RepoPact 3.0.2."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli validate (PATH restricted to Windows system tools)",
+      "exit_code": 0,
+      "summary": "Repository governance, evidence references, and dashboard validation passed with pinned RepoPact 3.0.2."
+    },
+    {
+      "command": "git show v1.3.2:src/content/certifications.json",
+      "exit_code": 0,
+      "summary": "Confirmed the latest published v1.3.2 manifest contains only the CompTIA A+ track; Network+ and Security+ were added in an unpublished candidate."
+    },
+    {
+      "command": "git diff --cached --check; git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in scoped WI330 changes."
+    }
+  ],
+  "artifacts": [
+    "scripts/doc-paths.mjs",
+    "scripts/test-docs-validator.mjs",
+    "docs/getting-started.md",
+    "docs/contributor-onboarding.md",
+    ".github/workflows/release.yml",
+    "CHANGELOG.md",
+    "audits/AUDIT-2026-10-09-documentation-modernization.md",
+    "audits/reports/dashboard.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+    "evidence/runs/20261009-330-unc-destination-scan.json"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python": "3.12.4",
+    "repopact": "3.0.2",
+    "implementation_commit": "6bd4e5a6bd8bf02f50d312670db39b2bba06794f",
+    "branch": "codex/documentation-modernization"
+  }
+}

@@ -1,96 +1,32 @@
-# Backup, Restore, And Cross-Device Transfer
+# Backup, restore, and cross-device transfer
 
-SkillForge Academy stores learner data locally and exports portable backups as
-`.apexbackup` files. Encrypted backups keep progress, notes, bookmarks,
-settings, daily activity, attempt history, and flashcard scheduling together so
-a learner can recover or move devices without a cloud account.
+SkillForge keeps learner state locally. The existing `.apexbackup` format is the portable encrypted recovery path for the legacy certification workspace and remains import-compatible with legacy JSON backups.
 
-## Compatibility Matrix
+## Current compatibility
 
-| Platform | Local state | Encrypted `.apexbackup` export/import | Legacy JSON import | Status |
-| --- | --- | --- | --- | --- |
-| Windows desktop | `%APPDATA%\com.apexlearning.aplusacademy\learner-state.json` through the Tauri backend | Validated by unit tests and release smoke checks | Supported through `decryptBackup` plus `migrateState` | Supported in `1.4.0` |
-| Android | App-private WebView `apex-state` with best-effort Rust `learner-state.json` mirror in the app sandbox | Share-sheet export and DocumentsUI import of the same `.apexbackup` envelope | Same decrypt + `migrateState` path as desktop | Foundation validated in `217` (emulator proof); end-user distribution still separate from Play Store work |
-| iOS | Tauri app container through `app.path().app_data_dir()` once the iOS target is initialized | Must use iOS document picker/share APIs and preserve the same backup envelope | Must route imported JSON through the same migration path | Designed in `218`; runtime validation blocked by macOS/Xcode dependency |
+| Surface | State and backup status |
+| --- | --- |
+| Windows desktop, legacy certification workspace | Tauri app-data JSON persistence and `.apexbackup` export/import are implemented. Use an isolated test profile for release checks. |
+| Windows desktop, course-platform envelope | WI324 adds serialized native persistence and an envelope-aware TypeScript backup path. Native packaged backup/restore and round-trip acceptance are still proposed in WI328. |
+| Browser development | Legacy and platform state use browser storage. Treat the browser profile as test data; it is not a cross-device sync service. |
+| Android | A development foundation exists. Do not infer a generally supported public release from build scaffolding. |
+| iOS | Runtime and document-picker/share handoff remain blocked on macOS/Xcode validation. |
 
-For install, SmartScreen, reset, and recovery workflows that surround backups, see
-[Support And Troubleshooting](support-troubleshooting.md).
+Legacy certification progress is not automatically migrated into the generic course runtime. WI329 owns the migration and parity design. Keep original state and backups recoverable while that work is pending.
 
-The encrypted backup envelope remains:
+The encrypted backup envelope uses PBKDF2-SHA256 and AES-256-GCM, with bounded payload sizes and validated imports. It is not encrypted local storage. See [privacy and security](privacy-security.md) for the parameters and residual risks.
 
-- Format: `apex-encrypted-backup`
-- Version: `1`
-- KDF: `PBKDF2-SHA256`
-- Cipher: `AES-256-GCM`
-- Minimum export passphrase length: 8 characters
-- Soft import/export size ceiling: 5 MiB
+## Export and restore
 
-Privacy and permission expectations for local state, backups, diagnostics, and
-mobile platforms are summarized in [Privacy And Security](privacy-security.md).
+For the currently supported legacy workspace, use Preferences to export a passphrase-protected `.apexbackup`, store the passphrase separately, and keep the file outside the application data directory. Restore by importing the backup in Preferences, then verify the expected progress and saved materials.
 
-## Export
+For any platform-envelope release candidate, use only the documented acceptance procedure and an isolated test profile until WI328 closes. Do not treat the existence of a serializer or unit tests as a packaged Windows backup/restore pass.
 
-1. Open **Preferences**.
-2. Enter a backup passphrase with at least 8 characters.
-3. Choose **Export Backup**.
-4. Store the downloaded `.apexbackup` file somewhere separate from the app data
-   directory.
+Before testing a risky restore, make a separate backup of the test profile. Never run an installer or import test against a maintainer's real learner data. If an import fails, preserve the original backup and current state for diagnosis; do not uninstall or reset before recovery options are verified.
 
-The passphrase is not stored. Keep it with your recovery records; without it the
-encrypted backup cannot be decrypted.
+## Further reading
 
-## Restore
-
-1. Open **Preferences**.
-2. Enter the backup passphrase.
-3. Choose **Import Backup** and select the `.apexbackup` file.
-4. Confirm that the dashboard, notes, saved questions, analytics, and flashcard
-   queue reflect the restored data.
-
-Legacy plain JSON backups can also be selected. They are imported through the
-same migration path so older A+ item IDs, bookmarks, and flashcards are upgraded
-to the current namespaced schema.
-
-## Failure Handling
-
-Import errors are designed to stop before replacing local learner data.
-
-| Scenario | Expected message | Recovery |
-| --- | --- | --- |
-| Missing passphrase for encrypted backup | `Enter the backup passphrase.` | Re-enter the passphrase and import again. |
-| Wrong passphrase, corrupted encrypted data, or partial file | `The passphrase is incorrect or the backup is damaged.` | Keep the current app data, find the original backup, and verify the passphrase. |
-| Unsupported encrypted backup version or malformed envelope | `Unsupported or invalid encrypted backup format.` | Keep the original file and check whether it came from a newer app version. |
-| Malformed JSON backup | `Backup file is not valid JSON.` | Re-export the backup from the source device if possible. |
-| Oversized backup file | `Backup file is too large to import safely.` | Keep current app data; confirm you selected a SkillForge `.apexbackup`, not an unrelated large file. |
-
-Before attempting a risky restore, export a fresh backup from the current device.
-If an import fails, do not uninstall or reset the app until the original backup
-and passphrase have been verified. Import and export failures show a status
-message in Preferences and never replace your current progress on failure. For
-support-oriented troubleshooting (app version, platform, content counts, recent
-errors), export a local diagnostic file instead — see
-[Diagnostics And Error Reporting](diagnostics.md).
-
-## Android Notes
-
-Android learner state should remain private app data owned by the Tauri shell.
-Portable backups are the explicit transfer path: the app should export the same
-encrypted `.apexbackup` envelope and hand it to Android's document or share UI,
-then import user-selected files through the same decrypt-and-migrate path used on
-desktop. Do not request broad storage permissions for normal progress storage.
-
-See [Android Mobile Support](android-mobile.md) for host prerequisites and the
-validation checklist, and [Support And Troubleshooting](support-troubleshooting.md)
-for end-user Android recovery notes.
-
-## iOS Notes
-
-iOS learner state should remain private app data owned by the Tauri shell.
-Portable backups are the explicit transfer path: the app should export the same
-encrypted `.apexbackup` envelope and hand it to an iOS share sheet or document
-export flow, then import user-selected files through the same
-decrypt-and-migrate path used on desktop. Do not request broad file access for
-normal progress storage.
-
-See [iOS Mobile Support](ios-mobile.md) for the current macOS/Xcode blocker,
-signing requirements, and validation checklist.
+- [Support and troubleshooting](support-troubleshooting.md)
+- [Diagnostics](diagnostics.md)
+- [Feature maturity matrix](feature-maturity.md)
+- [v2.0 beta readiness](v2.0-beta-readiness.md)

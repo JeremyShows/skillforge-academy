@@ -4,6 +4,8 @@ All notable changes to SkillForge Academy are documented here. SkillForge Academ
 
 ## Unreleased
 
+The latest published release is v1.3.2. The repository's current 1.4.1-beta.1 label identifies an unpublished candidate; the 1.4.0 entry below is also an unpublished local candidate. See the [release page](https://github.com/JeremyShows/skillforge-academy/releases) and [v2.0 beta readiness report](docs/v2.0-beta-readiness.md).
+
 ### Added
 
 - **Pre-beta candidate `1.4.1-beta.1`.** Frozen Windows NSIS installer metadata,
@@ -18,7 +20,7 @@ All notable changes to SkillForge Academy are documented here. SkillForge Academ
 
 ## 1.4.0 - 2026-06-22
 
-Release status: local Windows release candidate built and validated. GitHub publication is pending resolution of an external billing issue.
+Release status: unpublished local Windows release candidate. It is not a GitHub release; see the release page for the latest published version.
 
 ### Added
 
@@ -35,7 +37,7 @@ Release status: local Windows release candidate built and validated. GitHub publ
 - The track switcher now uses a deterministic order (available tracks first, then by `order`, then by name) and groups coming-soon tracks under a "Coming soon" heading.
 - Trademark/affiliation disclaimers on the dashboard and preferences now derive the vendor from the active track instead of hardcoding CompTIA/A+, so shared UI stays correct across tracks.
 - The app now falls back to the first available track if a saved active track is missing or has become coming-soon.
-- Each track now carries its own mock-exam pass threshold derived from its official scaled passing score (A+ 75%, Network+ 80%, Security+ 83%).
+- Each track now carries a SkillForge mock-exam practice benchmark. These raw percentages are product heuristics, not official vendor passing percentages or conversions of scaled scores.
 
 ## 1.3.2 - 2026-06-14
 
@@ -87,7 +89,7 @@ Headline: full-length timed mock exams and performance-based questions, deepenin
 
 ### Added
 
-- Full-length **mock exam** mode: domain-weighted question selection that mirrors the exam blueprint, a countdown timer that auto-submits at zero, no per-question feedback until submission, a 75% pass line, and an end screen with pass/fail, per-domain breakdown, and full review
+- Full-length **mock exam** mode: domain-weighted question selection that mirrors the exam blueprint, a countdown timer that auto-submits at zero, no per-question feedback until submission, a SkillForge 75% practice benchmark, and an end screen with pass/fail, per-domain breakdown, and full review
 - **Performance-based questions (PBQs)**: a new interactive question type with *matching* (assign items to categories) and *ordering* (sequence steps) formats, graded with partial credit, surfaced at the start of mock exams
 - Expanded original A+ question bank to 78 questions plus 6 PBQs, with per-domain depth for realistic weighting
 - Mock attempts are tracked separately in analytics with a PASS/FAIL marker

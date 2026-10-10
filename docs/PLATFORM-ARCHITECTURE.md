@@ -1,171 +1,99 @@
-# Platform Architecture V1.2
+# Platform architecture
 
-SkillForge Academy is an offline-first learner runtime with a declarative
-course boundary. The application shell is responsible for selecting and
-persisting course packages; authored packages are responsible for describing
-learning content and the capabilities they have actually authored.
-
-The platform has one source of learner truth: `CourseProgress`. Classroom,
-lecture, academic, lab, and analytics surfaces derive their visible state from
-that record instead of maintaining separate completion flags.
+SkillForge Academy contains two connected experiences: the established certification study workspace and a shared runtime for versioned declarative courses. The architecture keeps authored course content separate from learner state and treats `CourseProgress` as the progression authority.
 
 ## Runtime layers
 
 ```text
 PlatformHub
-  CourseRegistry              validates, installs, updates, exports packages
-  CourseRuntimeContext        binds the selected package to reusable modules
-  PlatformLearnerEnvelope     persists package identities and namespaced state
-       |
-       +-- Course / CourseProgress
-       +-- Classroom planner
-       +-- Lecture runtime + formal activity bridge
-       +-- Academic record derivation
-       +-- Deterministic lab runtime
-       +-- Bounded instructor fallback
+  ├─ CourseRegistry            local built-ins and imported packages
+  ├─ CourseRuntimeContext      binds package to generic domain modules
+  ├─ CourseProgress            authoritative course activity evidence
+  └─ PlatformLearnerEnvelope   namespaced package state and legacy state
+       ├─ Classroom planner
+       ├─ Lecture runtime and formal-activity bridge
+       ├─ Academic record derivation
+       ├─ Deterministic lab runtime
+       └─ Provider-neutral instructor fallback
+
+React / TypeScript owner  →  Tauri commands  →  Rust app-data persistence
 ```
 
-`src/platform/PlatformHub.tsx` is the host-level composition surface. It does
-not own content-specific grading rules. `src/platform/runtime.ts` delegates
-activity evaluation and progress updates to the canonical course runtime.
-`src/course`, `src/classroom`, `src/lecture`, `src/academic`, `src/labs`, and
-`src/instructor` contain reusable domain modules.
+`src/platform/PlatformHub.tsx` composes the learner-facing platform. The reusable domain modules live in `src/course/`, `src/classroom/`, `src/lecture/`, `src/academic/`, `src/labs/`, and `src/instructor/`. The legacy certification application and its content banks remain available through `src/App.tsx` and `src/content/`.
 
-## Package registry boundary
+## Package identity and lifecycle
 
-Every course is represented by a `CoursePackageDocument` with a manifest and an
-authored `Course`. The `course` field owns course identity and metadata, modules,
-lessons, activities, mastery rules, capstone, and final assessment content.
-Optional sibling package sections hold lecture delivery, academic records and
-readings, labs, instructor configuration, assets, and migrations. The registry:
+A package is a `CoursePackageDocument`: a manifest, canonical `Course`, and optional authored catalogs for lectures, academic records/readings, labs, instructor configuration, assets, migrations, and uninterpreted extension metadata. The schema is versioned in `schemas/skillforge-course-v1.schema.json`.
 
-1. validates the package format and rejects contract-owned unknown fields;
-2. rejects unsupported or executable-looking capabilities before installation;
-3. compares package versions semantically for updates;
-4. keeps built-ins and locally imported packages distinct;
-5. exports the authored package without learner state; and
-6. reports identity changes to the platform persistence adapter.
+`CourseRegistry` keeps built-ins separate from locally imported packages. It validates an import before install, rejects unsupported capabilities, compares package versions for updates, exports authored package data, and notifies the persistence owner when package identity changes. Learner history is not stored in a course package. The current distribution flow is local import/export; no marketplace, signed download, remote update, trusted-publisher, or revocation service is implemented.
 
-The selected package is converted into a `CourseRuntimeContext`. That context
-contains the package, canonical course, progress namespace, declared
-capabilities, and optional authored catalogs. Manifest capabilities are
-validated metadata, not surface activation switches. Lecture, Academic, and
-Labs surfaces are exposed from their validated authored catalogs. Instructor
-behavior always has a deterministic provider-neutral fallback; an optional
-`package.instructor` profile customizes that fallback. Remediation belongs to
-the canonical Course activity and CourseProgress flow rather than a sibling
-catalog. The current validator validates capability names and each present
-catalog independently.
+The built-in certification packages are generated by `src/platform/publicPackages.ts`. They project legacy domains and lessons into generic modules, instruction activities, and optional remediation. They do not currently project the full legacy assessment banks or authored lecture, academic, and lab catalogs. See [built-in course projection](BUILT-IN-COURSE-PROJECTION.md).
 
-## Learner state and compatibility
+Manifest capabilities describe package intent; they are not UI activation switches. Each present catalog is validated independently. The host treats course packages as inert data and rejects executable-looking fields and unsupported network/native capabilities. The [package security contract](COURSE-PACKAGE-SECURITY.md) documents the boundary.
 
-The platform learner envelope stores:
+## Authored data and derived state
 
-- installed package identity and version metadata;
-- namespaced `CourseProgress` records;
-- the legacy A+ learner state for compatibility; and
-- the existing backup/import boundary.
+The package owns Course identity, module/lesson/activity content, mastery rules, remediation references, and authored assessments. The platform owns learner evidence and the state transitions that update `CourseProgress`.
 
-Desktop persistence uses the Tauri command layer for bounded, atomic JSON
-writes. Browser development uses a versioned local-storage envelope. Progress
-is keyed by the runtime namespace rather than by a visible course title, so a
-package update cannot silently merge unrelated learner records.
+- Classroom resume location and completion derive from `CourseProgress` and authored progression rules.
+- Lecture formal activities resolve the exact `(moduleId, lessonId, activityId)` tuple and use the same CourseProgress evaluator. WI322 remains active for formal-activity UI acceptance; lecture cursor/response persistence is proposed in WI326.
+- Academic Record is a projection of authored academic catalog data and CourseProgress. It is not stored as a second grade book. Stage-specific capstone/evaluation parity is proposed in WI325.
+- Labs are bounded authored state machines. Lab-run persistence and a fully reachable completion flow remain proposed in WI327.
+- Instructor responses use a deterministic provider-neutral fallback. They cannot grant mastery or mutate CourseProgress; no external instructor provider is required by the public runtime.
 
-## Classroom authority
+The current status of each surface is in the [feature maturity matrix](feature-maturity.md).
 
-The classroom planner reads `CourseProgress.current`, completed lesson and
-activity evidence, mastery rules, and retry policy. A UI action must call the
-course runtime to change that record. A rendered lesson, lecture segment, or
-instructor response cannot grant mastery merely by being displayed.
+## CourseProgress namespaces
 
-The same activity identity is retained across classroom and lecture surfaces:
+`createCourseRuntimeContext` binds one package to its authored Course and derives the progress namespace as `packageId@courseVersion`. Package titles do not define learner identity. Package-version updates and course-version identity are distinct; changes that alter authored Course identity need an explicit migration policy and acceptance evidence.
 
-```text
-CourseLocation = moduleId + lessonId + activityId
-```
+`CourseProgress` stores the authoritative current location, completed activity evidence, assessment outcomes, mastery state, remediation/retry state, and course completion. Other UI surfaces read or request mutations through the course runtime; they must not maintain a second completion or mastery flag.
 
-This tuple is the portability boundary for activity evidence and for any
-lecture segment that presents an authored activity.
+## Learner-state persistence and durability (WI324)
 
-## Lecture delivery
+`PlatformLearnerEnvelopeStore` in `src/platform/persistence.ts` is the canonical TypeScript owner of the generic platform envelope. It hydrates and sanitizes once, exposes readiness and durability snapshots, serializes accepted mutations, and returns `persisted`, `failed`, or `rejected` acknowledgements. PlatformHub cannot admit learner mutations before hydration.
 
-A package opts into lecture delivery with an explicit lecture catalog. The
-lecture runtime owns sequence traversal, visited segments, required segments,
-interaction responses, and the close condition. Formal activities are bridged
-through `src/platform/lectureActivityBridge.ts`:
+The schema-1 envelope contains legacy learner state, installed package identity, per-namespace course state, and quarantine records. Unknown compatible package fields and valid sibling courses remain available. A malformed or installed-identity-mismatched `CourseProgress` record is quarantined with its original data preserved; corruption of the envelope itself or an unsupported schema fails explicitly. Quarantine is evidence for recovery, not an automatic repair or deletion path.
 
-1. the current lecture segment must be a formal authored activity;
-2. its `sourceLocation` and `sourceActivityId` must resolve to the exact course
-   activity;
-3. the shared `AuthoredActivitySurface` collects the learner response;
-4. the course runtime evaluates and applies the response to `CourseProgress`;
-5. the lecture runtime advances using the resulting authoritative progress.
+Browser development uses a versioned browser-storage adapter. The native Tauri adapter calls Rust commands for app-data persistence. Rust keeps the legacy learner store and generic platform state separate, bounds payload size, serializes process writes, stages complete temporary files, and uses replacement/rollback behavior so interrupted transactions do not silently discard the previous state. `CourseProgress` stays in the platform envelope; legacy A+ progress has not been migrated into it.
 
-The supported formal segment kinds are `GUIDED_PRACTICE`,
-`INDEPENDENT_PRACTICE`, `ASSESSMENT`, and `REMEDIATION`. Interactive lecture
-segments are `PAUSE_AND_PREDICT`, `SOCRATIC_QUESTION`, and `KNOWLEDGE_CHECK`.
-Informational lecture segments are `OPENING`, `LECTURE`, `EXPLANATION`,
-`DIAGRAM`, `WORKED_TRACE`, `CODE_WALKTHROUGH`, `DEMONSTRATION`, `RECAP`, and
-`CLOSING`. These native lecture segments retain their authored advance or
-response behavior.
+### Shutdown quiescence
 
-### Remediation sequencing
+On window close, the platform store atomically stops admitting new learner mutations, drains mutations already accepted in serialized order, and waits for a bounded durable flush before the Tauri window is destroyed. One shutdown attempt is shared across duplicate close events. Flush failure or timeout is reported; an in-memory update is not described as durably saved. See `src/platform/windowShutdown.ts` and its tests.
 
-Remediation is not selected by physical array order. On a failed formal
-activity, the runtime selects a remediation only when both of these values
-match the current authoritative progress:
+## Backup, restore, and compatibility
 
-- `sourceLocation` equals `CourseProgress.current` by module, lesson, and
-  activity; and
-- `sourceActivityId` equals `CourseProgress.current.activityId`.
+The existing encrypted `.apexbackup` format and legacy backup import remain compatibility anchors. The TypeScript backup path can include the platform envelope, and WI324 validates platform/legacy format classification and atomic state replacement. WI328 is still proposed for native Windows platform backup/restore UX and packaged round-trip acceptance; do not treat the newer envelope as release-qualified recovery until that work passes.
 
-The failure path enters that exact remediation. Completing remediation returns
-to the failed assessment for retry. A first-attempt pass, or a passing retry,
-skips remediation and advances to the next eligible authored segment. An
-inactive or optional remediation is not a normal success-path destination and
-does not block lecture closure.
+Legacy certification storage continues to use the existing `apex-state` compatibility key and Tauri application identity. Importing a legacy backup does not silently migrate its progress into CourseProgress. WI329 is proposed to define parity, deterministic migration, and recovery while preserving the original data and backup path. The app identity remains `com.apexlearning.aplusacademy`; changing it could alter install and app-data upgrade behavior.
 
-### Completion UI
+## TypeScript and Rust responsibilities
 
-`lectureCanClose` is derived from the active required segments and
-`CourseProgress`. When true, the Lecture surface renders `Lecture complete` and
-does not render an `Advance authored segment` control. While incomplete,
-informational and interactive segments retain the advance control, and formal
-activity segments retain the shared authored activity surface. This prevents a
-completed lecture from presenting an inert button or a direct bypass around a
-formal activity.
+| TypeScript | Rust / Tauri |
+| --- | --- |
+| Course package types, validation, registry, runtime, and CourseProgress transitions | Native command boundary and app-data file operations |
+| Platform envelope sanitization, hydration, serialized mutation queue, durability acknowledgements, and quarantine | Bounded JSON reads/writes, serialized file transactions, atomic replacement/rollback where supported |
+| Academic, lecture, lab, and instructor state derivation | Legacy learner-state persistence compatibility and bundled content loading |
+| Browser-development storage adapter and user-facing flows | App lifecycle integration for final learner-state flush |
 
-## Other capability surfaces
+Avoid moving business rules into Tauri commands or letting views implement their own envelope read/merge/write logic. Native persistence should store validated bytes; TypeScript owns course semantics.
 
-- Academic records derive assignment and assessment state from CourseProgress
-  and `package.academic`.
-- Labs are bounded local state machines exposed from validated `context.labs` /
-  `package.labs` data. Their actions and checks are authored data; executable
-  or network-backed lab capabilities are rejected by the public runtime.
-- The instructor fallback is provider-neutral and deterministic. It works
-  without an instructor profile; `package.instructor` may customize it, and it
-  cannot mutate learner state.
-- Remediation is authored inside the canonical Course activity/progress model,
-  not exposed as a sibling package catalog.
-- Readings and assets remain package-owned references and are validated before
-  the package becomes installable.
+## Evolution and follow-up work
 
-## Validation and evolution
+The package schema is v1. Existing decisions and work items govern changes to learner state and migration. Proposed WI325–329 cover, respectively, capstone/evaluation parity, lecture-state persistence, lab completion and persistence, native Windows platform backup/restore, and legacy certification parity/migration. They are proposed work, not implemented features. Do not collapse them into a release claim or mutate learner data to simulate completion.
 
-Architecture or runtime changes should be proved with the smallest relevant
-set of gates:
+The public package boundary does not require a proprietary instructor or distribution service. Optional integrations must use documented public contracts and sanitized examples; no private implementation details belong in this repository.
 
-```powershell
-npm test -- --run
-npm run validate:content
-npm run validate:a11y
-npm run build
-cargo fmt --check --manifest-path src-tauri/Cargo.toml
-cargo check --manifest-path src-tauri/Cargo.toml
-python -m repopact_cli validate
-```
+## Validation for architecture changes
 
-Package schema changes require fixture and migration coverage. Learner-state
-changes require compatibility tests. Lecture changes require both runtime tests
-and browser evidence for first-pass success, fail/remediate/retry, and the
-completed UI state.
+Use the smallest relevant gates, normally:
+
+    npm test -- --run
+    npm run validate:content
+    npm run validate:a11y
+    npm run build
+    cargo fmt --check --manifest-path src-tauri/Cargo.toml
+    cargo check --manifest-path src-tauri/Cargo.toml
+    .\.venv\Scripts\python.exe -m repopact.cli validate
+
+Package-schema changes need fixture and migration coverage. Persistence changes need tests for compatibility, serialized mutations, recovery, and shutdown. Release qualification also needs isolated packaged-app acceptance; unit tests and a production build are not a substitute.

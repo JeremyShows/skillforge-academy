@@ -54,7 +54,7 @@
     "docs/support-troubleshooting.md"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Linux",
     "process_note": "Post-merge verification remediation for 225 AC-4, 308 Tauri objectives load, 309 weakest-domain pct."
   }

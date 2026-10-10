@@ -23,7 +23,7 @@
     "artifacts/beta-1.4.1-beta.1/SkillForge Academy_1.4.1-beta.1_x64-setup.exe"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows NT 10.0.19045 AMD64",
     "node": "v24.15.0",
     "rustc": "1.96.0",

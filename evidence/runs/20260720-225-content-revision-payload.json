@@ -31,7 +31,7 @@
     "work/completed/225-local-diagnostics-and-error-reporting-stance/work-item.json"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "AC-4 fix: content.revision hashes canonical full bank payloads, not item ids only."
   }

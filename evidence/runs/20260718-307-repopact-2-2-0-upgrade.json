@@ -11,5 +11,5 @@
     {"command": "npm run validate:content", "exit_code": 0, "summary": "Validated 3 certifications, 19 domains, 770 questions, 135 flashcards, 28 PBQs, and 150 lessons with complete objective coverage."}
   ],
   "artifacts": ["requirements-repopact.txt", "decisions/0008-consume-repopact-from-pypi.md", "audits/reports/dashboard.md"],
-  "environment": {"repository": "ForgeWireLabs/skillforge-academy", "platform": "Windows", "python": "3.12", "repopact_version": "2.2.0"}
+  "environment": {"repository": "redacted repository identifier", "platform": "Windows", "python": "3.12", "repopact_version": "2.2.0"}
 }

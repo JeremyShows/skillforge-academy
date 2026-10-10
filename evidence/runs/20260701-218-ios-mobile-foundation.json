@@ -76,7 +76,7 @@
     "work/blocked/218-tauri-ios-mobile-support-foundation"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Repository-side iOS foundation is present; iOS target generation, Simulator/device launch, offline-content runtime proof, persistence proof, backup document/share handoff, and IPA output remain blocked until work resumes on macOS with Xcode."
   }

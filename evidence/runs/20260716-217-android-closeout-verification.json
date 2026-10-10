@@ -51,9 +51,9 @@
     "evidence/runs/20260702-217-android-runtime-proof.json"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
-    "android_sdk_root": "C:\\Android\\Sdk",
+    "android_sdk_root": "<machine-specific path redacted>",
     "ndk": "26.3.11579264 r26d",
     "java": "Eclipse Adoptium OpenJDK 17.0.19",
     "avd": "forge_moto_one_hyper_lab_api35",

@@ -18,5 +18,5 @@
     "audits/AUDIT-2026-10-04-platform-extraction-v1-2-1.md",
     "work/completed/319-platform-extraction-v1-2-1-cross-runtime-conformance"
   ],
-  "environment": {"repository":"ForgeWireLabs/skillforge-academy","platform":"Windows","base_revision":"9092f07e8316e8d4a32ec4ce9e8a1806ff73f8a5"}
+  "environment": {"repository":"redacted repository identifier","platform":"Windows","base_revision":"9092f07e8316e8d4a32ec4ce9e8a1806ff73f8a5"}
 }

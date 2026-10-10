@@ -63,7 +63,7 @@
     "work/completed/224-next-generation-pbq-ux-depth"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Categorization PBQs shipped as the next-generation PBQ depth slice; browser smoke used the in-app browser because the standalone Playwright Chromium executable was unavailable."
   }

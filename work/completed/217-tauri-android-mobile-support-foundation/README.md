@@ -153,13 +153,13 @@ Host evidence:
 
 - `npm run tauri -- info` passed.
 - `java -version` reported OpenJDK 17.0.19.
-- `ANDROID_HOME` and `ANDROID_SDK_ROOT` were both `C:\Android\Sdk`.
+- `ANDROID_HOME` and `ANDROID_SDK_ROOT` were both set to the configured Android SDK root.
 - `sdkmanager --list_installed` reported emulator, platform-tools, and Android
   35 system image only.
 - `npm run tauri -- android init --ci` failed because Android NDK was not found.
 - Retried SDK installation for NDK 27.2/CMake and NDK 26.3; both failed to
   complete cleanly. Tauri now finds the partial NDK 26.3 directory but fails
-  because `C:\Android\Sdk\ndk\26.3.11579264\source.properties` is missing.
+  because its `source.properties` file is missing.
 - `npm run validate:content`, `npm run validate:a11y`, `npm test -- --run`,
   `npm run build`, `cargo fmt --check --manifest-path src-tauri/Cargo.toml`,
   and `cargo check --manifest-path src-tauri/Cargo.toml` passed.
@@ -172,7 +172,7 @@ Android NDK install followed by `npm run mobile:android:init`.
 
 ### 2026-07-01 - Runtime retry; SDK acquisition still blocked
 
-- Moved the stale partial `C:\Android\Sdk\ndk\26.3.11579264` directory aside
+- Moved the stale partial NDK directory aside
   after verifying it contained only `.installer` metadata and no
   `source.properties`.
 - Retried `sdkmanager "platforms;android-35" "build-tools;35.0.0"
@@ -195,15 +195,15 @@ Android NDK install followed by `npm run mobile:android:init`.
 
 Status: blocked, not done. Required host prerequisites are now precise:
 `platforms;android-35`, `build-tools;35.0.0`, and `ndk;26.3.11579264` must be
-fully installed in `C:\Android\Sdk`, and the NDK must include
-`C:\Android\Sdk\ndk\26.3.11579264\source.properties`. Resume with a reliable SDK
+fully installed under `$env:ANDROID_HOME`, and the NDK must include
+its `source.properties` file. Resume with a reliable SDK
 package install or a verified local copy of the official Android SDK/NDK
 archives, then run `npm run mobile:android:init`.
 
 ### 2026-07-02 - Android runtime proof achieved; residual mobile handoff gaps
 
 - Installed the verified local Android NDK r26d archive into
-  `C:\Android\Sdk\ndk\26.3.11579264`; `source.properties` reports
+- Installed the verified local Android NDK r26d archive under `$env:ANDROID_HOME`; `source.properties` reports
   `Pkg.Revision = 26.3.11579264` and `Pkg.ReleaseName = r26d`.
 - `npm run mobile:android:init` succeeded and generated the Tauri Android
   project under `src-tauri/gen/android`.

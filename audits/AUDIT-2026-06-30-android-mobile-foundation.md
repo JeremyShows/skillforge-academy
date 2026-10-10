@@ -20,7 +20,7 @@ host.
 - `npm run tauri -- info` passed and reported Windows WebView2, MSVC, Rust,
   Node, npm, and Tauri package versions.
 - `java -version` reported OpenJDK 17.0.19.
-- `ANDROID_HOME` and `ANDROID_SDK_ROOT` pointed at `C:\Android\Sdk`.
+- `ANDROID_HOME` and `ANDROID_SDK_ROOT` pointed at the configured Android SDK root.
 - `sdkmanager --list_installed` reported Android Emulator, platform-tools, and
   the Android 35 x86_64 system image.
 - `npm run tauri -- android init --ci` failed with
@@ -32,7 +32,7 @@ host.
 - `sdkmanager "ndk;26.3.11579264"` created a partial NDK directory but did not
   register an installed package or produce `source.properties`.
 - `npm run mobile:android:init` then failed while reading the partial NDK:
-  `Failed to open "C:\\Android\\Sdk\\ndk\\26.3.11579264\\source.properties"`.
+  Tauri failed while reading the partial NDK `source.properties` file.
 - `npm run validate:content`, `npm run validate:a11y`, `npm test -- --run`,
   `npm run build`, `cargo fmt --check --manifest-path src-tauri/Cargo.toml`,
   and `cargo check --manifest-path src-tauri/Cargo.toml` passed.
@@ -114,14 +114,14 @@ Related evidence: `evidence/runs/20260701-217-android-runtime-retry.json`.
 Updated recommendation: keep `217` blocked. The precise prerequisite is a
 complete Android SDK install containing `platforms;android-35`,
 `build-tools;35.0.0`, and `ndk;26.3.11579264`, with
-`C:\Android\Sdk\ndk\26.3.11579264\source.properties` present.
+  NDK `source.properties` file present.
 
 ## 2026-07-02 Runtime Proof Addendum
 
 Related evidence: `evidence/runs/20260702-217-android-runtime-proof.json`.
 
 - Installed the verified local Android NDK r26d archive into
-  `C:\Android\Sdk\ndk\26.3.11579264`. The installed metadata reports
+  `$env:ANDROID_HOME` (the configured SDK root). The installed metadata reports
   `Pkg.Revision = 26.3.11579264` and `Pkg.ReleaseName = r26d`.
 - `npm run mobile:android:init` passed and generated the Tauri Android project.
 - Corrected the Android APK script to `tauri android build --apk`; the previous

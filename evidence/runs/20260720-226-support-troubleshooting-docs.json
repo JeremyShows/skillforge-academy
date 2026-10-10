@@ -33,7 +33,7 @@
     "work/completed/226-support-and-troubleshooting-docs"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Linux",
     "repopact": "2.2.0",
     "process_note": "Documentation-only closeout for support/troubleshooting; depends on completed 219/221/225 and Android foundation 217."

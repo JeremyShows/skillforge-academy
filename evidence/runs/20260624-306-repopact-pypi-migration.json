@@ -28,7 +28,7 @@
     "work/completed/306-repopact-pypi-consumption"
   ],
   "environment": {
-    "repository": "ForgeWireLabs/skillforge-academy",
+    "repository": "redacted repository identifier",
     "platform": "Windows",
     "process_note": "Migrated RepoPact consumption from a vendored validator to a pinned PyPI dependency (decision 0008). schemas/ remain in-repo; record-frontmatter status enum updated to the 1.8.0 vocabulary (rejected, deferred)."
   }

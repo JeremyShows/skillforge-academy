@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "331",
+  "title": "SkillForge Academy v2.0.0-beta.1 release preparation and publication gates",
+  "status": "proposed",
+  "owner_scope": "governance",
+  "affected_scopes": ["implementation", "docs", "release", "accessibility", "governance"],
+  "depends_on": ["310", "311", "322", "324", "325", "326", "327", "328", "329", "330"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-09T00:00:00Z",
+    "note": "Stamped by `repopact new`; the work item was recorded before implementation began."
+  },
+  "acceptance_criteria": [
+    {"id":"AC-1","text":"Approve the v2.0.0-beta.1 version lineage and release semantics while preserving published history and confirming all VERSION, RELEASE_LABEL, package, Cargo, Tauri, diagnostics, and installer identity surfaces agree.","state":"pending","evidence":[]},
+    {"id":"AC-2","text":"Build and identify a release candidate from a clean, known commit; retain its exact Windows artifact, provenance, SHA-256, build evidence, and accurate draft/prerelease metadata.","state":"pending","evidence":[]},
+    {"id":"AC-3","text":"Pass required automated checks and independent Windows CI for the exact candidate; document any CI billing or signing blocker without weakening gates.","state":"pending","evidence":[]},
+    {"id":"AC-4","text":"Complete isolated fresh-install and upgrade acceptance on the exact candidate, including preservation of legacy A+ learner state, current progress, backup import/export recovery, package schema compatibility, and Tauri installer identity behavior.","state":"pending","evidence":[]},
+    {"id":"AC-5","text":"Review privacy, security, accessibility, proprietary-content boundaries, diagnostics, and known functional gaps; publish accurate release notes and limitations.","state":"pending","evidence":[]},
+    {"id":"AC-6","text":"Obtain required technical and governance authorization; publish or tag only after every release gate passes and the maintainer explicitly authorizes publication.","state":"pending","evidence":[]}
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09"
+}

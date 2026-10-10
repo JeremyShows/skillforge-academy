@@ -1,58 +1,22 @@
 # Documentation screenshots
 
-The PNGs in this folder are used by the [README](../../README.md) and the
-[getting-started guide](../getting-started.md). They are **regenerated from the
-live app**, not captured by hand, so they stay consistent every time.
+The PNGs in this folder show the legacy certification study workspace. They do not represent every current or experimental course-platform surface and are not used in the README or the current learner getting-started guide. Refresh and review the images before presenting them as current product screenshots.
 
 ## How they're produced
 
-1. **Deterministic demo data.** `npm run demo:state` (script:
-   [`scripts/demo-state.mjs`](../../scripts/demo-state.mjs)) synthesizes a
-   realistic `LearnerState` from the real content banks and writes
-   `demo-state.json`. The content selection is seeded, so the same questions,
-   lessons, and cards are chosen every run; only the dates float relative to the
-   day you generate it, so streaks and "cards due" stay believable. This file is
-   git-ignored — it's a regenerated intermediate, not a committed artifact.
+The capture script uses deterministic demo data and Playwright. Demo data is generated locally and must not contain real learner state. Screenshots are captured from the view in the running app; do not treat an old PNG as evidence for a new course-runtime feature.
 
-2. **Headless capture.** `npm run screenshots` (script:
-   [`scripts/screenshots.mjs`](../../scripts/screenshots.mjs)) launches Chromium
-   via Playwright, seeds the demo state (and suppresses the first-run tour), sizes
-   the viewport to **1440×900 at 2× scale**, and captures each view.
+To regenerate them, install the locked project dependencies, install Playwright Chromium if needed, run `npm run dev`, and capture with `npm run screenshots`. The capture flow writes PNGs under this directory.
 
-## Regenerating
+## Current scope
 
-One-time setup (downloads the Chromium build Playwright drives):
-
-```powershell
-npx playwright install chromium
-```
-
-Then:
-
-```powershell
-npm run dev          # terminal 1 — dev server on http://localhost:1420
-npm run screenshots  # terminal 2 — writes the PNGs here (demo-state auto-generated if missing)
-```
-
-Point at a different build with `SCREENSHOT_URL` (e.g. a `vite preview` of
-`dist/`).
-
-## The shot list
-
-| File | View | Notes |
-| --- | --- | --- |
-| `01-command-center.png` | Dashboard | Readiness, streak, trend, domain mastery |
-| `02-learning-paths.png` | Learning Paths | Objectives, lessons, progress |
-| `03-practice-lab.png` | Practice Lab | Active single-answer question |
-| `04-mock-exam.png` | Mock Exam | Active, timed, domain-weighted question |
-| `05-recall-deck.png` | Recall Deck | Spaced-repetition flashcard |
-| `06-performance.png` | Performance | Multi-track progress + objective heatmap |
-| `07-multi-select.png` | Mock Exam | Multi-select ("choose TWO") format |
-| `08-track-switcher.png` | Dashboard | Track switcher open (multi-track) |
-
-## Adding or changing a shot
-
-Edit the capture steps in [`scripts/screenshots.mjs`](../../scripts/screenshots.mjs)
-— each shot navigates the app (clicking real controls) and calls `shot(name)`.
-Keep the viewport and naming consistent, then re-run `npm run screenshots` and
-update the table above and any references in the README.
+| File | Legacy view |
+| --- | --- |
+| `01-command-center.png` | Study dashboard |
+| `02-learning-paths.png` | Certification learning paths |
+| `03-practice-lab.png` | Practice question |
+| `04-mock-exam.png` | Mock question |
+| `05-recall-deck.png` | Recall card |
+| `06-performance.png` | Certification analytics |
+| `07-multi-select.png` | Multi-select question |
+| `08-track-switcher.png` | Certification track selector |
