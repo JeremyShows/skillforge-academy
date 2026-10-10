@@ -1,6 +1,6 @@
 {
   "id": "20261010-334-access-boundary-reassessment",
-  "timestamp": "2026-10-10T15:10:55Z",
+  "timestamp": "2026-10-10T15:14:31Z",
   "work_item": "334",
   "result": "blocked",
   "provenance": "concrete",
@@ -138,27 +138,47 @@
     {
       "command": "npm run validate:docs (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed; curated documentation links and repository-wide privacy scans completed."
+      "summary": "Passed after current PR/ruleset visibility findings were added; curated documentation links and repository-wide privacy scans completed."
     },
     {
       "command": "node scripts/test-docs-validator.mjs (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed; 23 path cases and repository governance/privacy scan coverage checks."
+      "summary": "Passed after current PR/ruleset visibility findings were added; 23 path cases and repository governance/privacy scan coverage checks."
     },
     {
       "command": ".venv/Scripts/python.exe -m repopact.cli dashboard (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed; regenerated the canonical RepoPact dashboard."
+      "summary": "Passed after current PR/ruleset visibility findings were added; canonical dashboard regenerated."
     },
     {
       "command": ".venv/Scripts/python.exe -m repopact.cli validate (final redacted reassessment records)",
       "exit_code": 0,
-      "summary": "Passed; canonical repository governance validation."
+      "summary": "Passed after current PR/ruleset visibility findings were added; canonical repository governance validation."
     },
     {
       "command": "git diff --check (final redacted reassessment records)",
       "exit_code": 0,
-      "summary": "Passed; no whitespace errors in the final working diff."
+      "summary": "Passed after current PR/ruleset visibility findings were added; no whitespace errors."
+    },
+    {
+      "command": "Read PR #19 status, review decision, review requests, checks, and mergeability after the evidence follow-up push",
+      "exit_code": 0,
+      "summary": "PR open at recorded follow-up head, mergeable, REVIEW_REQUIRED and BLOCKED; zero submitted reviews, zero review requests, and no checks reported."
+    },
+    {
+      "command": "Scan added lines in the exact current PR #19 diff for email-like strings and Windows user/project paths",
+      "exit_code": 0,
+      "summary": "Author-only read-only scan: zero matches in all three categories; this is not independent review."
+    },
+    {
+      "command": "Read repository and organization review-ruleset metadata",
+      "exit_code": 2,
+      "summary": "Repository ruleset query exposed only no-delete; classic branch protection reported none; organization ruleset metadata unavailable with current credential. PR remains REVIEW_REQUIRED; owner verification is pending."
+    },
+    {
+      "command": "Count organization members and direct SkillForge collaborators without reading identities",
+      "exit_code": 0,
+      "summary": "One organization member and one direct collaborator; no non-author reviewer is available from current membership."
     }
   ],
   "artifacts": [
@@ -207,6 +227,8 @@
     "private_org_repo_actions": "2 repositories; no team grants; each has 0 repository secrets and artifacts; Actions disabled on one, enabled on the other; organization-level sharing policy unavailable",
     "organization_actions_and_secret_visibility": "HTTP 403; unverified; no secret values or names read",
     "release_contact_disposition": "2 non-placeholder custom-domain email-like strings; ownership unverified; treated as potentially personal; future-build replacement/removal recommended absent private owner confirmation; existing releases unchanged",
-    "public_historical_privacy": "2 non-main branch tips and merged PRs 16/18 retain a checkout marker; 2 other tips contain synthetic markers only; merged PR 14 diff retains 2 removed user-profile path fragments; exact values withheld"
+    "public_historical_privacy": "2 non-main branch tips and merged PRs 16/18 retain a checkout marker; 2 other tips contain synthetic markers only; merged PR 14 diff retains 2 removed user-profile path fragments; exact values withheld",
+    "pr_19_current_head_snapshot": "After the evidence follow-up push, PR #19 was open at head 17329cc4e531da99569ce99e2e6579884afff5dd, mergeable, REVIEW_REQUIRED, and BLOCKED; zero reviews, zero review requests, and no checks reported. The exact-head added-line scan found zero email-like strings and zero Windows user/project path matches. This was author review only, not an independent review.",
+    "review_ruleset_visibility": "Current repository ruleset metadata exposed only the active no-delete ruleset; classic branch-protection query reported no protection; organization ruleset metadata could not be read because the current credential lacks organization ruleset scope. PR metadata still reports REVIEW_REQUIRED. Prior recorded review-rule details need owner confirmation against the currently applicable ruleset."
   }
 }
