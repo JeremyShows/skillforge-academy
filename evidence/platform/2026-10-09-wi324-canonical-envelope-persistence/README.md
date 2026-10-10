@@ -209,8 +209,8 @@ recommended approval with no P1/P2 blockers. This records why an additional
 GitHub reviewer request was not mandatory under the current repository rules.
 
 WI324's completion record, acceptance evidence reference, and generated
-dashboard are being updated in the separate repository governance closeout PR
-from the exact implementation merge commit. The work item becomes formally
+dashboard are updated in [repository governance closeout PR #13](https://github.com/JeremyShows/skillforge-academy/pull/13),
+based on the exact implementation merge commit. The work item becomes formally
 completed on `main` only when that closeout PR merges. Details and RepoPact
 validation are recorded in `evidence/runs/20261009-324-governance-closeout.json`.
 

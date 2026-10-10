@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/evidence-run.schema.json",
   "id": "20261009-324-governance-closeout",
-  "timestamp": "2026-10-10T00:08:08Z",
+  "timestamp": "2026-10-10T00:09:38Z",
   "work_item": "324",
   "result": "passed",
   "provenance": "concrete",
@@ -45,6 +45,11 @@
       "command": "git diff --check; git diff --cached --check",
       "exit_code": 0,
       "summary": "No whitespace errors."
+    },
+    {
+      "command": "Verify governance closeout PR #13 and active main ruleset",
+      "exit_code": 0,
+      "summary": "PR #13 is open, mergeable, and CLEAN; GitGuardian Security Checks passed. Active main ruleset 24818688 contains only deletion and non-fast-forward rules, with no required approvals or status checks."
     }
   ],
   "artifacts": [
@@ -64,7 +69,7 @@
     "implementation_merge_commit": "1306755f7fb95eb25fcc0d8173eda391eb2e1cdf",
     "implementation_pr": 12,
     "closeout_branch": "codex/wi324-governance-closeout",
-    "closeout_pr": "pending creation",
+    "closeout_pr": "https://github.com/JeremyShows/skillforge-academy/pull/13",
     "ruleset": {
       "id": 24818688,
       "name": "no delete",
