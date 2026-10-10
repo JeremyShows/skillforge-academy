@@ -75,18 +75,20 @@
     {
       "id": "AC-7",
       "text": "After the initial CODEOWNERS file is merged, verify that it identifies maintainers for canonical governance paths, that default-branch rules require pull requests and preserve integrity protections without mandatory GitHub approval under the single-maintainer model, and that RepoPact does not authenticate record authors.",
-      "state": "pending",
+      "state": "satisfied",
       "evidence": [
         "20261010-334-access-boundary-reassessment",
-        "20261010-334-single-maintainer-review-policy"
+        "20261010-334-single-maintainer-review-policy",
+        "20261010-334-independent-review-and-controls"
       ]
     },
     {
       "id": "AC-8",
       "text": "Obtain and record an independent read-only technical review of the final implementation/evidence PR head. Formal GitHub approval is optional under the current single-maintainer model; technical review does not replace required tests or acceptance evidence.",
-      "state": "pending",
+      "state": "satisfied",
       "evidence": [
-        "20261010-334-access-boundary-reassessment"
+        "20261010-334-access-boundary-reassessment",
+        "20261010-334-independent-review-and-controls"
       ]
     }
   ],

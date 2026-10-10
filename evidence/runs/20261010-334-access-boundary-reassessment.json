@@ -27,7 +27,8 @@
     "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json",
     "docs/contributor-onboarding.md",
     "evidence/runs/20261009-334-public-privacy-access-boundary.json",
-    "evidence/runs/20261010-334-single-maintainer-review-policy.json"
+    "evidence/runs/20261010-334-single-maintainer-review-policy.json",
+    "evidence/runs/20261010-334-independent-review-and-controls.json"
   ],
   "environment": {
     "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
@@ -37,8 +38,8 @@
     "workflow_and_secret_sharing": "Repository-level metadata was reviewed where available. Organization-wide workflow policy and secret-sharing metadata remain unverified; no secret values were read.",
     "release_contact_disposition": "Some existing release contact metadata may be personal. Ownership and role are unverified; values are withheld and existing releases are unchanged.",
     "historical_exposure_classification": "A prior public audit revision included some GitHub-observable policy outcomes and more granular internal organization/repository permission, workflow, and private-repository relationship metadata. No credentials, tokens, secret values, private course contents, or learner information were present in the reviewed disclosure. Prior commits remain reachable; no history rewrite is recommended absent a separately documented credible risk and explicit authorization.",
-    "pr_19_review_state": "Open; the current head requires a new independent read-only review after metadata minimization.",
-    "wi334_state": "Blocked pending effective-access, delegated-access, workflow/secret-sharing, contact-classification, historical-disposition, and review evidence.",
+    "pr_19_review_state": "Merged after an independent read-only review of exact head bc5273dba72224a243b189e0a07c675b7cf45a4f found no P1/P2 findings; merge commit 61c36cd8803463101b68a5b9cd336eef670f93af.",
+    "wi334_state": "Blocked pending effective-access, delegated-access, organization workflow/secret-sharing, and final release-contact classification evidence.",
     "private_course_contents": "not_accessed",
     "learner_data": "not_accessed",
     "secret_values": "not_accessed",
