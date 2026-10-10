@@ -1,6 +1,6 @@
 {
   "id": "20261010-334-access-boundary-reassessment",
-  "timestamp": "2026-10-10T15:14:31Z",
+  "timestamp": "2026-10-10T15:17:28Z",
   "work_item": "334",
   "result": "blocked",
   "provenance": "concrete",
@@ -138,27 +138,27 @@
     {
       "command": "npm run validate:docs (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed after current PR/ruleset visibility findings were added; curated documentation links and repository-wide privacy scans completed."
+      "summary": "Passed after the ruleset-verification caveat was added to public contributor guidance; curated links and repository-wide privacy scans completed."
     },
     {
       "command": "node scripts/test-docs-validator.mjs (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed after current PR/ruleset visibility findings were added; 23 path cases and repository governance/privacy scan coverage checks."
+      "summary": "Passed after the ruleset-verification caveat was added to public contributor guidance; all 23 path cases and governance/privacy coverage checks passed."
     },
     {
       "command": ".venv/Scripts/python.exe -m repopact.cli dashboard (reassessment evidence and onboarding updates)",
       "exit_code": 0,
-      "summary": "Passed after current PR/ruleset visibility findings were added; canonical dashboard regenerated."
+      "summary": "Passed; regenerated the canonical RepoPact dashboard after the latest evidence changes."
     },
     {
       "command": ".venv/Scripts/python.exe -m repopact.cli validate (final redacted reassessment records)",
       "exit_code": 0,
-      "summary": "Passed after current PR/ruleset visibility findings were added; canonical repository governance validation."
+      "summary": "Passed after current PR/ruleset visibility findings and public guidance updates."
     },
     {
       "command": "git diff --check (final redacted reassessment records)",
       "exit_code": 0,
-      "summary": "Passed after current PR/ruleset visibility findings were added; no whitespace errors."
+      "summary": "Passed after current PR/ruleset visibility findings and public guidance updates."
     },
     {
       "command": "Read PR #19 status, review decision, review requests, checks, and mergeability after the evidence follow-up push",
