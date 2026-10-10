@@ -187,9 +187,32 @@ for destroy-failure behavior agrees with WI324 AC-8 and decision 0011.
 
 Optional hardening only: attempt numeric fields are type- and finiteness-checked
 but not range-checked against totals. The reviewer did not classify that as a
-release blocker. No non-author GitHub reviewer username is currently available;
-PR #12 remains open and draft, and WI324 remains active pending that governance
-step. No merge, package, or installation was performed.
+release blocker. When this review result was first recorded, no non-author
+GitHub reviewer username was available. Subsequent inspection of the active
+GitHub ruleset confirmed that a non-author approval was not required; PR #12
+was then merged, as recorded below. No package or installation was performed.
+
+### Post-merge governance closeout (2026-10-09, America/Chicago)
+
+PR #12 was merged through GitHub using the repository's established merge
+commit strategy. The resulting commit is
+`1306755f7fb95eb25fcc0d8173eda391eb2e1cdf`; it is present at remote `main` and
+contains implementation commit `e2758360a2b3723c78099f87ca60dd5ba88a10f8` and
+evidence commit `92e93b89bcd176ab08bef84dd9a8cc68a9d7af8e`.
+
+Before merging, governance checks found no classic branch protection. The only
+active default-branch ruleset (ID `24818688`, “no delete”) contains deletion
+and non-fast-forward rules; it requires neither non-author approval nor status
+checks. GitHub reported no required PR checks, and the visible GitGuardian
+Security Checks check passed. The separate read-only technical review
+recommended approval with no P1/P2 blockers. This records why an additional
+GitHub reviewer request was not mandatory under the current repository rules.
+
+WI324's completion record, acceptance evidence reference, and generated
+dashboard are being updated in the separate repository governance closeout PR
+from the exact implementation merge commit. The work item becomes formally
+completed on `main` only when that closeout PR merges. Details and RepoPact
+validation are recorded in `evidence/runs/20261009-324-governance-closeout.json`.
 
 ### Initial follow-up validation (historical)
 

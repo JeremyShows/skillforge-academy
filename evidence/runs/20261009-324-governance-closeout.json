@@ -1,0 +1,82 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-324-governance-closeout",
+  "timestamp": "2026-10-10T00:08:08Z",
+  "work_item": "324",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "Verify implementation PR #12 merge on origin/main",
+      "exit_code": 0,
+      "summary": "PR #12 merged using a merge commit; origin/main points to 1306755f7fb95eb25fcc0d8173eda391eb2e1cdf and contains reviewed implementation e2758360a2b3723c78099f87ca60dd5ba88a10f8 and evidence commit 92e93b89bcd176ab08bef84dd9a8cc68a9d7af8e."
+    },
+    {
+      "command": "Inspect GitHub classic branch protection and active branch rulesets for main",
+      "exit_code": 0,
+      "summary": "No classic branch protection exists. Active default-branch ruleset 24818688 has only deletion and non-fast-forward rules; no required approval or status-check rules are configured."
+    },
+    {
+      "command": "gh pr checks 12",
+      "exit_code": 0,
+      "summary": "The visible GitGuardian Security Checks check passed; GitHub reported no required checks for the branch."
+    },
+    {
+      "command": "Independent read-only technical review of implementation commit e2758360a2b3723c78099f87ca60dd5ba88a10f8",
+      "exit_code": 0,
+      "summary": "Recommendation to approve; no P1/P2 blockers. Review evidence is recorded in 20261009-324-post-fix-independent-review."
+    },
+    {
+      "command": "Create clean closeout branch from implementation merge commit",
+      "exit_code": 0,
+      "summary": "Fresh worktree started clean at 1306755f7fb95eb25fcc0d8173eda391eb2e1cdf; closeout branch codex/wi324-governance-closeout was created from that exact commit."
+    },
+    {
+      "command": "python -m repopact.cli dashboard --root .; normalize generated dashboard to LF",
+      "exit_code": 0,
+      "summary": "Generated the dashboard after moving WI324 to the completed record set and registering this closeout evidence."
+    },
+    {
+      "command": "python -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "RepoPact governance, completed work-item, evidence-reference, and generated dashboard validation passed on the closeout branch."
+    },
+    {
+      "command": "git diff --check; git diff --cached --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors."
+    }
+  ],
+  "artifacts": [
+    "work/completed/324-canonical-learner-envelope-serialized-persistence/README.md",
+    "work/completed/324-canonical-learner-envelope-serialized-persistence/work-item.json",
+    "evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md",
+    "evidence/runs/20261009-324-post-fix-independent-review.json",
+    "decisions/0011-canonical-platform-learner-envelope-owner.md",
+    "audits/reports/dashboard.md",
+    "https://github.com/JeremyShows/skillforge-academy/pull/12"
+  ],
+  "environment": {
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "base_revision": "1306755f7fb95eb25fcc0d8173eda391eb2e1cdf",
+    "implementation_commit": "e2758360a2b3723c78099f87ca60dd5ba88a10f8",
+    "implementation_merge_commit": "1306755f7fb95eb25fcc0d8173eda391eb2e1cdf",
+    "implementation_pr": 12,
+    "closeout_branch": "codex/wi324-governance-closeout",
+    "closeout_pr": "pending creation",
+    "ruleset": {
+      "id": 24818688,
+      "name": "no delete",
+      "rules": ["deletion", "non_fast_forward"],
+      "approval_required": false,
+      "required_status_checks": false
+    },
+    "independent_review": {
+      "status": "passed",
+      "recommendation": "approve",
+      "p1_p2_release_blockers": 0
+    },
+    "scope": "Governance and evidence closeout only; no packaging, installation, WI322/WI323 changes, WI325-WI329 implementation, private-course changes, learner backup/restore, or Course Studio work. WI324 is completed on main only after the closeout PR merges."
+  }
+}
