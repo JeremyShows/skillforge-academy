@@ -150,27 +150,49 @@ npm run validate:docs
 & $python -m repopact.cli validate
 ```
 
-Push a focused `codex/...` branch and open an implementation PR that names the work item and evidence. The shell commands below use GitHub CLI (`gh`), which must be installed and authenticated; you can also open the PR in GitHub's web UI after pushing. After an independent contributor review and merge, start from updated `main` and use a separate closeout branch. Edit the merged work item and audit/evidence index as required; move the work item into the status directory that matches its new status. Then regenerate and validate the dashboard, stage only the records changed for closeout, and open a governance-closeout PR:
+Push a focused `codex/...` branch and open an implementation PR that names the work item and evidence. The shell commands below use GitHub CLI (`gh`), which must be installed and authenticated; you can also open the PR in GitHub's web UI after pushing.
+
+### Governance closeout example
+
+After the implementation PR merges, open a new PowerShell session from the updated repository checkout. Enter the merged work-item ID and its evidence-run ID; the commands below set all required variables, find the item regardless of its current status directory, move the completed record with `git mv`, regenerate the dashboard, and stage the dashboard, evidence, and audit index explicitly:
 
 ```powershell
+$python = ".\.venv\Scripts\python.exe"
+$itemId = Read-Host "Merged work-item ID (for example, 330)"
+$evidenceId = Read-Host "Evidence-run ID recorded by the work item"
+if ($itemId -notmatch '^[0-9]{3,}$') { throw "Enter the numeric RepoPact work-item ID." }
+if ($evidenceId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$') { throw "Enter the evidence-run ID, without a path." }
+$closeoutBranch = "codex/closeout-wi-$itemId"
 git switch main
 git pull --ff-only
-$closeoutBranch = "codex/closeout-wi-$itemId"
 git switch -c $closeoutBranch
-$itemPath = Get-ChildItem work -Recurse -Filter work-item.json | Where-Object { (Get-Content $_.FullName -Raw | ConvertFrom-Json).id -eq $itemId } | Select-Object -First 1 -ExpandProperty FullName
+$itemMatches = @(Get-ChildItem work -Recurse -Filter work-item.json | Where-Object { (Get-Content $_.FullName -Raw | ConvertFrom-Json).id -eq $itemId })
+if ($itemMatches.Count -ne 1) { throw "Expected one work item with ID $itemId; found $($itemMatches.Count)." }
+$itemPath = $itemMatches[0].FullName
 $evidencePath = Join-Path "evidence\runs" "$evidenceId.json"
-# Edit the merged work item and audit/evidence index, then stage those exact files.
+if (-not (Test-Path -LiteralPath $evidencePath)) { throw "Evidence run not found: $evidencePath" }
+# Edit the work item: satisfy accepted criteria, cite evidence, and set status to completed.
+# Edit the audit and audits/index.md if closeout requires those records to change.
 notepad.exe $itemPath
 notepad.exe $evidencePath
+notepad.exe audits/index.md
+$workItemDirectory = Split-Path $itemPath -Parent
+$workItemDirectoryRelative = Resolve-Path -LiteralPath $workItemDirectory -Relative
+$completedDirectory = Join-Path "work\completed" (Split-Path $workItemDirectory -Leaf)
+if (Test-Path -LiteralPath $completedDirectory) { throw "Completed work-item destination already exists: $completedDirectory" }
+git mv -- $workItemDirectoryRelative $completedDirectory
+$itemPath = Join-Path $completedDirectory "work-item.json"
 & $python -m repopact.cli dashboard
 & $python -m repopact.cli validate
-git add -- $itemPath $evidencePath
+git add -- $evidencePath audits/reports/dashboard.md audits/index.md
+# If an audit record changed, stage its exact path too, for example: git add -- audits/AUDIT-YYYY-MM-DD-topic.md
+git status --short
 git commit -m "governance: close out WI $itemId"
 git push -u origin $closeoutBranch
 gh pr create --base main --fill
 ```
 
-If the closeout also changes an audit or index, include each changed path explicitly in `git add --`; do not stage every file under the governance directories.
+`git mv` stages both the old and new work-item paths, so the closeout commit does not leave an active-directory duplicate. Stage any changed audit/index files by exact path; do not stage every file under the governance directories.
 
 ## 6. Keep public contributions safe
 

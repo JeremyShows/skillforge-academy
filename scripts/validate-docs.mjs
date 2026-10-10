@@ -129,7 +129,7 @@ try {
   for (const [, remoteUrl] of configuredRemotes) {
     if (!remoteUrl) continue;
     const normalized = remoteUrl.replace(/\.git$/i, "").replace(/\/$/, "");
-    if (/^(?:https:\/\/github\.com\/JeremyShows\/skillforge-academy|git@github\.com:JeremyShows\/skillforge-academy)$/i.test(normalized)) continue;
+    if (/^(?:https:\/\/github\.com\/JeremyShows\/skillforge-academy|git@github\.com:JeremyShows\/skillforge-academy|ssh:\/\/git@github\.com\/JeremyShows\/skillforge-academy)$/i.test(normalized)) continue;
     const githubSlug = normalized.match(/github\.com[:/]([^/]+\/[^/]+)$/i)?.[1];
     const protectedLocations = [remoteUrl, normalized, githubSlug].filter(Boolean).map(value => value.toLowerCase());
     for (const file of markdownFiles) {

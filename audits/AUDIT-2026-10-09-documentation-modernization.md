@@ -37,6 +37,12 @@ The remediation separates local checks from the current release workflow, replac
 
 Remediation evidence is in [20261009-330-independent-review-remediation](../evidence/runs/20261009-330-independent-review-remediation.json). A fresh independent review of the updated PR commit remains pending; this audit stays open.
 
+### Second independent PR review follow-up at `4e3dcb5`
+
+A second fresh read-only review confirmed the original three findings were fixed, then found two P2 reproducibility defects in the newly documented governance closeout example at `docs/contributor-onboarding.md:153-170`: the example relied on variables from the preceding worked example instead of initializing them in a new session, and its staging commands omitted the work-item directory move and regenerated dashboard. Both are corrected in the current WI330 branch: the closeout example now prompts for and validates its IDs, verifies unique item/evidence paths, uses a repository-relative source for `git mv`, stages the generated dashboard and audit index, and keeps the status-directory move in the index. The regression check verifies these workflow invariants. The same review identified an optional false-positive case for the canonical `ssh://git@github.com/JeremyShows/skillforge-academy` remote; the validator now explicitly accepts that public remote form.
+
+Evidence for this follow-up and its validation is recorded in [20261009-330-closeout-example-remediation](../evidence/runs/20261009-330-closeout-example-remediation.json). A new independent review of the resulting commit remains pending; WI330 and this audit stay open.
+
 ### P1: Contributor and signing docs referenced a non-public repository location
 
 **Status:** remediated in WI330 branch
