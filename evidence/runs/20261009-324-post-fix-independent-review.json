@@ -1,0 +1,104 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-324-post-fix-independent-review",
+  "timestamp": "2026-10-09T22:22:00Z",
+  "work_item": "324",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm test -- --run src/platform/windowShutdown.test.ts src/platform/envelopeStore.test.ts src/platform/persistence.test.ts src/platform/modern-runtime.test.ts",
+      "exit_code": 0,
+      "summary": "49 focused tests passed across 4 files, covering shutdown quiescence and durability, import ordering and atomicity, malformed legacy records, course quarantine and recovery, and content-version reconciliation."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "194 Vitest tests passed across 14 files."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Windows Tauri backend check passed."
+    },
+    {
+      "command": "cargo test --lib --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "7 Rust library tests passed, including strict native backup validation and two-file rollback after simulated replacement failure."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript and Vite production build passed."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "3 certification tracks, 19 domains, 770 questions, 135 flashcards, 28 PBQs, and 150 lessons validated."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "Exact private repository/path/package marker scan over changed and untracked files",
+      "exit_code": 0,
+      "summary": "No private repository, path, or package markers found in changed or untracked files."
+    },
+    {
+      "command": "git diff --check; git diff --cached --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "python -m repopact.cli dashboard --root .; normalize generated dashboard to LF",
+      "exit_code": 0,
+      "summary": "Generated the governance dashboard after registering this evidence run and updated WI324 acceptance references."
+    },
+    {
+      "command": "python -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "RepoPact governance, work-item, evidence-reference, and generated dashboard validation passed."
+    },
+    {
+      "command": "Independent read-only review of implementation commit e2758360a2b3723c78099f87ca60dd5ba88a10f8",
+      "exit_code": 0,
+      "summary": "Recommendation: approve; no P1/P2 release blockers remain. Reviewer verified shutdown, import ordering/atomicity, malformed notes and attempts, and course recovery. Optional numeric range validation was not required for acceptance."
+    }
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md",
+    "src/platform/persistence.ts",
+    "src/platform/persistence.test.ts",
+    "src-tauri/src/lib.rs",
+    "work/active/324-canonical-learner-envelope-serialized-persistence/work-item.json",
+    "https://github.com/JeremyShows/skillforge-academy/pull/12"
+  ],
+  "environment": {
+    "base_revision": "34b1fd2a10fb97d38be4211d9fb4231e327dd3c6",
+    "implementation_commit": "e2758360a2b3723c78099f87ca60dd5ba88a10f8",
+    "worktree": "C:\\Users\\jerem\\.codex\\worktrees\\wi324-canonical-envelope\\skillforge-academy",
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "pull_request": {
+      "number": 12,
+      "state": "OPEN",
+      "draft": true,
+      "head": "e2758360a2b3723c78099f87ca60dd5ba88a10f8"
+    },
+    "independent_review": {
+      "status": "passed",
+      "recommendation": "approve",
+      "p1_p2_release_blockers": 0,
+      "reviewed_commit": "e2758360a2b3723c78099f87ca60dd5ba88a10f8",
+      "non_author_github_reviewer": "not identified"
+    },
+    "scope": "Public WI324 acceptance-blocker remediation only; no merge, packaging, installation, learner-backup use, WI322/WI323 changes, WI325-WI329 implementation, or Course Studio work."
+  }
+}

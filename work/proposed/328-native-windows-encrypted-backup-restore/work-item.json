@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "328",
+  "title": "Native Windows Encrypted Backup and Restore",
+  "status": "proposed",
+  "owner_scope": "implementation",
+  "affected_scopes": [
+    "implementation",
+    "accessibility",
+    "release",
+    "governance"
+  ],
+  "depends_on": [
+    "324"
+  ],
+  "provenance": "concrete",
+  "preflight": {
+    "created_at": "2026-10-09T14:56:05-05:00",
+    "created_before_work_started": true,
+    "note": "Registered before implementation in a clean isolated public worktree at exact base 927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af after verifying WI324-WI329 were free. The shared dirty checkout, WI323 worktree, private repository, installed application, and preserved learner backup are out of scope."
+  },
+  "acceptance_criteria": [
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Windows backup export uses a native destination picker and reports completion only after the encrypted file is durably written to the chosen destination.",
+      "id": "AC-1"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Restore validates and decrypts before replacing learner data, preserves a recoverable prior copy, and reports bounded actionable failures.",
+      "id": "AC-2"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Windows acceptance covers cancellation, denied or invalid destination, successful export/import roundtrip, and preservation of prior state on failure.",
+      "id": "AC-3"
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "Accepted persistence/state-authority discovery; implementation explicitly deferred from WI324."
+}

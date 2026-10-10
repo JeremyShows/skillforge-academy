@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "326",
+  "title": "Persistent Lecture Delivery State",
+  "status": "proposed",
+  "owner_scope": "implementation",
+  "affected_scopes": [
+    "implementation",
+    "accessibility",
+    "governance"
+  ],
+  "depends_on": [
+    "324"
+  ],
+  "provenance": "concrete",
+  "preflight": {
+    "created_at": "2026-10-09T14:56:05-05:00",
+    "created_before_work_started": true,
+    "note": "Registered before implementation in a clean isolated public worktree at exact base 927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af after verifying WI324-WI329 were free. The shared dirty checkout, WI323 worktree, private repository, installed application, and preserved learner backup are out of scope."
+  },
+  "acceptance_criteria": [
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Lecture cursor, visited segments, responses, and completion state hydrate from and persist to the course entry in PlatformLearnerEnvelope through the WI324 owner.",
+      "id": "AC-1"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Starting or resuming lecture delivery preserves the learner's prior valid state and rejects incompatible state without replacing it with defaults.",
+      "id": "AC-2"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Restart and migration tests cover lecture state compatibility, course namespace separation, and failure reporting using public-neutral fixtures.",
+      "id": "AC-3"
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "Accepted persistence/state-authority discovery; implementation explicitly deferred from WI324."
+}

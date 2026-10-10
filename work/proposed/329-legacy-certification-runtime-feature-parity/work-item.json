@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "329",
+  "title": "Legacy Certification Runtime and Feature Parity",
+  "status": "proposed",
+  "owner_scope": "implementation",
+  "affected_scopes": [
+    "implementation",
+    "accessibility",
+    "content",
+    "governance"
+  ],
+  "depends_on": [
+    "324",
+    "320"
+  ],
+  "provenance": "concrete",
+  "preflight": {
+    "created_at": "2026-10-09T14:56:05-05:00",
+    "created_before_work_started": true,
+    "note": "Registered before implementation in a clean isolated public worktree at exact base 927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af after verifying WI324-WI329 were free. The shared dirty checkout, WI323 worktree, private repository, installed application, and preserved learner backup are out of scope."
+  },
+  "acceptance_criteria": [
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Legacy certification courses are represented or adapted to the canonical package/runtime contract so supported learner features behave consistently across course sources.",
+      "id": "AC-1"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Legacy learner progress conversion into the canonical envelope is deterministic, identity-safe, recoverable, and preserves apex-state and backup compatibility until verified migration succeeds.",
+      "id": "AC-2"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Feature-parity coverage includes instruction, assessment, remediation, capstone where authored, lecture, Academic Record, instructor, and lab capabilities as supported by each course, without fabricating authored content or results.",
+      "id": "AC-3"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Public-safe migration and parity tests prove old state remains recoverable and all converted state maps to the intended course identity and namespace.",
+      "id": "AC-4"
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "Accepted persistence/state-authority discovery and user direction that the course-platform learner envelope is canonical; actual legacy conversion is deferred from WI324."
+}

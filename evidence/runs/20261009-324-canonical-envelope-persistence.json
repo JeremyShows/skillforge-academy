@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-324-canonical-envelope-persistence",
+  "timestamp": "2026-10-09T20:25:00Z",
+  "work_item": "324",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "summary": "Installed 97 packages from the committed lockfile; npm reported zero vulnerabilities.",
+      "exit_code": 0,
+      "command": "npm ci"
+    },
+    {
+      "summary": "28 focused tests passed across the new envelope owner, persistence adapters, CourseProgress, and Academic Record projection.",
+      "exit_code": 0,
+      "command": "npm test -- --run src/platform/envelopeStore.test.ts src/platform/persistence.test.ts src/platform/modern-runtime.test.ts"
+    },
+    {
+      "summary": "173 tests passed across 13 Vitest files.",
+      "exit_code": 0,
+      "command": "npm test -- --run"
+    },
+    {
+      "summary": "3 certification tracks, 150 lessons, and objective coverage validated.",
+      "exit_code": 0,
+      "command": "npm run validate:content"
+    },
+    {
+      "summary": "20 accessibility checks passed.",
+      "exit_code": 0,
+      "command": "npm run validate:a11y"
+    },
+    {
+      "summary": "TypeScript and Vite production build passed.",
+      "exit_code": 0,
+      "command": "npm run build"
+    },
+    {
+      "summary": "Rust formatting gate passed.",
+      "exit_code": 0,
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml"
+    },
+    {
+      "summary": "Tauri backend check passed on Windows.",
+      "exit_code": 0,
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml"
+    },
+    {
+      "summary": "4 Rust unit tests passed, including three platform-state writer safety tests.",
+      "exit_code": 0,
+      "command": "cargo test --lib --manifest-path src-tauri/Cargo.toml"
+    },
+    {
+      "summary": "Generated the dashboard after registering WI324-WI329.",
+      "exit_code": 0,
+      "command": "python -m repopact.cli dashboard --root ."
+    },
+    {
+      "summary": "Governance, work-item, decision, evidence-reference, and generated dashboard validation passed using pinned RepoPact 3.0.2.",
+      "exit_code": 0,
+      "command": "python -m repopact.cli validate"
+    },
+    {
+      "summary": "No whitespace errors after line-ending normalization.",
+      "exit_code": 0,
+      "command": "git diff --check"
+    },
+    {
+      "summary": "No private package identity, private package path, or private repository marker was found in the public checkout.",
+      "exit_code": 0,
+      "command": "public privacy leakage scan"
+    }
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md",
+    "work/active/324-canonical-learner-envelope-serialized-persistence",
+    "work/proposed/325-capstone-stage-context-evaluation-academic-record-parity",
+    "work/proposed/326-persistent-lecture-delivery-state",
+    "work/proposed/327-reachable-lab-completion-persistent-lab-runs",
+    "work/proposed/328-native-windows-encrypted-backup-restore",
+    "work/proposed/329-legacy-certification-runtime-feature-parity",
+    "decisions/0011-canonical-platform-learner-envelope-owner.md"
+  ],
+  "environment": {
+    "base_revision": "927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af",
+    "worktree": "C:\\Users\\jerem\\.codex\\worktrees\\wi324-canonical-envelope\\skillforge-academy",
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows"
+  }
+}

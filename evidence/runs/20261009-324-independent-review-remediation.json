@@ -1,0 +1,92 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-324-independent-review-remediation",
+  "timestamp": "2026-10-09T22:08:00Z",
+  "work_item": "324",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm test -- --run src/platform/windowShutdown.test.ts src/platform/envelopeStore.test.ts src/platform/persistence.test.ts src/platform/modern-runtime.test.ts",
+      "exit_code": 0,
+      "summary": "47 focused tests passed across 4 files, covering shutdown quiescence and durability, strict backup classification and atomicity, course quarantine and recovery, and content-version reconciliation."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "192 Vitest tests passed across 14 files."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Windows Tauri backend check passed."
+    },
+    {
+      "command": "cargo test --lib --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "7 Rust library tests passed, including strict native backup validation and rollback after simulated second-file replacement failure."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript and Vite production build passed."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "3 certification tracks, 19 domains, 770 questions, and 150 lessons validated."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "Exact private repository, path, and package marker scan over changed source",
+      "exit_code": 0,
+      "summary": "No private repository, path, or package markers found in changed source, evidence, or work-item records."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "python -m repopact.cli dashboard --root .; normalize generated dashboard to LF",
+      "exit_code": 0,
+      "summary": "Generated the governance dashboard after registering this evidence run and updated WI324 acceptance references."
+    },
+    {
+      "command": "python -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "RepoPact governance, work-item, evidence-reference, and generated dashboard validation passed."
+    }
+  ],
+  "artifacts": [
+    "evidence/platform/2026-10-09-wi324-canonical-envelope-persistence/README.md",
+    "src/App.tsx",
+    "src/platform/PlatformHub.tsx",
+    "src/platform/envelopeStore.test.ts",
+    "src/platform/persistence.test.ts",
+    "src/platform/persistence.ts",
+    "src/platform/windowShutdown.test.ts",
+    "src/platform/windowShutdown.ts",
+    "src/state/learnerState.ts",
+    "src-tauri/src/lib.rs",
+    "work/active/324-canonical-learner-envelope-serialized-persistence/work-item.json",
+    "https://github.com/JeremyShows/skillforge-academy/pull/12"
+  ],
+  "environment": {
+    "base_revision": "34b1fd2a10fb97d38be4211d9fb4231e327dd3c6",
+    "implementation_commit": "bae7940b53515d1a3bfc211a3a65cfbf803df7f2",
+    "worktree": "C:\\Users\\jerem\\.codex\\worktrees\\wi324-canonical-envelope\\skillforge-academy",
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "scope": "Public WI324 review-blocker remediation only; no merge, packaging, installation, learner backup use, WI322/WI323 changes, WI325-WI329 implementation, or Course Studio work."
+  }
+}

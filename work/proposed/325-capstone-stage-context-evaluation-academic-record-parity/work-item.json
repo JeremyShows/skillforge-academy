@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "325",
+  "title": "Capstone Stage Context, Evaluation, and Academic Record Parity",
+  "status": "proposed",
+  "owner_scope": "implementation",
+  "affected_scopes": [
+    "implementation",
+    "accessibility",
+    "governance"
+  ],
+  "depends_on": [
+    "324"
+  ],
+  "provenance": "concrete",
+  "preflight": {
+    "created_at": "2026-10-09T14:56:05-05:00",
+    "created_before_work_started": true,
+    "note": "Registered before implementation in a clean isolated public worktree at exact base 927a57c9119d24581e8fe3fc1f1bd68e7ab1d0af after verifying WI324-WI329 were free. The shared dirty checkout, WI323 worktree, private repository, installed application, and preserved learner backup are out of scope."
+  },
+  "acceptance_criteria": [
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Generic Classroom capstone submissions carry the exact authored stage context into CourseProgress completion and persist stage evidence through the canonical envelope owner.",
+      "id": "AC-1"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Evaluation selects the authored stage prompt and rubric deterministically and fails closed for missing or mismatched stage context.",
+      "id": "AC-2"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Academic Record capstone and module assessment projections agree with authoritative CourseProgress after valid and invalid submissions.",
+      "id": "AC-3"
+    },
+    {
+      "evidence": [],
+      "state": "pending",
+      "text": "Public-neutral tests cover missing stage context, stage-specific evaluation, evidence persistence, retry, and Academic Record projection without private-course content.",
+      "id": "AC-4"
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "Accepted persistence/state-authority discovery; implementation explicitly deferred from WI324."
+}
