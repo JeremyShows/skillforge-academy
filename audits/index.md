@@ -1,9 +1,10 @@
 # Audit Index
 
-Last updated: 2026-10-09 (WI330 review and governance closeout)
+Last updated: 2026-10-09 (WI330 closeout and canonical work reconciliation)
 
 | ID | Title | Type | Status | Related Todo | Date |
 | --- | --- | --- | --- | --- | --- |
+| [AUDIT-2026-10-09-work-reconciliation](AUDIT-2026-10-09-work-reconciliation.md) | Canonical Work Inventory and Gated Execution | foundation / architecture | open | [332](../work/active/332-canonical-work-reconciliation-and-gated-execution-plan/README.md) | 2026-10-09 |
 | [AUDIT-2026-06-16-foundation](AUDIT-2026-06-16-foundation.md) | Agent/Todo/Audit/Tracking Foundation Created | foundation | passed-with-notes | [001](../work/completed/001-true-cert-factory/README.md) | 2026-06-16 |
 | [AUDIT-2026-06-16-true-cert-factory](AUDIT-2026-06-16-true-cert-factory.md) | True Certification Factory Implementation | architecture / implementation | passed-with-notes | [001](../work/completed/001-true-cert-factory/README.md), [002](../work/completed/002-cert-authoring-guide/README.md), [302](../work/completed/302-milestone-true-certification-factory/README.md) | 2026-06-16 |
 | [AUDIT-2026-06-17-multi-track-ux](AUDIT-2026-06-17-multi-track-ux.md) | Multi-Track UX, Availability, and Analytics | implementation | passed-with-notes | [005](../work/completed/005-multi-track-ux-and-analytics/README.md) | 2026-06-17 |
@@ -30,4 +31,9 @@ Last updated: 2026-10-09 (WI330 review and governance closeout)
 
 ## Next Recommended Audit
 
-Next recommended audit: packaged-app acceptance on the frozen 1.4.1-beta.1 candidate (WI310 AC-4). Remote Windows CI for that older candidate remains blocked/waived; WI310's first cohort is explicitly not AT-qualified unless a real screen-reader pass is completed.
+Next: independently review and close WI332 after merge; resolve WI322's
+current-main review/closeout; complete WI311 and WI333. Keep WI228 deferred
+until WI310's exact `1.4.1-beta.1` acceptance gate and WI333 safeguards both
+have evidence. Remote Windows CI remains subject to the recorded billing
+blocker; any v2 candidate needs new binary-specific evidence. WI310 AC-4 is
+the next packaged-app audit once its frozen-candidate evidence is available.

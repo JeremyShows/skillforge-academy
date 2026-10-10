@@ -86,3 +86,17 @@ walkthrough unless AC-5 records an explicit non-AT-qualified cohort scope.
 AT exclusion, AC-6 runbook, and AC-7 governance reconciliation are done. AC-3
 remote Windows CI is waived/blocked on GitHub billing (local gates green).
 **Remaining:** AC-4 packaged-app interactive acceptance on the frozen installer.
+
+## Candidate and readiness separation (2026-10-09)
+
+The artifact and evidence above identify the historical `1.4.1-beta.1`
+candidate at source commit `ca6d5b6d11741b3d7fc2890976ee5005c330b735`. Its
+identity, checksum, local gates, and runbook remain useful historical evidence
+for that exact binary only. They do not qualify a v2.0.0-beta.1 candidate.
+
+WI310 is still active: AC-4 packaged-app acceptance remains pending, and AC-3's
+remote Windows CI limitation is recorded as waived with its billing blocker.
+The pilot gate is therefore not green. Any later candidate requires a new
+source commit, installer, checksum, build/CI run, installed-app acceptance, and
+release evidence under its own candidate identity. WI228 must not be activated
+until WI310 and the separate WI333 privacy gate are complete.

@@ -14,6 +14,16 @@ account or telemetry is required; diagnostic export is explicit; portable
 backups are encrypted. WI312 records what must be true before future product
 work expands that boundary.
 
+## Pre-pilot scope split
+
+The controlled pilot's participant notice, consent, data minimization, public
+evidence rules, and stop conditions are now owned by [WI333](../333-pre-pilot-learner-privacy-gate/README.md).
+WI228 depends on WI333; WI312 does not depend on WI228 or WI310. The first two
+acceptance criteria below are narrowed to future collection and support
+workflows beyond WI333. This amendment preserves the original work-item ID and
+remaining institutional, hosted, and minor-data responsibilities while keeping
+the required pilot safeguards ahead of recruitment.
+
 ## Current boundary
 
 The current offline/local-first product does not become subject to FERPA merely
@@ -25,17 +35,13 @@ relationship, online data collection, and knowledge of a child's age.
 The work item therefore tracks **conditions that create new obligations**, not a
 blanket compliance claim.
 
-## Beta/pilot data
+## Future support/data workflows
 
-Real-learner pilots require a bounded feedback contract:
-
-- progress remains local unless the participant deliberately shares something;
-- diagnostic/support exports are optional and redacted/minimized by default;
-- feedback identifiers should be pseudonymous where practical;
-- no real learner data belongs in public GitHub issues, screenshots, test
-  fixtures, CI logs, or RepoPact evidence; and
-- pilot participation does not authorize unrelated analytics, marketing, model
-  training, or publication.
+Any future support or product workflow beyond the controlled pilot in WI333
+must retain a bounded purpose, minimize collected data, use pseudonymous
+identifiers where practical, and keep sensitive learner material out of public
+issues, screenshots, fixtures, CI logs, and RepoPact evidence unless it is
+explicitly redacted and authorized.
 
 ## Children / COPPA
 

@@ -1,25 +1,48 @@
-# WI 331 — SkillForge Academy v2.0.0-beta.1 release preparation and publication gates
+# WI-331 — SkillForge Academy v2.0.0-beta.1 Release Preparation and Publication Gates
 
 > **Status:** Proposed
-> **Owner scope:** Governance / release
-> **Milestone:** Separate from documentation WI330
+> **Owner:** Governance/release maintainer; technical owners retain their implementation surfaces.
+> **Depends on:** WI330 (completed documentation and contributor readiness).
 
-## Intent
+## Purpose and phase boundaries
 
-Prepare a technically verified v2.0.0-beta.1 candidate only after the product scope, SemVer lineage, learner-data compatibility, package/backup behavior, installer identity, and release pipeline are reconciled. No release metadata, tag, or distribution is created by proposing this item.
+WI331 governs a possible v2.0.0-beta.1 release. Its RepoPact dependency permits
+harmless preparation after the documentation foundation is available. It does
+not authorize a candidate build, learner pilot, tag, or publication.
 
-## Dependencies
+### Release preparation
 
-WI310 pre-beta candidate gate; WI311 legal/content IP hardening; WI322 lecture formal-activity acceptance; WI324 serialized learner envelope; WI325–WI329 platform parity/persistence/migration follow-ups; WI330 public documentation.
+Preparation may inspect version lineage, release metadata, pipeline feasibility,
+packaging constraints, compatibility questions, documentation, and known gaps.
+It may not claim a candidate is verified or publish artifacts. It can proceed
+without waiting for unrelated platform implementation work.
 
-## Scope
+### Candidate verification
 
-Version and application identity, release workflow draft/prerelease semantics, clean candidate build, Windows CI, isolated install/upgrade and data-recovery acceptance, checksums, privacy/accessibility/content review, release notes, and explicit maintainer authorization.
+Candidate verification starts only after the capabilities being claimed are
+implemented and integrated. A full v2 platform parity claim requires Gate 3
+integration evidence (WI325–WI329), WI311 legal/IP review, WI322 reviewed
+runtime behavior, WI324 persistence compatibility, and WI333 privacy safeguards
+when learner data is involved. Scope any smaller candidate honestly and record
+known gaps. Build and verify the exact clean commit and binary, with unique
+identity, SHA-256, automated and independent Windows CI evidence, fresh-install,
+upgrade, legacy-state, backup/restore, recovery, accessibility, security, and
+privacy checks as applicable.
 
-## Hard boundary
+WI310's `1.4.1-beta.1` artifact, hash, and historical checks do not qualify a
+v2 binary. WI228 remains tied to its registered WI310 candidate. A pilot of a
+different candidate needs an explicit candidate-specific amendment and fresh
+evidence before participants are recruited.
 
-Do not publish a tag or release, distribute an installer, weaken a release gate, install over a maintainer's application, or modify real learner data. A production build or unit suite alone is not release evidence. If a required gate cannot pass, record the blocker and retain the candidate without publication.
+### Publication authorization
 
-## Acceptance
+Publication is a separate final gate. Require release-specific evidence,
+security and privacy review, accurate limitations, technical/governance
+approval, and explicit maintainer authorization. Passing implementation or
+candidate checks alone does not authorize a public release.
 
-See `work-item.json`. The item remains proposed until its prerequisites and target scope are ready. Completion requires evidence for every release gate and separate authorization before publication.
+## Acceptance criteria
+
+The six canonical criteria in `work-item.json` remain unchanged. Record each
+criterion's evidence at the phase where it applies; preparation evidence cannot
+substitute for candidate verification or publication approval.

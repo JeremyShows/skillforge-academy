@@ -5,7 +5,7 @@
   "status": "proposed",
   "owner_scope": "governance",
   "affected_scopes": ["implementation", "docs", "release", "accessibility", "governance"],
-  "depends_on": ["310", "311", "322", "324", "325", "326", "327", "328", "329", "330"],
+  "depends_on": ["330"],
   "provenance": "concrete",
   "preflight": {
     "created_before_work_started": true,
