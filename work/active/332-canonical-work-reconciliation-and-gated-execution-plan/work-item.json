@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "332",
+  "title": "Canonical work reconciliation and gated execution plan",
+  "status": "active",
+  "owner_scope": "governance",
+  "affected_scopes": ["governance", "foundation", "docs", "release"],
+  "depends_on": [],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-09T21:08:19-05:00",
+    "note": "Captured after read-only baseline discovery against origin/main and before governance implementation edits; baseline is 17be629702ef57ffd38db35c5d541745f02e73b0."
+  },
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "text": "Reconcile the complete canonical inventory and discovered branch-local work; register WI323 from its preserved original record with maintainer scope acceptance while leaving WI330 and WI331 under their separate PR owner.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "AC-2",
+      "text": "Publish a validated dependency DAG and traceability report that separates the WI312 pre-pilot privacy gate from later institutional privacy work, preserves WI310 historical candidate evidence, and records WI322 source and review status without claiming unverified completion.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "AC-3",
+      "text": "Publish a gated roadmap and contributor ownership matrix for remaining work, including WI325-WI329 integration boundaries and separate release preparation, candidate verification, learner pilot, and publication authorization gates.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "AC-4",
+      "text": "Run RepoPact validation, regenerate the dashboard, verify dependency acyclicity and registry consistency, run applicable documentation/privacy/whitespace checks, and submit the governance change through a reviewable PR with independent review requested.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "AC-5",
+      "text": "Keep the work item active until independent review and protected-branch governance closeout are complete; do not mark the plan or future implementation items completed without their own evidence.",
+      "state": "pending",
+      "evidence": []
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "Maintainer directive to reconcile canonical work and establish gated execution from freshly fetched origin/main."
+}
