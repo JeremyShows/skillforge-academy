@@ -1,0 +1,77 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261010-334-single-maintainer-review-policy",
+  "timestamp": "2026-10-10T15:34:16Z",
+  "work_item": "334",
+  "result": "blocked",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rules/branches/main before the ruleset update",
+      "exit_code": 0,
+      "summary": "The effective branch-rule response identified repository ruleset 24818688 as the only active rule source; no organization-level review rule appeared in the effective response."
+    },
+    {
+      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 before the ruleset update",
+      "exit_code": 0,
+      "summary": "The active default-branch ruleset required one approving review, latest-push approval, and code-owner approval; it also protected deletion and non-fast-forward updates."
+    },
+    {
+      "command": "PUT /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 with only the three authorized approval parameters changed",
+      "exit_code": 0,
+      "summary": "Required approving reviews set to zero; latest-push approval and code-owner approval disabled. Pull-request, deletion, non-fast-forward, stale-dismissal, merge-method, bypass, and remaining parameters preserved."
+    },
+    {
+      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 and /repos/ForgeWireLabs/skillforge-academy/rules/branches/main after the ruleset update",
+      "exit_code": 0,
+      "summary": "Effective settings show zero required approvals, latest-push approval disabled, code-owner approval disabled, pull requests still required, deletion and non-fast-forward protections active, no bypass actors, stale-review dismissal retained, and merge methods unchanged. The unattributed-Copilot extra-approval setting remains enabled; GitHub documents that it has no effect when the required review count is zero."
+    },
+    {
+      "command": "gh pr view 19 --repo ForgeWireLabs/skillforge-academy --json state,headRefOid,mergeable,mergeStateStatus,reviewDecision,reviewRequests,reviews,statusCheckRollup",
+      "exit_code": 0,
+      "summary": "PR #19 remained open and mergeable with a clean merge state; REVIEW_REQUIRED cleared. No reviews, review requests, or checks were reported at query time. The PR was not merged."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Passed: 37 curated Markdown files for local links and anchors; privacy, credential, and configured-remote scans covered 221 Markdown files and 163 governance JSON records."
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m repopact.cli dashboard",
+      "exit_code": 0,
+      "summary": "Passed; regenerated audits/reports/dashboard.md from current work-item records."
+    },
+    {
+      "command": ".venv/Scripts/python.exe -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "Passed; canonical RepoPact governance records and evidence validate."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "summary": "Passed with no whitespace errors."
+    }
+  ],
+  "artifacts": [
+    "CONTRIBUTING.md",
+    "docs/contributor-onboarding.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/README.md",
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json",
+    "evidence/runs/20261010-334-single-maintainer-review-policy.json",
+    "audits/reports/dashboard.md"
+  ],
+  "environment": {
+    "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
+    "ruleset": "24818688; active repository ruleset targeting the default branch",
+    "effective_review_controls": "Pull request required; zero required approving reviews; latest-push approval disabled; code-owner approval disabled; no effective organization-level approval rule detected.",
+    "preserved_controls": "Deletion and non-fast-forward protections active; no bypass actors; stale-review dismissal and allowed merge methods unchanged.",
+    "formal_github_approval": "Optional under the current single-maintainer model.",
+    "independent_technical_review": "Still required where RepoPact specifies it; final-head review remains outstanding.",
+    "pr_19": "Open, mergeable, clean; REVIEW_REQUIRED cleared; not merged.",
+    "wi334": "Blocked pending remaining privacy, effective-access, organization Actions/secrets visibility, contact classification, and independent technical-review evidence.",
+    "private_course_contents": "not inspected",
+    "learner_data": "not inspected",
+    "secret_values": "not read",
+    "invitations": "none"
+  }
+}

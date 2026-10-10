@@ -65,23 +65,25 @@
     },
     {
       "id": "AC-6",
-      "text": "Review public release, Actions, and package exposure metadata; record a redacted classification and disposition for unresolved contact metadata without exposing values or changing releases.",
-      "state": "satisfied",
+      "text": "Review public release, Actions, and package exposure metadata; obtain a defensible classification and redacted disposition for contact metadata without exposing values or changing releases.",
+      "state": "pending",
       "evidence": [
-        "20261010-334-access-boundary-reassessment"
+        "20261010-334-access-boundary-reassessment",
+        "20261010-334-single-maintainer-review-policy"
       ]
     },
     {
       "id": "AC-7",
-      "text": "Ensure CODEOWNERS and the active default-branch rules enforce maintainer review for canonical governance paths after the initial CODEOWNERS file is merged; document that RepoPact does not authenticate record authors.",
+      "text": "After the initial CODEOWNERS file is merged, verify that it identifies maintainers for canonical governance paths, that default-branch rules require pull requests and preserve integrity protections without mandatory GitHub approval under the single-maintainer model, and that RepoPact does not authenticate record authors.",
       "state": "pending",
       "evidence": [
-        "20261010-334-access-boundary-reassessment"
+        "20261010-334-access-boundary-reassessment",
+        "20261010-334-single-maintainer-review-policy"
       ]
     },
     {
       "id": "AC-8",
-      "text": "Obtain an independent read-only technical review of the final implementation/evidence PR head and formal non-author GitHub approval that satisfies the active ruleset without bypassing latest-push approval.",
+      "text": "Obtain and record an independent read-only technical review of the final implementation/evidence PR head. Formal GitHub approval is optional under the current single-maintainer model; technical review does not replace required tests or acceptance evidence.",
       "state": "pending",
       "evidence": [
         "20261010-334-access-boundary-reassessment"
