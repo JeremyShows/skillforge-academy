@@ -1,0 +1,94 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-330-public-record-privacy-scan",
+  "timestamp": "2026-10-09T20:35:44-05:00",
+  "work_item": "330",
+  "result": "passed",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "npm run test:docs-validator",
+      "exit_code": 0,
+      "summary": "12 positive/negative path cases passed; regression checks cover repository Markdown and evidence/work governance JSON, CI coverage claims, RepoPact closeout safeguards, and canonical SSH remote handling."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Validated 37 curated Markdown files for local links/anchors; path, credential, and configured-remote scans covered 212 repository Markdown files and 149 governance JSON records under evidence/ and work/. No findings; release metadata is consistent. External URL availability is not checked."
+    },
+    {
+      "command": "npm run validate:content",
+      "exit_code": 0,
+      "summary": "Validated 3 certification tracks, 19 domains, 770 questions, 135 flashcards, 28 PBQs, and 150 lessons; all 116 objectives have a lesson and at least 6 questions."
+    },
+    {
+      "command": "npm run validate:a11y",
+      "exit_code": 0,
+      "summary": "All 20 accessibility checks passed."
+    },
+    {
+      "command": "npm test -- --run",
+      "exit_code": 0,
+      "summary": "194 Vitest tests passed across 14 files."
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "summary": "TypeScript and Vite production build passed."
+    },
+    {
+      "command": "cargo fmt --check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Rust formatting check passed."
+    },
+    {
+      "command": "cargo check --manifest-path src-tauri/Cargo.toml",
+      "exit_code": 0,
+      "summary": "Windows Tauri backend check passed."
+    },
+    {
+      "command": "PowerShell parser validation of fenced snippets in docs/contributor-onboarding.md",
+      "exit_code": 0,
+      "summary": "All 3 documented PowerShell snippets parsed successfully."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli dashboard --root . (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "Regenerated the RepoPact dashboard using the pinned virtual-environment interpreter with no globally installed RepoPact executable available on PATH."
+    },
+    {
+      "command": ".venv\\Scripts\\python.exe -m repopact.cli validate (PATH limited to .venv\\Scripts and System32)",
+      "exit_code": 0,
+      "summary": "RepoPact governance, evidence references, and generated dashboard validation passed with the pinned virtual-environment interpreter."
+    },
+    {
+      "command": "git diff --cached --check; git diff --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors in staged or unstaged WI330 changes."
+    }
+  ],
+  "artifacts": [
+    "scripts/doc-paths.mjs",
+    "scripts/validate-docs.mjs",
+    "scripts/test-docs-validator.mjs",
+    "docs/contributor-onboarding.md",
+    "audits/AUDIT-2026-10-09-documentation-modernization.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/README.md",
+    "work/active/330-documentation-modernization-and-contributor-onboarding/work-item.json",
+    "evidence/runs/20261009-330-public-markdown-privacy-scan.json",
+    "evidence/runs/20260630-217-android-mobile-foundation.json",
+    "evidence/runs/20260702-217-android-runtime-proof.json",
+    "evidence/runs/20261004-320-canonical-authored-course-model-v1-3.json"
+  ],
+  "environment": {
+    "platform": "Windows",
+    "node": "v24.15.0",
+    "npm": "11.12.1",
+    "python": "3.12.4",
+    "repopact": "3.0.2",
+    "rustc": "1.96.0",
+    "cargo": "1.96.0",
+    "implementation_commit": "42af857bb19f9586aaba71c0db8f7222a0b7a6c6",
+    "branch": "codex/documentation-modernization"
+  }
+}
