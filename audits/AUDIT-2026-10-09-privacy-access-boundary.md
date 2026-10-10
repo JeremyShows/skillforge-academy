@@ -12,7 +12,7 @@ Verified the canonical public SkillForge repository after transfer, the current 
 ## Verified ownership and organization access
 
 - The canonical SkillForge repository is public under ForgeWireLabs. The former repository path resolves to the transferred repository.
-- PR #18 remains merged. Its head is c492d3f6b242fb4e4bad731cbbedb00c453b3457, and merge commit 8a549b84b429f94d94de0c70ee5e65dffc35ad6d is the current remote main commit.
+- PR #18 remains merged at 8a549b84b429f94d94de0c70ee5e65dffc35ad6d. PR #19 merged after review as 61c36cd8803463101b68a5b9cd336eef670f93af; the WI334 access and onboarding audit remains blocked.
 - Organization and repository access boundaries were inspected using available metadata. Default access restrictions are configured for the planned contributor scope; effective access verification remains pending, and no contributor was added.
 - Repository-level workflow, artifact, and secret-sharing exposure was assessed where metadata was available. Organization-wide workflow policy and secret sharing could not be verified with the available credential. No secret names or values were read.
 - No organization security settings were changed. Any organization-wide access or authentication changes remain owner decisions and are outside this audit's authorization.
@@ -31,11 +31,11 @@ Personal learning materials are maintained outside the contributor-accessible re
 
 ## Contributor governance controls and PR #19 review
 
-The earlier audit snapshot recorded a mandatory human-review gate; that state is historical. The current single-maintainer model permits normal pull-request changes without mandatory GitHub approval while retaining pull-request and repository-integrity controls. Formal GitHub approval is optional; independent technical review and all RepoPact acceptance evidence remain separate requirements. PR #19 is open and WI334 remains blocked.
+The earlier audit snapshot recorded a mandatory human-review gate; that state is historical. The current single-maintainer model permits normal pull-request changes without mandatory GitHub approval while retaining pull-request and repository-integrity controls. Formal GitHub approval is optional; independent technical review and all RepoPact acceptance evidence remain separate requirements. PR #19 merged after independent read-only review of its exact final head; WI334 remains blocked.
 
-The initial `.github/CODEOWNERS` file is introduced by PR #19, so GitHub cannot use it to request review on that same PR. After merge, its listed paths will have documented ownership; availability of a qualified non-author reviewer remains a governance consideration. This is separate from the privacy findings.
+The merged `.github/CODEOWNERS` file assigns maintainers to canonical governance paths and can support voluntary review requests. The active default-branch ruleset requires pull requests and retains repository-integrity protections without mandatory human approval. RepoPact validates record structure and evidence but does not authenticate record authors; a dedicated identity check would be needed to enforce authorship policy before maintainer review.
 
-The independent read-only review of the previous PR head found no P1 or correctness defect and no course, learner, or contact values in the proposed changes; it did identify the P2 metadata over-disclosure addressed by this revision. The updated head remains pending a new independent read-only review; that review does not constitute formal GitHub approval. RepoPact validates record schemas and evidence but does not authenticate record authors. A dedicated CI identity check would be required if policy must reject a non-maintainer's proposed work-item change before maintainer review; that CI control is not configured.
+The independent read-only review of the final PR #19 head found no P1/P2 findings. It confirmed that the earlier P2 metadata over-disclosure was resolved, remaining verification gaps are stated, and no additional personal information or sensitive content was introduced. This review is recorded in the [redacted evidence run](../evidence/runs/20261010-334-independent-review-and-controls.json); it is not formal GitHub approval and does not replace tests or acceptance evidence.
 
 ## Readiness and blockers
 
@@ -46,8 +46,7 @@ Contributor onboarding is **BLOCKED** until all of the following are resolved:
 3. Obtain sufficient read-only access to organization Actions-policy and secret-sharing metadata and personal package metadata, or have the owner verify these boundaries without exposing secret values or course contents.
 4. Have the release owner privately classify the two custom-domain contacts. Until ownership is confirmed, use role-based contacts in future release builds; changing existing release assets remains separately authorized work.
 5. Review historical checkout and source-location metadata and obtain explicit owner authorization before any targeted history remediation. No history was rewritten, branch deleted, PR removed, or evidence deleted.
-6. Obtain independent technical review of the final PR head. Formal GitHub approval is optional under the current single-maintainer model; it is not a substitute for acceptance criteria or validation.
-7. Before contributor invitations are reopened, review organization-wide access and authentication controls; those settings were not changed in this reassessment.
+6. Before contributor invitations are reopened, review organization-wide access and authentication controls; those settings were not changed in this reassessment.
 
 This audit does not establish access by impersonating a new member, and it does not claim that written policy alone enforces work-item governance.
 

@@ -1,6 +1,6 @@
 # 334 — Repository privacy and contributor access boundary audit
 
-> **Status**: Blocked pending effective-access verification, organization Actions/secrets visibility, final contact-data classification, outstanding privacy dispositions, and independent technical review.
+> **Status**: Blocked pending effective-access verification, delegated-access review, organization Actions/secrets visibility, and final contact-data classification.
 > **Owner scope**: Governance, privacy, repository access.
 > **Depends on**: None.
 
@@ -15,7 +15,7 @@ Review public SkillForge content and metadata, organization access settings, and
 ## Verified changes
 
 - Organization and repository access boundaries were reviewed using available metadata. Default access restrictions are configured for the planned contributor scope; effective access verification remains pending.
-- The current single-maintainer workflow retains pull-request and repository-integrity controls without mandatory GitHub approval. `CODEOWNERS` coverage is proposed in PR #19 and can support voluntary reviewer requests after merge; it cannot request a code-owner review for this PR because the base branch does not yet contain the file. Independent technical review remains required where RepoPact specifies it and does not replace tests or acceptance evidence.
+- The current single-maintainer workflow retains pull-request and repository-integrity controls without mandatory GitHub approval. The merged `CODEOWNERS` file identifies maintainers for canonical governance paths. Independent technical review remains required where RepoPact specifies it and does not replace tests or acceptance evidence.
 - Public contributor documentation now uses the canonical organization repository URL and describes the reviewed governance path.
 - Public audit and evidence records report control-level findings and redacted verification gaps without publishing detailed security configuration.
 
@@ -26,6 +26,6 @@ Review public SkillForge content and metadata, organization access settings, and
 - Organization Actions-policy/secrets metadata and personal package metadata were not available through the current credential.
 - Contact metadata in public release assets is conservatively classified as potentially personal because ownership and role use remain unverified. Redacted disposition: do not reuse it in future assets; keep existing releases unchanged pending owner-only classification and any separately authorized remediation.
 - Historical public refs and PR diffs retain checkout or source-location metadata. No shared history, refs, or PR records were modified; any further history remediation requires a separately authorized risk decision.
-- PR #19 still needs an independent technical review of its final head. Formal GitHub approval is no longer a mandatory rule. No invitation or contributor permission change was made.
+- PR #19 merged after independent read-only technical review of its exact final head found no P1/P2 findings. Formal GitHub approval is not mandatory under the current single-maintainer model. No invitation or contributor permission change was made.
 
-See the [privacy and access audit](../../../audits/AUDIT-2026-10-09-privacy-access-boundary.md) and [reassessment evidence](../../../evidence/runs/20261010-334-access-boundary-reassessment.json) for redacted details. Keep this item blocked until every required criterion has supporting evidence.
+See the [privacy and access audit](../../../audits/AUDIT-2026-10-09-privacy-access-boundary.md), [reassessment evidence](../../../evidence/runs/20261010-334-access-boundary-reassessment.json), and [independent review evidence](../../../evidence/runs/20261010-334-independent-review-and-controls.json) for redacted details. Keep this item blocked until every required criterion has supporting evidence.
