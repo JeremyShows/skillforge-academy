@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-3",
-      "text": "Verify with redacted organization metadata and an authorized disposable identity or supported effective-access mechanism that an ordinary new member can access only approved public repositories and cannot access private repositories, the private personal course, learner data, restricted Actions assets, organization secrets, or repository administration.",
+      "text": "Verify with redacted organization metadata and an authorized disposable identity or supported effective-access mechanism that an ordinary new member can access only approved public repositories and cannot access private repositories, the private personal course, learner data, restricted Actions assets, organization secrets, or repository administration. Separately verify metadata-only delegated routes to the private personal-account repository, including personal access tokens, OAuth/GitHub Apps and other integrations, and shared package or artifact access; distinguish those routes from organization membership.",
       "state": "pending",
       "evidence": [
         "20261009-334-public-privacy-access-boundary",

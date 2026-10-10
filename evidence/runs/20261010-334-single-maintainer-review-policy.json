@@ -70,6 +70,7 @@
     "pr_19": "Open, mergeable, clean; REVIEW_REQUIRED cleared; not merged.",
     "wi334": "Blocked pending remaining privacy, effective-access, organization Actions/secrets visibility, contact classification, and independent technical-review evidence.",
     "private_course_contents": "not inspected",
+    "private_account_delegated_access": "Personal access token, OAuth/GitHub App, other integration, and shared package/artifact access paths to the private personal-account repository remain unverified using metadata only.",
     "learner_data": "not inspected",
     "secret_values": "not read",
     "invitations": "none"

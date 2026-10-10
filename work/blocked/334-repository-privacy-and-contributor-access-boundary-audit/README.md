@@ -10,7 +10,7 @@ Establish a least-privilege contributor environment after the repository ownersh
 
 ## Scope
 
-Review public SkillForge content and metadata, organization access settings, and metadata only for the private personal course repository. Do not inspect course contents or learner data, invite contributors, rewrite history, or change repository visibility.
+Review public SkillForge content and metadata, organization access settings, and metadata only for the private personal course repository. Distinguish organization membership from separate personal-account access; verify delegated token, application, integration, package, and shared-artifact routes using metadata only. Do not inspect course contents or learner data, invite contributors, rewrite history, or change repository visibility.
 
 ## Verified changes
 
@@ -23,6 +23,7 @@ Review public SkillForge content and metadata, organization access settings, and
 ## Closeout blockers
 
 - No authorized disposable test identity was available to verify effective permissions.
+- The private personal course repository is outside ForgeWireLabs; organization membership alone does not grant access, but personal access tokens, OAuth/GitHub Apps, other integrations, and shared package/artifact routes remain unverified.
 - Organization Actions-policy/secrets metadata and personal package metadata were not available through the current credential.
 - Two custom-domain contact strings in public release assets are conservatively classified as potentially personal because ownership and role use remain unverified. Redacted disposition: do not reuse them in future assets; keep existing releases unchanged pending owner-only classification and any separately authorized remediation.
 - Historical public refs and PR diffs retain checkout identifiers; a merged PR diff also retains deleted machine-profile path fragments. No shared history, refs, or PR records were modified.
