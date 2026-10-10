@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "323",
+  "title": "Classroom and Authored Activity Layout Usability",
+  "status": "proposed",
+  "owner_scope": "implementation",
+  "affected_scopes": ["implementation", "accessibility", "docs"],
+  "depends_on": ["314", "322"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-06T18:10:00-05:00",
+    "note": "Captured from installed acceptance observations before any UI redesign. The existing shared checkout edits remain untouched; this work item is recorded on the clean public worktree at canonical base 72a8ecba5a9f0cb5a48188b357a59d796515b40e."
+  },
+  "acceptance_criteria": [
+    {
+      "id": "UX323-1",
+      "text": "Reproduce and document the four observed layout problems in representative Classroom, authored activity, lecture, and long-unit views at supported desktop window sizes.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "UX323-2",
+      "text": "Define a readable responsive layout for activity prompts, response controls, actions, lesson text, and long units while preserving clear navigation and progress context.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "UX323-3",
+      "text": "Apply approved layout changes without changing authored runtime evaluation, CourseProgress authority, assessment/remediation semantics, or private course data.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "UX323-4",
+      "text": "Verify desktop resizing and supported narrow layouts, keyboard-only interaction, visible focus, and accessible labels for all affected controls.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "UX323-5",
+      "text": "Record before/after usability evidence and pass applicable accessibility and UI validation gates before marking the candidate complete.",
+      "state": "pending",
+      "evidence": []
+    }
+  ],
+  "created": "2026-10-06",
+  "updated": "2026-10-06",
+  "source": "2026-10-06 installed private-course acceptance, resumed after verified guided-practice completion."
+}

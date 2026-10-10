@@ -10,10 +10,7 @@
     "docs",
     "release"
   ],
-  "depends_on": [
-    "228",
-    "310"
-  ],
+  "depends_on": [],
   "provenance": "concrete",
   "preflight": {
     "created_before_work_started": true,
@@ -23,13 +20,13 @@
   "acceptance_criteria": [
     {
       "id": "LPB-001",
-      "text": "Document the current local-first learner-data boundary and prove beta/pilot participation does not silently authorize telemetry, cloud upload, marketing, model training, publication, or unrelated secondary use.",
+      "text": "Document privacy boundaries for future product features that expand beyond the controlled pilot protections owned by WI333; do not treat pilot participation as authorization for telemetry, cloud upload, marketing, model training, publication, or unrelated secondary use.",
       "state": "pending",
       "evidence": []
     },
     {
       "id": "LPB-002",
-      "text": "Pilot/support workflows use pseudonymous identifiers where practical and keep real learner data, diagnostic details, screenshots, notes, scores, credentials, and other sensitive material out of public issues, test fixtures, CI logs, and RepoPact evidence unless explicitly redacted and authorized.",
+      "text": "Define future support and institutional workflows beyond the controlled pilot in WI333, including pseudonymous identifiers where practical and protections that keep real learner data, diagnostic details, screenshots, notes, scores, credentials, and other sensitive material out of public issues, test fixtures, CI logs, and RepoPact evidence unless explicitly redacted and authorized.",
       "state": "pending",
       "evidence": []
     },

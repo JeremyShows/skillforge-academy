@@ -1,0 +1,71 @@
+{
+  "$schema": "../../schemas/evidence-run.schema.json",
+  "id": "20261009-332-work-reconciliation",
+  "timestamp": "2026-10-10T02:19:32Z",
+  "work_item": "332",
+  "result": "partial",
+  "provenance": "concrete",
+  "commands": [
+    {
+      "command": "python -m repopact.cli dashboard",
+      "exit_code": 0,
+      "summary": "Regenerated the canonical dashboard from the reconciled registry."
+    },
+    {
+      "command": "python -m repopact.cli validate",
+      "exit_code": 0,
+      "summary": "RepoPact governance and canonical registry validation passed."
+    },
+    {
+      "command": "npm run validate:docs",
+      "exit_code": 0,
+      "summary": "Curated local links and anchors, privacy/credential/configured-remote scans, and release metadata validation passed."
+    },
+    {
+      "command": "Read-only registry graph and roadmap coverage audit",
+      "exit_code": 0,
+      "summary": "69 unique work items; no missing dependencies or cycles; all 69 records appear in the roadmap inventory; WI323 fields match the preserved proposal."
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "summary": "No whitespace errors."
+    },
+    {
+      "command": "gh pr create --repo JeremyShows/skillforge-academy --base main --head codex/governance-execution-reconciliation",
+      "exit_code": 0,
+      "summary": "Created PR #16 targeting main."
+    },
+    {
+      "command": "gh api repos/JeremyShows/skillforge-academy/collaborators --paginate --jq '.[].login'; gh pr view 16 --json author,reviewRequests",
+      "exit_code": 0,
+      "summary": "Only collaborator is JeremyShows, also the PR author; no eligible non-author reviewer was available, so a self-review was not requested."
+    }
+  ],
+  "artifacts": [
+    "governance/execution-roadmap.md",
+    "audits/AUDIT-2026-10-09-work-reconciliation.md",
+    "work/proposed/323-classroom-and-authored-activity-layout-usability/work-item.json",
+    "work/proposed/333-pre-pilot-learner-privacy-gate/work-item.json",
+    "https://github.com/JeremyShows/skillforge-academy/pull/16"
+  ],
+  "environment": {
+    "base_revision": "e46d4227117a6a0a16bcb41430cfe429a82de880",
+    "implementation_commit": "3402446250c7ac81529476e8fc5127a9d801eb6a",
+    "worktree": "<machine-specific path redacted>",
+    "repository": "JeremyShows/skillforge-academy",
+    "platform": "Windows",
+    "pull_request": {
+      "number": 16,
+      "state": "OPEN",
+      "draft": false,
+      "head": "3402446250c7ac81529476e8fc5127a9d801eb6a",
+      "url": "https://github.com/JeremyShows/skillforge-academy/pull/16"
+    },
+    "independent_review": {
+      "status": "not_requested",
+      "reason": "Only listed repository collaborator is the authenticated PR author; no eligible independent reviewer is available."
+    },
+    "scope": "Governance and planning reconciliation only; no WI325-WI329 implementation, packaging, installation, private course access, learner data, or release publication."
+  }
+}

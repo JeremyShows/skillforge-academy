@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schemas/work-item.schema.json",
+  "id": "333",
+  "title": "Pre-pilot learner privacy safeguards",
+  "status": "proposed",
+  "owner_scope": "governance",
+  "affected_scopes": ["governance", "foundation", "docs", "release"],
+  "depends_on": ["227", "332"],
+  "provenance": "concrete",
+  "preflight": {
+    "created_before_work_started": true,
+    "created_at": "2026-10-09T21:08:45-05:00",
+    "note": "Separated from WI312 before any new learner collection or controlled pilot; implementation is not started."
+  },
+  "acceptance_criteria": [
+    {
+      "id": "PP-1",
+      "text": "Publish a pre-pilot data boundary stating that learner state remains local by default, participation does not authorize telemetry, cloud upload, marketing, model training, or publication, and any sharing is voluntary and purpose-limited.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "PP-2",
+      "text": "Define the pilot feedback and support workflow using pseudonymous identifiers where practical; prohibit real learner data, notes, scores, credentials, sensitive screenshots, and unredacted diagnostics in public issues, fixtures, CI logs, and RepoPact evidence.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "PP-3",
+      "text": "Document participant notice and consent, data minimization, access and withdrawal, retention and deletion, support contact, and stop conditions before recruitment; collect no birth dates or unrelated identifiers for convenience.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "PP-4",
+      "text": "Set a clear boundary for minors and institution-controlled pilots: pause collection or recruitment that changes the general-audience local-use assumptions until the actual deployment, data flows, and required controls receive qualified review; make no COPPA, FERPA, GDPR, CCPA, or other compliance claim without substantiated facts and controls.",
+      "state": "pending",
+      "evidence": []
+    },
+    {
+      "id": "PP-5",
+      "text": "Review the WI310 pilot runbook against these safeguards, record any required changes, and complete a public-safe evidence and privacy scan before WI228 is activated.",
+      "state": "pending",
+      "evidence": []
+    }
+  ],
+  "created": "2026-10-09",
+  "updated": "2026-10-09",
+  "source": "WI312 dependency audit found its pilot-related privacy protections were sequenced after WI228; split required pre-pilot controls into a separate gate."
+}

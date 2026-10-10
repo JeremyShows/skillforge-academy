@@ -4,9 +4,12 @@
 >
 > Deferred until the pre-beta candidate gate (`310`) is green. Prior UX/IA
 > work (`308`/`309`) and July release-support items (`225`–`227`) are also
-> prerequisites. Resume before public learner recruitment.
+> prerequisites. WI333 is the mandatory pre-pilot privacy gate. WI312 is future
+> institutional/hosted privacy architecture and is not a pilot prerequisite.
+> Resume only after all registered dependencies pass; before any recruitment,
+> confirm the exact candidate identity in the runbook.
 > **Owners**: Steward/Product lead; QA and Content Specialists support.
-> **Depends on**: 219, 220, 221, 222, 225, 226, 227, 308, 309, 310.
+> **Depends on**: 219, 220, 221, 222, 225, 226, 227, 308, 309, 310, 333.
 
 ## Intent
 
@@ -17,6 +20,15 @@ product is understandable, trustworthy, and useful outside our own build bubble.
 `310` supplies the uniquely identifiable Windows candidate, acceptance evidence,
 accessibility cohort decision, and pilot operating rules. This item runs the
 learner loop against that frozen artifact—not against an unpinned `1.4.0` build.
+WI333 supplies the participant-data boundary required before real learners are
+recruited. WI312's later institutional and hosted-data architecture does not
+delay a pilot that stays within WI333's controlled local-first boundary.
+
+The retained WI310 installer is the historical `1.4.1-beta.1` candidate. A
+pilot run against it does not qualify any later v2.0 binary. Any v2.0 learner
+validation must name its own clean source commit, installer hash, runbook, and
+evidence; maintainers must explicitly amend or create the work item that owns
+that candidate before using it for recruitment.
 
 ## Scope
 
