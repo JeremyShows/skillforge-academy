@@ -19,7 +19,7 @@ course material, or learner data was changed.
 The first freshly fetched discovery baseline was `17be629702ef57ffd38db35c5d541745f02e73b0`.
 While this work proceeded, PR #14 and WI330 closeout PR #15 merged; `origin/main`
 advanced to `e46d4227117a6a0a16bcb41430cfe429a82de880`. The governance branch was
-rebased onto that head. The shared checkout was dirty on `local/interview-lab`,
+rebased onto that head. The shared checkout was dirty on `a separate local development workspace`,
 so governance edits remain isolated in a separate worktree.
 
 ## Method
@@ -30,7 +30,7 @@ so governance edits remain isolated in a separate worktree.
 - Inspected local public branches/worktrees, the WI323 candidate worktree,
   remote heads, commit ancestry, and GitHub PRs #1–#15, including the merges
   that landed during reconciliation.
-- Found five commits ahead of canonical main on the dirty `local/interview-lab`
+- Found five commits ahead of canonical main on the dirty `a separate local development workspace`
   checkout; its modified and untracked interview-app files were left untouched.
   The WI323 candidate worktree contains only its proposal and dashboard drift;
   WI324/WI330 worktree heads are merged ancestors. The WI330 worktree's
@@ -111,61 +111,13 @@ Disposition:
 - Preserve WI310's historical candidate evidence; no candidate or publication
   acceptance is claimed.
 
-## P2: Branch-local course and persistence implementation overlaps planned ownership
+## P2: Non-public development work is outside the public evidence boundary
 
-**Status:** Gate O is part of canonical main after PR #16 and becomes effective
-for future implementation when this separate WI332 closeout merges. No
-implementation was integrated, and the source branch remains untouched.
+**Status:** preserved and excluded from public implementation evidence
 
-**Evidence:** `local/interview-lab` is at `cbc4dcd79a67fd589d4251cef82bed1c8064264c`.
-Its common ancestor with the review baseline is `687dfbb85234b0863f5c80f790d9c0e0d7280cb4`; at review, `origin/main` was `e46d4227117a6a0a16bcb41430cfe429a82de880`, 57 commits ahead of the branch and 5 commits behind it. The working tree has no staged changes, eight modified tracked files, and one untracked file. The independent review finding was correct: course progress, learner state, and course styles overlap WI322/WI325/WI329 surfaces.
+A prior reconciliation described a separate non-public development workspace with revision identifiers, source paths, and local state. Those identifying details are removed from current public records. No implementation from that workspace is accepted as evidence for WI322 or WI325–WI329.
 
-**Semantic comparison:** The branch's versions of `src/course/progress.ts` and
-`src/course/types.ts` remove capstone-stage, module-assessment, academic-mastery,
-and assessment-evidence state that exists on review `origin/main`. Its
-`src/state/learnerState.ts` is a distinct browser/Tauri store and lacks the
-canonical-main `importLearnerBackupAtomically` and `importLegacyLearnerState`
-entry points. Its Tauri changes add another course-state command path. These are
-not drop-in implementations of WI322, WI325, WI324, or WI329. Merging or copying
-them wholesale could regress current course and learner-backup contracts.
-
-**Disposition:** Preserve all five committed changes and all uncommitted files
-on the original branch. Do not merge, rebase, cherry-pick, stage, or transfer
-implementation under WI332. WI322/WI325/WI329 must use a clean branch from
-refreshed canonical main and the Gate O contract in
-[`governance/execution-roadmap.md`](../governance/execution-roadmap.md#source-ownership-and-integration-gate).
-No new dependency edges are introduced. The standalone interview academy has no
-canonical owning WI; if maintainers later authorize public productization,
-register a new scoped proposed WI rather than expanding the narrower WI322,
-WI325, or WI329 criteria. Commit-by-commit capabilities, exact path lists,
-working-tree inventory, classification, and required evidence are recorded in
-[`the branch reconciliation report`](../evidence/platform/2026-10-09-wi332-local-interview-lab-reconciliation.md).
-
-The fresh ownership review also found that PR #16 initially added blanket
-WI311/WI322/WI332/WI333 prerequisites to WI326–WI328, although their
-`origin/main` records depended only on WI324. The PR branch restores WI324 as
-their sole direct prerequisite and makes Gate O conditional on edits to a
-protected shared path. Authored-content policy, formal-activity ownership, and
-real-pilot safeguards remain binding only when that scope is entered; they do
-not block disjoint synthetic/runtime work. Independent review confirmed the
-corrected records and roadmap. This correction changes planning records only
-and does not start WI326–WI328 implementation.
-
-The independent review of closeout PR #17 found a remaining overbroad privacy
-dependency: WI325 and WI329 hard-depended on WI333 despite their public-neutral
-or synthetic implementation scope, and the roadmap graph treated WI333 as an
-unconditional WI331 candidate-verification prerequisite. The closeout corrects
-those records and scope gates. WI333 remains mandatory for WI228 and other
-explicitly authorized real-learner pilot participation; WI331 candidate privacy
-checks remain conditional on learner-data use. No implementation was started.
-
-**Required evidence before overlapping implementation:** named maintainer and
-source-workstream owner decision; exact current-main SHA and file/API contract;
-public-safe course/evaluator scope; synthetic progress and backup migration
-fixtures; tests for existing capstone/assessment/resume behavior and legacy
-backup recovery; accessibility/build/Rust validation for the touched surface;
-and independent review. The gate protects shared files only and does not add
-blocking dependencies to disjoint work.
+The public roadmap now requires a scoped work item, explicit source ownership, and privacy review before any separately maintained work can be proposed for integration. No local workspace was changed by this documentation remediation. Older Git objects and merged pull request descriptions retain historical text; shared history and existing evidence were not deleted or rewritten.
 
 ## Evidence
 
@@ -205,7 +157,7 @@ Full inventory and execution map: governance/execution-roadmap.md
 ## Actions
 
 - [x] Obtain independent read-only review with no P1/P2 findings and merge PR #16 at `b2eced6f976624e8867d64d8efa88abe0274f2fe`; complete this separate governance closeout to finish WI332.
-- [x] Inventory and preserve the local interview-lab branch and its uncommitted work; publish Gate O without importing code.
+- [x] Preserve non-public development work outside the public repository; no implementation was imported.
 - [ ] Review and close WI322 before WI323 or any formal-activity contract change.
 - [ ] Complete WI311 before governed authored-content expansion and WI333
       before WI228/real-learner pilot scope; these are not blanket prerequisites

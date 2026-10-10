@@ -249,43 +249,12 @@ phase boundaries. Do not gate preparation on every platform WI. The WI310
 another binary. WI228 remains tied to WI310; a v2 pilot needs its own candidate
 identity, explicit authorization, and evidence.
 
-## Duplicate, overlap, and branch disposition
+## Duplicate, overlap, and development-work disposition
 
-- **WI322 vs WI323:** distinct. WI322 owns activity resolution, evaluation,
-  remediation, progress authority, and completion behavior. WI323 owns layout
-  usability. It waits for WI322 review and cannot change evaluation semantics.
-- **WI323 vs WI314:** distinct. WI314 is broad parity/design; WI323 is a
-  bounded observed layout fix with five original criteria. Keep WI323 as a
-  focused follow-up, not a replacement.
-- **WI324 vs WI325–WI329:** distinct. WI324 owns persistence; WI325 capstone
-  projection, WI326 lecture state, WI327 lab completion/state, WI328 Windows
-  backup/restore, and WI329 legacy adaptation/migration each have separate
-  contracts. No parallel learner-state owner.
-- **WI312 vs WI333:** WI333 protects a local-first pilot; WI312 covers future
-  institutional/hosted/minor-data architecture. The split preserves scope and
-  removes late privacy prerequisites.
-- **WI310 vs WI331:** distinct candidates. WI310 is the historical 1.4.1
-  artifact; WI331 proposes future v2 release work. No evidence/hash transfer.
-- **WI330/WI331:** PR #14 and WI330 closeout PR #15 are merged. WI330 is
-  completed. WI331 remains proposed; preparation depends on WI330, while its
-  candidate and publication gates remain phase-specific.
-- **Unmerged `local/interview-lab` checkout:** five commits diverge from the
-  current main baseline, and its working tree has eight modified tracked files
-  plus one untracked file. The committed course-progress, course-model, learner-
-  state, Tauri, and course-UI changes overlap canonical or proposed ownership;
-  they are not characterized as unrelated. The branch and all local edits are
-  preserved without integration. The exact inventory, semantic comparison,
-  work-item disposition, and source ownership gate are in
-  [`WI332 interview-lab reconciliation evidence`](../evidence/platform/2026-10-09-wi332-interview-lab-reconciliation.md).
-- **WI323 candidate worktree:** its `72a8ecb` base is already an ancestor of
-  canonical main; the only untracked WI323 files were the proposal README and
-  RepoPact record. No WI323 implementation source or evidence was present.
-- **Other registered worktrees:** WI324 and WI330 branch heads are ancestors of
-  current main. The WI330 worktree has an untracked `.venv/`, which remains
-  untouched. The local `main` checkout is behind canonical main with no unique
-  commits. No unrelated branches, worktrees, or untracked files were cleaned.
-- **Historical completed work:** no active duplicate or superseded item found.
-  Preserve historical records and evidence.
+- Canonical work-item records define accepted scope and dependencies.
+- Public-main source and linked evidence define implementation status.
+- Work maintained outside this repository is not implementation evidence and is not included in the roadmap's ownership claims.
+- If separately maintained work is proposed for contribution, create or update a scoped work item and review ownership, privacy, tests, and integration boundaries before accepting it.
 
 ## Contributor ownership and parallelism
 
@@ -315,34 +284,9 @@ merged and reviewed.
 
 ## Source ownership and integration gate
 
-The `local/interview-lab` work is preserved on its original local branch. No
-commit or uncommitted change from that checkout is accepted as implementation
-for WI322, WI325, WI329, WI324, or WI328. The branch has no canonical work-item
-assignment; WI321 is exposure remediation, WI320 establishes the canonical
-course-model boundary, WI322 is the formal-activity bridge, WI325 is capstone
-parity, WI324 owns the learner envelope, WI328 owns bounded native backup/restore,
-and WI329 is legacy certification adaptation. None authorizes this standalone
-interview-course implementation.
+The public repository does not publish private checkout names, private source locations, or local revision details. A proposed contribution must identify its source files in the pull request, map each file to one active work-item owner, and pass privacy and learner-data review before integration.
 
-**Gate O — ownership and baseline.** Until this gate is recorded on canonical
-main, no WI322, WI325, or WI329 implementation may modify the overlapping
-shared files or import the local branch. PR #16 established the reconciliation
-and preserve-only disposition. This separate closeout makes Gate O operative
-when it merges to canonical main. The comparison baseline for this review was
-`origin/main` `e46d4227117a6a0a16bcb41430cfe429a82de880`; every implementation
-must fetch and record the then-current `origin/main` before starting.
-
-| Protected path/surface | Existing branch-local state | Canonical/proposed owner | Parallelism and gate evidence |
-| --- | --- | --- | --- |
-| `src/course/progress.ts`, `src/course/types.ts` | The five-commit branch has alternate definitions and transition/sanitization behavior. Compared with current main it omits main's capstone-stage, module-assessment, academic-mastery, and assessment-evidence fields/logic. | WI322 owns its formal-activity bridge and CourseProgress integration; WI325 owns capstone context/evaluation. Completed WI320 defines the canonical authored-course boundary. | No parallel edit or branch replacement. Start from refreshed main; record exact contract and compatibility mapping. Run focused progression, assessment, remediation, resume, and capstone tests plus the full app test/build gates. |
-| `src/state/learnerState.ts`, `src-tauri/src/lib.rs`, `src-tauri/gen/schemas/*`, `src-tauri/Cargo.toml` | Local branch adds a distinct browser/Tauri course-state store and Tauri commands; the two learner-state implementations differ. Current main has backup import/recovery APIs absent from the local version. | WI324 owns canonical envelope/persistence; WI329 owns any future legacy adapter; WI328 owns its bounded Windows backup/restore feature through WI324. | No replacement, copy, or shared persistence edit without a named integration owner. Use synthetic state only; prove `apex-state` and `.apexbackup` compatibility, namespace/version handling, backup recovery, and failure preservation. Run Rust fmt/check if Rust changes. |
-| `src/course/CourseWorkspace.tsx`, `src/course/course.css`, `src/styles.css` | Course workspace and generic `.course-*` styles are committed locally; `src/course/course.css` also has uncommitted style changes. The selectors are not confined to one private-course screen. | WI325 owns capstone projection/context within the canonical runtime; WI323 owns only its accepted layout work after its dependencies. | Do not concurrently edit shared selectors/components. Separate work in unrelated directories remains parallel-safe; UI integration requires selector/component ownership, responsive/keyboard review, and `npm run validate:a11y`. |
-| `src/interview/evaluator.ts`, `src/interview/academy.ts`, `src/interview/academySession.ts`, `src/interview/rubric.ts` | Interview-specific evaluation/session code exists only in the preserved branch. Private authored course material was not inspected. | No existing WI owns a standalone interview academy. WI322 does not authorize a new evaluator; WI325 does not authorize a second course model. | Preserve only. If public productization is desired, create a new scoped proposed WI with public-safe original content, evaluator contracts, privacy boundaries, and acceptance tests; do not broaden WI322/325/329. |
-| `src/App.tsx`, `src/content/index.ts`, `src/types.ts`, `package.json`, `vite.config.ts`, `src-tauri/Cargo.lock`, `src-tauri/gen/schemas/*`, `src-tauri/tauri.conf.json` | The commits alter app/runtime wiring and build/native surfaces; `src/App.tsx` and `src-tauri/tauri.conf.json` also have uncommitted changes. | No current WI owns wholesale product/runtime identity. WI330 is completed; WI331 remains separately gated release preparation/publication. | No identity, registry, or package change is imported under WI332. Any future productization requires a separate accepted WI, explicit identity decision, safe public content registry, build/package tests, and release review appropriate to scope. |
-
-**Gate O entry/exit.** Entry is triggered by a planned edit to any path above or any attempt to integrate the local branch. The disposition for this reconciliation is **preserve all five commits and all uncommitted edits on `local/interview-lab`; do not merge, rebase, cherry-pick, stage, or transfer them**. The branch's common ancestor is `687dfbb85234b0863f5c80f790d9c0e0d7280cb4`, versus current review main `e46d4227117a6a0a16bcb41430cfe429a82de880` (57 main-only and 5 branch-only commits). That divergent history and the semantic removals make it an unsafe integration base.
-
-For any future overlapping implementation, exit the gate only when: (1) a maintainer records the work-item owner and exact public scope; (2) the source-workstream owner explicitly hands off any selected work; (3) a clean branch starts from the refreshed canonical main SHA with a file/API contract against WI320/WI324; (4) no private content or real learner data is transferred; and (5) required baseline, migration, progression/evaluation, accessibility, and build evidence passes with independent review. If no selected work is to be integrated, the preserve-only disposition remains in force and the item owner implements only its accepted scope from current main. These conditions add no RepoPact dependency edges. WI326–WI328 retain their existing WI324 prerequisite and may work in their separate assigned surfaces; any touch to a protected path re-enters Gate O. Authored-content policy, WI322 formal-activity ownership, and WI333/WI228 real-pilot safeguards apply only when the corresponding scope is entered; they are not blanket prerequisites for these three work items. WI311, WI333, and WI331 preparation retain their existing gates.
+**Gate O entry/exit.** Entry is triggered by a proposed contribution whose ownership or provenance is not established by the public repository. Exit requires a canonical work item, explicit file ownership, public-safe evidence, independent technical review, and the applicable repository checks. Preserved work outside the repository remains unchanged until separately authorized.
 
 ## Governance enforcement and limitations
 

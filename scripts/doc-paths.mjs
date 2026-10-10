@@ -56,3 +56,16 @@ export function findMachineSpecificPaths(source) {
     }))
     .sort((left, right) => left.index - right.index);
 }
+
+// A local branch name can identify a private development checkout even when
+// no machine-specific absolute path or remote URL is present. Require branch,
+// checkout, or worktree context to avoid flagging ordinary phrases such as
+// "local/initiated" or URL hostnames ending in .local.
+const localCheckoutReferencePattern = /\b(?:branch|checkout|worktree)\b[^\r\n]{0,100}\blocal\/[A-Za-z0-9][A-Za-z0-9._-]*/gi;
+
+export function findLocalCheckoutReferences(source) {
+  return [...source.matchAll(localCheckoutReferencePattern)].map(match => ({
+    value: match[0],
+    index: match.index,
+  }));
+}
