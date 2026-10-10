@@ -2,7 +2,7 @@
   "$schema": "../../../schemas/work-item.schema.json",
   "id": "324",
   "title": "Canonical Learner Envelope and Serialized Persistence",
-  "status": "active",
+  "status": "completed",
   "owner_scope": "implementation",
   "affected_scopes": [
     "implementation",
@@ -130,10 +130,11 @@
         "20261009-324-canonical-envelope-persistence",
         "20261009-324-independent-review-fixes",
         "20261009-324-independent-review-remediation",
-        "20261009-324-post-fix-independent-review"
+        "20261009-324-post-fix-independent-review",
+        "20261009-324-governance-closeout"
       ],
       "state": "satisfied",
-      "text": "Public validation, evidence, and privacy scans pass; a separate read-only independent review recommends approval with no P1/P2 release blockers; WI325-WI329 remain proposed follow-ups; implementation stops pending repository governance without merging, release packaging, installation, private-course changes, installed acceptance, or expanding into the deferred WI328 backup/restore workflow.",
+      "text": "Public validation, evidence, and privacy scans pass; independent review recommends approval with no P1/P2 release blockers; the implementation is merged by PR #12 and this work item is completed through its repository governance closeout PR; WI325-WI329 remain proposed follow-ups; no release packaging, installation, private-course changes, installed acceptance, or deferred WI328 backup/restore implementation is included.",
       "id": "AC-13"
     }
   ],
