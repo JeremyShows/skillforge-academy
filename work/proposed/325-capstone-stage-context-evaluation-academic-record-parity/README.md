@@ -2,7 +2,7 @@
 
 > **Status:** Proposed
 > **Owner:** Course runtime / academic feature contributor; persistence integration owner approves shared-contract changes.
-> **Depends on:** WI311, WI322, WI324, WI332, and WI333.
+> **Depends on:** WI311, WI322, WI324, and WI332.
 
 ## Scope and ownership
 
@@ -12,4 +12,4 @@ WI324's `PlatformLearnerEnvelope` remains the only persistence owner. WI325 may 
 
 ## Start and review gates
 
-This item is proposed until WI332's governance gate, WI311, WI322, and WI333 are complete and WI324's owner contract is stable. Use an isolated branch, public-neutral fixtures, focused evaluation and retry tests, Academic Record projection checks, and independent review before merge. Integrate at the Gate 2 checkpoint in `governance/execution-roadmap.md`.
+This item is proposed until WI332's governance gate, WI311, and WI322 are complete and WI324's owner contract is stable. Use an isolated branch, public-neutral fixtures, focused evaluation and retry tests, Academic Record projection checks, and independent review before merge. WI333 is the real-learner pilot privacy gate; it does not block this synthetic implementation scope. Integrate at the Gate 2 checkpoint in `governance/execution-roadmap.md`.

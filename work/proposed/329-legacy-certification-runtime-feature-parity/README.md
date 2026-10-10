@@ -2,7 +2,7 @@
 
 > **Status:** Proposed
 > **Owner:** Data-migration/runtime integration lead, assigned by the maintainer.
-> **Depends on:** WI311, WI320, WI322, WI324, WI325, WI326, WI327, WI328, WI332, and WI333.
+> **Depends on:** WI311, WI320, WI322, WI324, WI325, WI326, WI327, WI328, and WI332.
 
 ## Scope and ownership
 
@@ -16,4 +16,4 @@ Require end-to-end evidence for canonical CourseProgress ownership; legacy certi
 
 ## Start and review gates
 
-This item remains proposed until WI332's governance gate, WI311, WI322, WI333, WI324, and WI325–WI328 are complete. Use an isolated integration branch, an explicit checkpoint with each feature owner, full end-to-end validation, and independent data-migration review before merge.
+This item remains proposed until WI332's governance gate, WI311, WI322, WI324, and WI325–WI328 are complete. Use an isolated integration branch, an explicit checkpoint with each feature owner, full end-to-end validation, and independent data-migration review before merge. WI329 uses public-safe synthetic state and does not recruit learners; WI333 gates WI228 real-learner pilot participation, not this implementation integration.

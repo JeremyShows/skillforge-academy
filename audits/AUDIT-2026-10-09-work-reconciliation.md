@@ -151,6 +151,14 @@ not block disjoint synthetic/runtime work. Independent review confirmed the
 corrected records and roadmap. This correction changes planning records only
 and does not start WI326–WI328 implementation.
 
+The independent review of closeout PR #17 found a remaining overbroad privacy
+dependency: WI325 and WI329 hard-depended on WI333 despite their public-neutral
+or synthetic implementation scope, and the roadmap graph treated WI333 as an
+unconditional WI331 candidate-verification prerequisite. The closeout corrects
+those records and scope gates. WI333 remains mandatory for WI228 and other
+explicitly authorized real-learner pilot participation; WI331 candidate privacy
+checks remain conditional on learner-data use. No implementation was started.
+
 **Required evidence before overlapping implementation:** named maintainer and
 source-workstream owner decision; exact current-main SHA and file/API contract;
 public-safe course/evaluator scope; synthetic progress and backup migration

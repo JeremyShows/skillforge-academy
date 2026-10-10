@@ -1,11 +1,11 @@
 {
   "$schema": "../../schemas/evidence-run.schema.json",
   "id": "20261010-332-governance-closeout",
-  "timestamp": "2026-10-10T03:04:46Z",
+  "timestamp": "2026-10-10T03:11:31Z",
   "work_item": "332",
   "result": "passed",
   "provenance": "concrete",
-  "summary": "PR #16 merged at b2eced6f976624e8867d64d8efa88abe0274f2fe after a fresh independent read-only technical review of head 26f2d749afafdadbadcb7cd09f8ed06d7aced603 found no P1/P2 blockers and recommended merge. This separate governance closeout records that review and merge, closes the reconciliation audit with scoped follow-ups, and completes WI332 without importing feature implementation or changing learner/private course data.",
+  "summary": "PR #16 merged at b2eced6f976624e8867d64d8efa88abe0274f2fe after a fresh independent read-only review of head 26f2d749afafdadbadcb7cd09f8ed06d7aced603 found no P1/P2 blockers and recommended merge. This separate governance closeout records that review and merge, closes the reconciliation audit with scoped follow-ups, and completes WI332 without importing feature implementation or changing learner/private course data. Closeout review found and corrected an overbroad WI333 dependency on synthetic WI325/WI329 work; WI333 remains the hard gate for WI228 real-learner participation, with WI331 candidate privacy checks conditional on learner-data use.",
   "commands": [
     {
       "command": "gh pr view 16 --json state,mergeCommit,mergedAt,headRefOid",
@@ -45,17 +45,17 @@
     {
       "command": "python -m repopact.cli validate",
       "exit_code": 0,
-      "summary": "Repository governance validation passed after the closeout status and evidence updates."
+      "summary": "Repository governance validation passed after the WI333 pilot-scope dependency correction and closeout status/evidence updates."
     },
     {
       "command": "npm run validate:docs",
       "exit_code": 0,
-      "summary": "37 curated Markdown link/anchor files passed; privacy, credential, and configured-remote scans covered 219 repository Markdown files and 159 governance JSON records under evidence/ and work/; release metadata was consistent. External URL availability is not checked."
+      "summary": "37 curated Markdown link/anchor files passed; privacy, credential, and configured-remote scans covered 219 repository Markdown files and 159 governance JSON records; release metadata was consistent. External URL availability is not checked."
     },
     {
       "command": "Python canonical work inventory/roadmap/dependency DAG consistency check",
       "exit_code": 0,
-      "summary": "69 unique records and 69 inventory rows match; no missing IDs, status/dependency/README mismatches, missing prerequisite IDs, or cycles. Statuses: 52 completed, 3 active, 11 proposed, 2 blocked, 1 deferred."
+      "summary": "69 unique records and 69 inventory rows match; no missing IDs, status/dependency/README mismatches, missing prerequisite IDs, or cycles. WI333 gates WI228 real-learner pilot participation, not synthetic WI325/WI329 work; WI331 candidate privacy remains conditional on learner-data use. Statuses: 52 completed, 3 active, 11 proposed, 2 blocked, 1 deferred."
     },
     {
       "command": "git diff --check",
@@ -67,7 +67,8 @@
     "https://github.com/JeremyShows/skillforge-academy/pull/16",
     "work/completed/332-canonical-work-reconciliation-and-gated-execution-plan/README.md",
     "audits/AUDIT-2026-10-09-work-reconciliation.md",
-    "governance/execution-roadmap.md"
+    "governance/execution-roadmap.md",
+    "https://github.com/JeremyShows/skillforge-academy/pull/17"
   ],
   "environment": {
     "repository": "JeremyShows/skillforge-academy",
@@ -79,6 +80,8 @@
     "formal_github_approval_required": false,
     "source_branch_modified": false,
     "private_course_content_opened": false,
-    "learner_data_accessed": false
+    "learner_data_accessed": false,
+    "closeout_pr": 17,
+    "privacy_gate_scope_correction": "WI333 remains required before WI228 real-learner participation; removed as a hard prerequisite from synthetic WI325/WI329 work; WI331 candidate privacy is conditional on learner-data use."
   }
 }
