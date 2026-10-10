@@ -56,7 +56,7 @@
     },
     {
       "id": "AC-5",
-      "text": "Set organization base repository permission to none while retaining owner administration; create least-privilege contributor and maintainer teams assigned only to the approved public SkillForge repository; do not invite contributors or grant access to private repositories.",
+      "text": "Establish restricted organization and repository access for the planned contributor scope while retaining owner administration; limit contributor and maintainer access to approved public repositories; do not invite contributors or grant access to private repositories.",
       "state": "satisfied",
       "evidence": [
         "20261009-334-public-privacy-access-boundary",

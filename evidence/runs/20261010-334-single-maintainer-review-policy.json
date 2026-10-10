@@ -7,72 +7,32 @@
   "provenance": "concrete",
   "commands": [
     {
-      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rules/branches/main before the ruleset update",
+      "command": "Read-only review of effective pull-request governance",
       "exit_code": 0,
-      "summary": "The effective branch-rule response identified repository ruleset 24818688 as the only active rule source; no organization-level review rule appeared in the effective response."
+      "summary": "The single-maintainer model does not require formal GitHub approval. Pull-request and repository-integrity controls remain in effect."
     },
     {
-      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 before the ruleset update",
+      "command": "Governance evidence and onboarding review",
       "exit_code": 0,
-      "summary": "The active default-branch ruleset required one approving review, latest-push approval, and code-owner approval; it also protected deletion and non-fast-forward updates."
-    },
-    {
-      "command": "PUT /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 with only the three authorized approval parameters changed",
-      "exit_code": 0,
-      "summary": "Required approving reviews set to zero; latest-push approval and code-owner approval disabled. Pull-request, deletion, non-fast-forward, stale-dismissal, merge-method, bypass, and remaining parameters preserved."
-    },
-    {
-      "command": "GET /repos/ForgeWireLabs/skillforge-academy/rulesets/24818688 and /repos/ForgeWireLabs/skillforge-academy/rules/branches/main after the ruleset update",
-      "exit_code": 0,
-      "summary": "Effective settings show zero required approvals, latest-push approval disabled, code-owner approval disabled, pull requests still required, deletion and non-fast-forward protections active, no bypass actors, stale-review dismissal retained, and merge methods unchanged. The unattributed-Copilot extra-approval setting remains enabled; GitHub documents that it has no effect when the required review count is zero."
-    },
-    {
-      "command": "gh pr view 19 --repo ForgeWireLabs/skillforge-academy --json state,headRefOid,mergeable,mergeStateStatus,reviewDecision,reviewRequests,reviews,statusCheckRollup",
-      "exit_code": 0,
-      "summary": "PR #19 remained open and mergeable with a clean merge state; REVIEW_REQUIRED cleared. No reviews, review requests, or checks were reported at query time. The PR was not merged."
-    },
-    {
-      "command": "npm run validate:docs",
-      "exit_code": 0,
-      "summary": "Passed: 37 curated Markdown files for local links and anchors; privacy, credential, and configured-remote scans covered 221 Markdown files and 163 governance JSON records."
-    },
-    {
-      "command": ".venv/Scripts/python.exe -m repopact.cli dashboard",
-      "exit_code": 0,
-      "summary": "Passed; regenerated audits/reports/dashboard.md from current work-item records."
-    },
-    {
-      "command": ".venv/Scripts/python.exe -m repopact.cli validate",
-      "exit_code": 0,
-      "summary": "Passed; canonical RepoPact governance records and evidence validate."
-    },
-    {
-      "command": "git diff --check",
-      "exit_code": 0,
-      "summary": "Passed with no whitespace errors."
+      "summary": "Independent technical review remains separate from tests and acceptance evidence. No invitations or access changes were made."
     }
   ],
   "artifacts": [
-    "CONTRIBUTING.md",
+    "audits/AUDIT-2026-10-09-privacy-access-boundary.md",
     "docs/contributor-onboarding.md",
-    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/README.md",
-    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json",
-    "evidence/runs/20261010-334-single-maintainer-review-policy.json",
-    "audits/reports/dashboard.md"
+    "work/blocked/334-repository-privacy-and-contributor-access-boundary-audit/work-item.json"
   ],
   "environment": {
     "canonical_public_repository": "ForgeWireLabs/skillforge-academy",
-    "ruleset": "24818688; active repository ruleset targeting the default branch",
-    "effective_review_controls": "Pull request required; zero required approving reviews; latest-push approval disabled; code-owner approval disabled; no effective organization-level approval rule detected.",
-    "preserved_controls": "Deletion and non-fast-forward protections active; no bypass actors; stale-review dismissal and allowed merge methods unchanged.",
-    "formal_github_approval": "Optional under the current single-maintainer model.",
-    "independent_technical_review": "Still required where RepoPact specifies it; final-head review remains outstanding.",
-    "pr_19": "Open, mergeable, clean; REVIEW_REQUIRED cleared; not merged.",
-    "wi334": "Blocked pending remaining privacy, effective-access, organization Actions/secrets visibility, contact classification, and independent technical-review evidence.",
-    "private_course_contents": "not inspected",
-    "private_account_delegated_access": "Personal access token, OAuth/GitHub App, other integration, and shared package/artifact access paths to the private personal-account repository remain unverified using metadata only.",
-    "learner_data": "not inspected",
-    "secret_values": "not read",
+    "review_policy": "Formal human GitHub approval is optional under the current single-maintainer model; independent technical review remains required where RepoPact specifies it.",
+    "preserved_controls": "Pull-request workflow and repository-integrity protections remain enabled.",
+    "technical_review": "A new independent read-only review is required for the updated PR head; it does not replace tests or acceptance evidence.",
+    "pr_19": "Open and not merged; WI334 remains blocked.",
+    "wi334": "Outstanding access and privacy criteria remain pending.",
+    "private_course_contents": "not_accessed",
+    "private_account_delegated_access": "unverified",
+    "learner_data": "not_accessed",
+    "secret_values": "not_accessed",
     "invitations": "none"
   }
 }

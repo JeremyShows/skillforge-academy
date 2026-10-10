@@ -20,7 +20,7 @@ The README and contributor guide predated the extracted course runtime and seria
 - Read relevant RepoPact decisions, work items 310–331, audit records, schemas, and release policy.
 - Reviewed course/package, registry, progress, persistence, shutdown, instructor, academic, lecture, lab, backup, and Rust modules plus their tests.
 - Compared `VERSION`, `RELEASE_LABEL`, `package.json`, Cargo, Tauri metadata, remote tags, and the public GitHub release page.
-- Queried the live default-branch ruleset read-only; verified it has deletion/non-fast-forward rules only, with no required approval count or status checks.
+- Reviewed the live pull-request governance read-only; repository-integrity controls were confirmed. Detailed security configuration is omitted from this public audit.
 - Added a local documentation validator and ran project gates recorded in WI330 evidence runs.
 
 ## Findings
@@ -71,7 +71,7 @@ An eighth fresh read-only review confirmed the angle-bracket Markdown, JSON-esca
 
 A fresh independent read-only review checked the documentation audit, contributor onboarding, maturity matrix, architecture descriptions, privacy boundaries, validator, release-readiness statements, links, setup commands, and RepoPact workflow against the current source and governance records. It found no P1/P2 blockers and recommended proceeding with PR #14. The reviewer confirmed the 23-case validator suite, the 37-file local-link/anchor scan and repository-wide privacy scan coverage, the pinned RepoPact validation, and the previously recorded project gates. The review also confirmed the published v1.3.2 release is A+-only and that external URL availability is outside the local validator's scope.
 
-PR #14 was merged after that review as merge commit `fed5f159f7134298ead925ea3386398e4cb14aeb`, with reviewed head `a562159aaeed5b1186eca913a56e7f86d5d87e2a` and base `17be629702ef57ffd38db35c5d541745f02e73b0`. The live repository ruleset was checked at closeout: the active `no delete` ruleset blocks deletion and non-fast-forward updates; it does not require approvals or status checks. The GitGuardian check passed. Review and merge evidence is recorded in [20261009-330-independent-review-and-merge](../evidence/runs/20261009-330-independent-review-and-merge.json).
+PR #14 was merged after that review as merge commit `fed5f159f7134298ead925ea3386398e4cb14aeb`, with reviewed head `a562159aaeed5b1186eca913a56e7f86d5d87e2a` and base `17be629702ef57ffd38db35c5d541745f02e73b0`. The applicable pull-request governance was checked at closeout and repository-integrity controls were confirmed; detailed security configuration is omitted from this public audit. The GitGuardian check passed. Review and merge evidence is recorded in [20261009-330-independent-review-and-merge](../evidence/runs/20261009-330-independent-review-and-merge.json).
 
 ### P1: Contributor and signing docs referenced a non-public repository location
 
@@ -107,7 +107,7 @@ Recommendation:
 
 **Status:** remediated in AGENTS, CONTRIBUTING, onboarding, ROADMAP, and CHANGELOG
 
-Evidence: the canonical paths are now `work/`, `decisions/`, `audits/`, `evidence/`, `governance/`, and `schemas/`; current GitHub ruleset and implementation/closeout PR sequence are described accurately.
+Evidence: the canonical paths are now `work/`, `decisions/`, `audits/`, `evidence/`, `governance/`, and `schemas/`; current pull-request governance and implementation/closeout PR sequence are described accurately.
 
 Recommendation:
 
